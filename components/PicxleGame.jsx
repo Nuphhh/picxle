@@ -45,6 +45,7 @@ export default function PicxleGame() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imgReady, setImgReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [countdown, setCountdown] = useState("");
   const [hintOpen, setHintOpen] = useState(false);
   // Fetched from /api/puzzle/reveal only after the game ends.
   const [revealedAnswer, setRevealedAnswer] = useState(null);
@@ -162,6 +163,26 @@ export default function PicxleGame() {
   useEffect(() => {
     document.body.style.background = C.ink;
   }, [C.ink]);
+
+  // Countdown to next puzzle — ticks every second once the game ends
+  useEffect(() => {
+    if (status === "playing") return;
+    const tick = () => {
+      const now = new Date();
+      const midnight = new Date();
+      midnight.setUTCHours(24, 0, 0, 0);
+      const diff = midnight - now;
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setCountdown(
+        `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+      );
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [status]);
 
   // ── Input ──
   const handleInputChange = (e) => {
@@ -427,6 +448,14 @@ export default function PicxleGame() {
             style={{ background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
             {copied ? "COPIED ✓" : "SHARE RESULT"}
           </button>
+          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+            <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "1px", margin: 0 }}>
+              NEXT PICXLE IN
+            </p>
+            <p style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: 22, fontWeight: 700, color: C.cream, margin: 0, letterSpacing: "2px" }}>
+              {countdown}
+            </p>
+          </div>
         </div>
       )}
     </div>
