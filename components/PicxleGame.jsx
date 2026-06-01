@@ -1,62 +1,54 @@
 "use client";
-// "use client" tells Next.js this component runs in the browser, not on the server.
-// We need it because this component uses useState, useEffect, canvas, and other
-// browser-only APIs that don't exist on the server.
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, LAUNCH_EPOCH_DAY, CATEGORY_HINTS } from "@/data/puzzles";
+import { DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
 
 const DARK = {
   ink:      "#17130d",
   ink2:     "#221b12",
   cream:    "#f4ead7",
   creamDim: "#cdbfa6",
-  coral:    "#6b7280",  // SKIP, wrong rows
+  coral:    "#6b7280",
   green:    "#46c46a",
-  amber:    "#3b82f6",  // GUESS, logo X
+  amber:    "#3b82f6",
   line:     "#3a3024",
 };
 
 const LIGHT = {
-  ink:      "#faf6ef",  // warm paper white
-  ink2:     "#ede8de",  // warm cream surface
-  cream:    "#1c1208",  // near-black text
-  creamDim: "#7a6548",  // warm brown dim text
-  coral:    "#6b7280",  // SKIP, wrong rows (same)
-  green:    "#16a34a",  // green-600, readable on light bg
-  amber:    "#3b82f6",  // GUESS, logo X (same)
-  line:     "#d4c4b0",  // warm light border
+  ink:      "#faf6ef",
+  ink2:     "#ede8de",
+  cream:    "#1c1208",
+  creamDim: "#7a6548",
+  coral:    "#6b7280",
+  green:    "#16a34a",
+  amber:    "#3b82f6",
+  line:     "#d4c4b0",
 };
 
-// Strip everything except lowercase letters and spaces so "Mona Lisa" === "mona lisa"
 const norm = (s) =>
   s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
-
-// Puzzle index = days elapsed since launch date, wrapping around the pool.
-// Everyone on the same UTC day gets the same puzzle.
-const todayIdx = () => (Math.floor(Date.now() / 86400000) - LAUNCH_EPOCH_DAY) % PUZZLES.length;
 
 export default function PicxleGame() {
   const [isDark, setIsDark] = useState(true);
   const C = isDark ? DARK : LIGHT;
 
-  const [puzzleIdx, setPuzzleIdx] = useState(todayIdx);
-  const puzzle = PUZZLES[puzzleIdx];
+  // puzzle is fetched from /api/puzzle/today — it never contains the answer.
+  const [puzzle, setPuzzle] = useState(null);
+  const [puzzleError, setPuzzleError] = useState(false);
 
-  const [guesses, setGuesses] = useState([]);   // { text: string, correct: boolean }[]
+  const [guesses, setGuesses] = useState([]);
   const [input, setInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [status, setStatus] = useState("playing"); // "playing" | "won" | "lost"
+  const [status, setStatus] = useState("playing");
   const [shake, setShake] = useState(false);
   const [copied, setCopied] = useState(false);
-  // imgReady flips to true once the image has loaded into the offscreen canvas.
-  // We need this because image loading is async — the canvas can't draw until it arrives.
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [imgReady, setImgReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hintOpen, setHintOpen] = useState(false);
+  // Fetched from /api/puzzle/reveal only after the game ends.
+  const [revealedAnswer, setRevealedAnswer] = useState(null);
 
-  // srcRef holds an offscreen 440×440 canvas with the full-resolution source image.
-  // We draw from it repeatedly at different resolutions to create the pixelation effect.
   const srcRef = useRef(null);
   const canvasRef = useRef(null);
   const modalCanvasRef = useRef(null);
@@ -67,43 +59,46 @@ export default function PicxleGame() {
     ? FULL_RES
     : RES_STEPS[Math.min(guessesMade, RES_STEPS.length - 1)];
 
-  // Reset everything when the user cycles to a different puzzle (testing only)
+  // ── Fetch today's puzzle from the API on mount ──
   useEffect(() => {
-    setGuesses([]);
-    setInput("");
-    setSuggestions([]);
-    setStatus("playing");
-    setShake(false);
-    setImgReady(false);
-    setIsExpanded(false);
-    setHintOpen(false);
-    srcRef.current = null;
-  }, [puzzleIdx]);
+    fetch("/api/puzzle/today")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.error) { setPuzzleError(true); return; }
+        setPuzzle(data);
+      })
+      .catch(() => setPuzzleError(true));
+  }, []);
 
-  // Load the puzzle image into an offscreen canvas.
-  // We do this once per puzzle. The result is stored in srcRef so draw() can use it.
+  // ── Fetch the answer once the game ends so we can show it ──
   useEffect(() => {
+    if (status === "playing" || !puzzle) return;
+    fetch("/api/puzzle/reveal")
+      .then((r) => r.json())
+      .then((data) => setRevealedAnswer(data.answer ?? null))
+      .catch(() => {});
+  }, [status, puzzle]);
+
+  // ── Load the puzzle image into an offscreen 440×440 canvas ──
+  useEffect(() => {
+    if (!puzzle) return;
+    setImgReady(false);
+    srcRef.current = null;
+
     const img = new Image();
-    // crossOrigin = "anonymous" lets canvas read pixel data from external images
-    // without the browser blocking it with a CORS error.
     img.crossOrigin = "anonymous";
-    img.src = puzzle.src;
+    img.src = puzzle.image_src;
 
     img.onload = () => {
       const s = document.createElement("canvas");
-      s.width = 440;
-      s.height = 440;
+      s.width = 440; s.height = 440;
       const ctx = s.getContext("2d");
-
-      // Center-crop the image to a square, then scale it to fill 440×440.
-      // A landscape photo loses top/bottom; a portrait loses left/right.
       const side = Math.min(img.naturalWidth, img.naturalHeight);
       const sx = (img.naturalWidth - side) / 2;
       const sy = (img.naturalHeight - side) / 2;
       ctx.drawImage(img, sx, sy, side, side, 0, 0, 440, 440);
-
       srcRef.current = s;
-      setImgReady(true); // triggers the draw effect below
+      setImgReady(true);
     };
 
     img.onerror = () => {
@@ -120,34 +115,25 @@ export default function PicxleGame() {
     };
   }, [puzzle]);
 
-  // Render one pixelated frame to the visible canvas.
-  // The trick: shrink the source down to a tiny `res × res` grid (e.g. 7×7),
-  // then blow it back up to 300×300 with smoothing OFF — that creates the blocky look.
+  // ── Pixelation draw ──
   const draw = useCallback(() => {
     const cv = canvasRef.current;
     const src = srcRef.current;
     if (!cv || !src) return;
-
     const ctx = cv.getContext("2d");
     const tmp = document.createElement("canvas");
-    tmp.width = res;
-    tmp.height = res;
+    tmp.width = res; tmp.height = res;
     const tctx = tmp.getContext("2d");
-
-    tctx.imageSmoothingEnabled = true;        // smooth on the way down (looks better)
+    tctx.imageSmoothingEnabled = true;
     tctx.drawImage(src, 0, 0, res, res);
-
-    ctx.imageSmoothingEnabled = false;        // NO smoothing on the way up → hard pixels
+    ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, cv.width, cv.height);
     ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
   }, [res]);
 
-  // Re-draw whenever: the resolution changes (new guess), game ends, or image loads
-  useEffect(() => {
-    draw();
-  }, [draw, status, imgReady]);
+  useEffect(() => { draw(); }, [draw, status, imgReady]);
 
-  // Draw the same pixelated frame onto the larger modal canvas when it opens
+  // ── Modal canvas ──
   useEffect(() => {
     if (!isExpanded) return;
     const cv = modalCanvasRef.current;
@@ -155,8 +141,7 @@ export default function PicxleGame() {
     if (!cv || !src) return;
     const ctx = cv.getContext("2d");
     const tmp = document.createElement("canvas");
-    tmp.width = res;
-    tmp.height = res;
+    tmp.width = res; tmp.height = res;
     const tctx = tmp.getContext("2d");
     tctx.imageSmoothingEnabled = true;
     tctx.drawImage(src, 0, 0, res, res);
@@ -165,7 +150,7 @@ export default function PicxleGame() {
     ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
   }, [isExpanded, res, imgReady]);
 
-  // Close any open modal on Escape
+  // ── Keyboard / body ──
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") { setIsExpanded(false); setHintOpen(false); }
@@ -174,11 +159,11 @@ export default function PicxleGame() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Keep the body background in sync so there's no colour gap behind the component
   useEffect(() => {
     document.body.style.background = C.ink;
   }, [C.ink]);
 
+  // ── Input ──
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInput(val);
@@ -192,12 +177,26 @@ export default function PicxleGame() {
     setSuggestions([]);
   };
 
-  const submit = () => {
-    if (status !== "playing") return;
+  // ── Guess — now async, validated server-side ──
+  const submit = async () => {
+    if (status !== "playing" || !puzzle || isSubmitting) return;
     const g = norm(input);
     if (!g) return;
 
-    const correct = puzzle.accepts.some((a) => norm(a) === g);
+    setIsSubmitting(true);
+    let correct = false;
+    try {
+      const res = await fetch("/api/guess", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puzzleId: puzzle.id, guess: g }),
+      });
+      ({ correct } = await res.json());
+    } catch {
+      // Network error — treat as wrong guess rather than crashing
+    }
+    setIsSubmitting(false);
+
     const next = [...guesses, { text: input.trim(), correct, skipped: false }];
     setGuesses(next);
     setInput("");
@@ -213,7 +212,6 @@ export default function PicxleGame() {
     }
   };
 
-  // Skip costs a turn (advances the resolution) without requiring a typed guess.
   const skip = () => {
     if (status !== "playing") return;
     setSuggestions([]);
@@ -242,6 +240,23 @@ export default function PicxleGame() {
   const rows = [];
   for (let i = 0; i < MAX_GUESSES; i++) rows.push(guesses[i] || null);
 
+  // ── Loading / error states ──
+  if (puzzleError) {
+    return (
+      <div style={{ background: C.ink, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.creamDim, fontFamily: "var(--font-space-mono), monospace", fontSize: 14 }}>
+        No puzzle today — check back tomorrow.
+      </div>
+    );
+  }
+
+  if (!puzzle) {
+    return (
+      <div style={{ background: C.ink, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.creamDim, fontFamily: "var(--font-space-mono), monospace", fontSize: 13, letterSpacing: "1px" }}>
+        LOADING…
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
@@ -251,7 +266,6 @@ export default function PicxleGame() {
         flexDirection: "column",
         alignItems: "center",
         padding: "28px 18px 40px",
-        // Use the CSS variables set by Next.js font loader in layout.js
         fontFamily: "var(--font-space-mono), monospace",
         color: C.cream,
       }}
@@ -276,38 +290,20 @@ export default function PicxleGame() {
 
       {/* ── Header ── */}
       <div style={{ textAlign: "center", marginBottom: 18, position: "relative" }}>
-        {/* Dark / light toggle */}
         <button
           onClick={() => setIsDark((d) => !d)}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
           style={{
-            position: "absolute",
-            top: 0,
-            right: 0,
-            background: "transparent",
-            border: `1px solid ${C.line}`,
-            borderRadius: 20,
-            padding: "4px 10px",
-            fontSize: 14,
-            cursor: "pointer",
-            color: C.creamDim,
-            lineHeight: 1,
+            position: "absolute", top: 0, right: 0,
+            background: "transparent", border: `1px solid ${C.line}`,
+            borderRadius: 20, padding: "4px 10px", fontSize: 14,
+            cursor: "pointer", color: C.creamDim, lineHeight: 1,
           }}
         >
           {isDark ? "☀" : "☾"}
         </button>
 
-        <h1
-          style={{
-            fontFamily: "var(--font-bricolage), sans-serif",
-            fontWeight: 800,
-            fontSize: 46,
-            letterSpacing: "-1.5px",
-            margin: 0,
-            lineHeight: 1,
-            color: C.cream,
-          }}
-        >
+        <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 46, letterSpacing: "-1.5px", margin: 0, lineHeight: 1, color: C.cream }}>
           PIC<span style={{ color: C.amber }}>X</span>LE
         </h1>
         <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px" }}>
@@ -316,16 +312,9 @@ export default function PicxleGame() {
         <button
           onClick={() => setHintOpen(true)}
           style={{
-            display: "inline-block",
-            marginTop: 10,
-            padding: "3px 12px",
-            borderRadius: 20,
-            border: `1px solid ${C.line}`,
-            background: "transparent",
-            fontSize: 11,
-            letterSpacing: "1.5px",
-            color: C.creamDim,
-            cursor: "pointer",
+            display: "inline-block", marginTop: 10, padding: "3px 12px",
+            borderRadius: 20, border: `1px solid ${C.line}`, background: "transparent",
+            fontSize: 11, letterSpacing: "1.5px", color: C.creamDim, cursor: "pointer",
             transition: "border-color .15s, color .15s",
           }}
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
@@ -337,74 +326,14 @@ export default function PicxleGame() {
 
       {/* ── Category hint modal ── */}
       {hintOpen && (
-        <div
-          onClick={() => setHintOpen(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,.88)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100,
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: C.ink2,
-              border: `1px solid ${C.line}`,
-              borderRadius: 16,
-              padding: "24px 20px",
-              width: "min(90vw, 380px)",
-              maxHeight: "75vh",
-              display: "flex",
-              flexDirection: "column",
-              position: "relative",
-            }}
-          >
-            <button
-              onClick={() => setHintOpen(false)}
-              style={{
-                position: "absolute",
-                top: 12,
-                right: 12,
-                width: 28,
-                height: 28,
-                borderRadius: "50%",
-                background: C.line,
-                border: "none",
-                color: C.cream,
-                fontSize: 18,
-                lineHeight: 1,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              ×
-            </button>
-            <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 18, color: C.cream, marginBottom: 4 }}>
-              {puzzle.category}
-            </p>
-            <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "0.5px", marginBottom: 16 }}>
-              Today's image is one of these.
-            </p>
+        <div onClick={() => setHintOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "24px 20px", width: "min(90vw, 380px)", maxHeight: "75vh", display: "flex", flexDirection: "column", position: "relative" }}>
+            <button onClick={() => setHintOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: C.line, border: "none", color: C.cream, fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+            <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 18, color: C.cream, marginBottom: 4 }}>{puzzle.category}</p>
+            <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "0.5px", marginBottom: 16 }}>Today's image is one of these.</p>
             <div style={{ overflowY: "auto", display: "flex", flexWrap: "wrap", gap: 8 }}>
               {(CATEGORY_HINTS[puzzle.category] ?? []).map((item) => (
-                <span
-                  key={item}
-                  style={{
-                    padding: "4px 10px",
-                    borderRadius: 20,
-                    border: `1px solid ${C.line}`,
-                    fontSize: 12,
-                    color: C.creamDim,
-                  }}
-                >
-                  {item}
-                </span>
+                <span key={item} style={{ padding: "4px 10px", borderRadius: 20, border: `1px solid ${C.line}`, fontSize: 12, color: C.creamDim }}>{item}</span>
               ))}
             </div>
           </div>
@@ -414,98 +343,20 @@ export default function PicxleGame() {
       {/* ── Image canvas ── */}
       <div
         onClick={() => imgReady && setIsExpanded(true)}
-        style={{
-          position: "relative",
-          padding: 8,
-          background: C.ink2,
-          borderRadius: 18,
-          border: `1px solid ${C.line}`,
-          boxShadow: "0 18px 40px -20px #000",
-          animation: shake ? "shk .38s ease" : "none",
-          cursor: imgReady ? "zoom-in" : "default",
-        }}
+        style={{ position: "relative", padding: 8, background: C.ink2, borderRadius: 18, border: `1px solid ${C.line}`, boxShadow: "0 18px 40px -20px #000", animation: shake ? "shk .38s ease" : "none", cursor: imgReady ? "zoom-in" : "default" }}
       >
-        <canvas
-          ref={canvasRef}
-          width={300}
-          height={300}
-          style={{
-            width: 300,
-            height: 300,
-            borderRadius: 12,
-            display: "block",
-            imageRendering: "pixelated",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: 16,
-            left: 16,
-            background: "rgba(0,0,0,.45)",
-            color: C.cream,
-            fontSize: 11,
-            padding: "3px 8px",
-            borderRadius: 6,
-            letterSpacing: "1px",
-          }}
-        >
+        <canvas ref={canvasRef} width={300} height={300} style={{ width: 300, height: 300, borderRadius: 12, display: "block", imageRendering: "pixelated" }} />
+        <div style={{ position: "absolute", top: 16, left: 16, background: "rgba(0,0,0,.45)", color: C.cream, fontSize: 11, padding: "3px 8px", borderRadius: 6, letterSpacing: "1px" }}>
           {!imgReady ? "LOADING…" : revealed ? "FULL RES" : `${res}×${res} PX`}
         </div>
       </div>
 
       {/* ── Fullscreen modal ── */}
       {isExpanded && (
-        <div
-          onClick={() => setIsExpanded(false)}
-          style={{
-            position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,.88)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 100,
-          }}
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{ position: "relative" }}
-          >
-            <canvas
-              ref={modalCanvasRef}
-              width={600}
-              height={600}
-              style={{
-                width: "min(88vw, 80vh)",
-                height: "min(88vw, 80vh)",
-                imageRendering: "pixelated",
-                borderRadius: 16,
-                display: "block",
-              }}
-            />
-            <button
-              onClick={() => setIsExpanded(false)}
-              style={{
-                position: "absolute",
-                top: -14,
-                right: -14,
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                background: C.ink2,
-                border: `1px solid ${C.line}`,
-                color: C.cream,
-                fontSize: 20,
-                lineHeight: 1,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              ×
-            </button>
+        <div onClick={() => setIsExpanded(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ position: "relative" }}>
+            <canvas ref={modalCanvasRef} width={600} height={600} style={{ width: "min(88vw, 80vh)", height: "min(88vw, 80vh)", imageRendering: "pixelated", borderRadius: 16, display: "block" }} />
+            <button onClick={() => setIsExpanded(false)} style={{ position: "absolute", top: -14, right: -14, width: 32, height: 32, borderRadius: "50%", background: C.ink2, border: `1px solid ${C.line}`, color: C.cream, fontSize: 20, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
           </div>
         </div>
       )}
@@ -513,33 +364,12 @@ export default function PicxleGame() {
       {/* ── Guess rows ── */}
       <div style={{ display: "flex", flexDirection: "column", gap: 7, margin: "18px 0", width: 316 }}>
         {rows.map((g, i) => {
-          const borderColor = g
-            ? g.correct ? C.green : g.skipped ? C.amber : C.coral
-            : C.line;
-          const bg = g
-            ? g.correct ? "rgba(70,196,106,.12)" : g.skipped ? "rgba(255,182,39,.08)" : "rgba(255,90,54,.10)"
-            : "transparent";
-          const icon = g
-            ? g.correct ? "✓" : g.skipped ? "→" : "✗"
-            : i + 1;
-          const iconColor = g
-            ? g.correct ? C.green : g.skipped ? C.amber : C.coral
-            : C.line;
-
+          const borderColor = g ? (g.correct ? C.green : g.skipped ? C.amber : C.coral) : C.line;
+          const bg = g ? (g.correct ? "rgba(70,196,106,.12)" : g.skipped ? "rgba(59,130,246,.08)" : "rgba(107,114,128,.10)") : "transparent";
+          const icon = g ? (g.correct ? "✓" : g.skipped ? "→" : "✗") : i + 1;
+          const iconColor = g ? (g.correct ? C.green : g.skipped ? C.amber : C.coral) : C.line;
           return (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "9px 12px",
-                borderRadius: 9,
-                border: `1px solid ${borderColor}`,
-                background: bg,
-                animation: g ? "pop .25s ease" : "none",
-              }}
-            >
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: `1px solid ${borderColor}`, background: bg, animation: g ? "pop .25s ease" : "none" }}>
               <span style={{ color: iconColor, fontWeight: 700, width: 16 }}>{icon}</span>
               <span style={{ fontSize: 14, textTransform: "lowercase", color: g ? (g.skipped ? C.creamDim : C.cream) : C.line }}>
                 {g ? (g.skipped ? "skipped" : g.text) : "—"}
@@ -549,10 +379,9 @@ export default function PicxleGame() {
         })}
       </div>
 
-      {/* ── Input or end-game panel ── */}
+      {/* ── Input or end-game ── */}
       {status === "playing" ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 316 }}>
-          {/* Input with autocomplete suggestions */}
           <div style={{ position: "relative" }}>
             <input
               value={input}
@@ -560,160 +389,46 @@ export default function PicxleGame() {
               onKeyDown={(e) => e.key === "Enter" && submit()}
               onBlur={() => setTimeout(() => setSuggestions([]), 150)}
               placeholder="type your guess"
-              style={{
-                width: "100%",
-                background: C.ink2,
-                border: `1px solid ${C.line}`,
-                borderRadius: 9,
-                padding: "12px 14px",
-                color: C.cream,
-                fontFamily: "var(--font-space-mono), monospace",
-                fontSize: 15,
-                outline: "none",
-              }}
+              disabled={isSubmitting}
+              style={{ width: "100%", background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 9, padding: "12px 14px", color: C.cream, fontFamily: "var(--font-space-mono), monospace", fontSize: 15, outline: "none", opacity: isSubmitting ? 0.6 : 1 }}
             />
             {suggestions.length > 0 && (
-              <div style={{
-                position: "absolute",
-                top: "calc(100% + 4px)",
-                left: 0,
-                right: 0,
-                background: C.ink2,
-                border: `1px solid ${C.line}`,
-                borderRadius: 9,
-                overflow: "hidden",
-                zIndex: 10,
-              }}>
+              <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 9, overflow: "hidden", zIndex: 10 }}>
                 {suggestions.map((s) => (
-                  <div
-                    key={s}
-                    onMouseDown={() => selectSuggestion(s)}
-                    style={{
-                      padding: "9px 14px",
-                      fontSize: 13,
-                      color: C.cream,
-                      cursor: "pointer",
-                      borderBottom: `1px solid ${C.line}`,
-                    }}
+                  <div key={s} onMouseDown={() => selectSuggestion(s)}
+                    style={{ padding: "9px 14px", fontSize: 13, color: C.cream, cursor: "pointer", borderBottom: `1px solid ${C.line}` }}
                     onMouseEnter={(e) => e.currentTarget.style.background = C.line}
                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-                  >
-                    {s}
-                  </div>
+                  >{s}</div>
                 ))}
               </div>
             )}
           </div>
-          {/* GUESS — big, full-width, amber */}
-          <button
-            className="pxbtn"
-            onClick={submit}
-            style={{
-              background: C.amber,
-              color: C.ink,
-              border: "none",
-              borderRadius: 9,
-              padding: "14px 0",
-              fontWeight: 700,
-              fontFamily: "var(--font-bricolage), sans-serif",
-              fontSize: 20,
-              cursor: "pointer",
-              width: "100%",
-            }}
-          >
-            GUESS
+          <button className="pxbtn" onClick={submit} disabled={isSubmitting}
+            style={{ background: C.amber, color: "#fff", border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 20, cursor: isSubmitting ? "wait" : "pointer", width: "100%", opacity: isSubmitting ? 0.7 : 1 }}>
+            {isSubmitting ? "…" : "GUESS"}
           </button>
-          {/* SKIP — smaller, coral */}
-          <button
-            className="pxbtn"
-            onClick={skip}
-            style={{
-              background: C.coral,
-              color: C.ink,
-              border: "none",
-              borderRadius: 9,
-              padding: "7px 0",
-              fontWeight: 700,
-              fontFamily: "var(--font-bricolage), sans-serif",
-              fontSize: 13,
-              cursor: "pointer",
-            }}
-          >
+          <button className="pxbtn" onClick={skip}
+            style={{ background: C.coral, color: "#fff", border: "none", borderRadius: 9, padding: "7px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 13, cursor: "pointer" }}>
             SKIP
           </button>
         </div>
       ) : (
         <div style={{ textAlign: "center", width: 316 }}>
-          <p
-            style={{
-              fontFamily: "var(--font-bricolage), sans-serif",
-              fontWeight: 800,
-              fontSize: 24,
-              margin: "0 0 4px",
-              color: status === "won" ? C.green : C.coral,
-            }}
-          >
+          <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 24, margin: "0 0 4px", color: status === "won" ? C.green : C.coral }}>
             {status === "won" ? "NAILED IT" : "OUT OF GUESSES"}
           </p>
           <p style={{ margin: "0 0 16px", fontSize: 14, color: C.creamDim }}>
-            it was{" "}
-            <b style={{ color: C.cream, textTransform: "uppercase" }}>{puzzle.answer}</b>
+            {revealedAnswer
+              ? <>it was <b style={{ color: C.cream, textTransform: "uppercase" }}>{revealedAnswer}</b></>
+              : "fetching answer…"}
           </p>
-          <button
-            className="pxbtn"
-            onClick={shareGrid}
-            style={{
-              background: copied ? C.green : C.amber,
-              color: C.ink,
-              border: "none",
-              borderRadius: 9,
-              padding: "12px 26px",
-              fontWeight: 700,
-              fontFamily: "var(--font-bricolage), sans-serif",
-              fontSize: 16,
-              cursor: "pointer",
-            }}
-          >
+          <button className="pxbtn" onClick={shareGrid}
+            style={{ background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
             {copied ? "COPIED ✓" : "SHARE RESULT"}
           </button>
         </div>
       )}
-
-      {/* ── Phase 0 testing controls — remove before launch ── */}
-      <div
-        style={{
-          marginTop: 32,
-          borderTop: `1px solid ${C.line}`,
-          paddingTop: 16,
-          display: "flex",
-          gap: 10,
-          alignItems: "center",
-        }}
-      >
-        <button
-          onClick={() => setPuzzleIdx((i) => (i - 1 + PUZZLES.length) % PUZZLES.length)}
-          style={{
-            background: C.line, color: C.creamDim, border: "none",
-            borderRadius: 7, padding: "6px 14px", cursor: "pointer",
-            fontFamily: "var(--font-space-mono), monospace", fontSize: 12,
-          }}
-        >
-          ← prev
-        </button>
-        <span style={{ fontSize: 11, color: C.creamDim }}>
-          puzzle {puzzleIdx + 1} / {PUZZLES.length}
-        </span>
-        <button
-          onClick={() => setPuzzleIdx((i) => (i + 1) % PUZZLES.length)}
-          style={{
-            background: C.line, color: C.creamDim, border: "none",
-            borderRadius: 7, padding: "6px 14px", cursor: "pointer",
-            fontFamily: "var(--font-space-mono), monospace", fontSize: 12,
-          }}
-        >
-          next →
-        </button>
-      </div>
     </div>
   );
 }
