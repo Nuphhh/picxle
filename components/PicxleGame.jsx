@@ -13,7 +13,7 @@ const C = {
   creamDim: "#cdbfa6",
   coral: "#60a5fa",   // was orange — now sky blue (SKIP, wrong rows, logo X)
   green: "#46c46a",
-  amber: "#1d4ed8",   // was yellow — now dark blue (GUESS, skipped rows, share button)
+  amber: "#2a4480",   // was yellow — now muted navy (GUESS, skipped rows, share button)
   line: "#3a3024",
 };
 
