@@ -29,7 +29,13 @@ const norm = (s) =>
   s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
 
 export default function PicxleGame() {
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem("picxle-theme");
+      if (saved !== null) return saved === "dark";
+    } catch {}
+    return true;
+  });
   const C = isDark ? DARK : LIGHT;
 
   // puzzle is fetched from /api/puzzle/today — it never contains the answer.
@@ -67,9 +73,25 @@ export default function PicxleGame() {
       .then((data) => {
         if (data.error) { setPuzzleError(true); return; }
         setPuzzle(data);
+        // Restore any progress the player already made on today's puzzle.
+        // Keyed by puzzle ID so yesterday's save never bleeds into today.
+        const saved = localStorage.getItem(`picxle-${data.id}`);
+        if (saved) {
+          try {
+            const { guesses: g, status: s } = JSON.parse(saved);
+            setGuesses(g);
+            setStatus(s);
+          } catch {}
+        }
       })
       .catch(() => setPuzzleError(true));
   }, []);
+
+  // ── Persist progress whenever guesses or status change ──
+  useEffect(() => {
+    if (!puzzle) return;
+    localStorage.setItem(`picxle-${puzzle.id}`, JSON.stringify({ guesses, status }));
+  }, [puzzle, guesses, status]);
 
   // ── Fetch the answer once the game ends so we can show it ──
   useEffect(() => {
@@ -312,7 +334,10 @@ export default function PicxleGame() {
       {/* ── Header ── */}
       <div style={{ textAlign: "center", marginBottom: 18, position: "relative" }}>
         <button
-          onClick={() => setIsDark((d) => !d)}
+          onClick={() => setIsDark((d) => {
+          try { localStorage.setItem("picxle-theme", d ? "light" : "dark"); } catch {}
+          return !d;
+        })}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
           style={{
             position: "absolute", top: 0, right: 0,
