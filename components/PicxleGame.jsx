@@ -268,7 +268,7 @@ export default function PicxleGame() {
             color: C.cream,
           }}
         >
-          PIC<span style={{ color: C.coral }}>X</span>LE
+          PIC<span style={{ color: C.amber }}>X</span>LE
         </h1>
         <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px" }}>
           GUESS THE IMAGE · IT SHARPENS AS YOU MISS
