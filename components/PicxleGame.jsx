@@ -8,7 +8,7 @@ const DARK = {
   ink2:     "#221b12",
   cream:    "#f4ead7",
   creamDim: "#cdbfa6",
-  coral:    "#6b7280",
+  coral:    "#e05252",
   green:    "#46c46a",
   amber:    "#3b82f6",
   line:     "#3a3024",
@@ -19,7 +19,7 @@ const LIGHT = {
   ink2:     "#ede8de",
   cream:    "#1c1208",
   creamDim: "#7a6548",
-  coral:    "#6b7280",
+  coral:    "#c23b3b",
   green:    "#16a34a",
   amber:    "#3b82f6",
   line:     "#d4c4b0",
@@ -570,7 +570,7 @@ export default function PicxleGame() {
       <div style={{ display: "flex", flexDirection: "column", gap: 7, margin: "18px 0", width: 316 }}>
         {rows.map((g, i) => {
           const borderColor = g ? (g.correct ? C.green : g.skipped ? C.amber : C.coral) : C.line;
-          const bg = g ? (g.correct ? "rgba(70,196,106,.12)" : g.skipped ? "rgba(59,130,246,.08)" : "rgba(107,114,128,.10)") : "transparent";
+          const bg = g ? (g.correct ? "rgba(70,196,106,.12)" : g.skipped ? "rgba(59,130,246,.08)" : "rgba(220,80,80,.10)") : "transparent";
           const icon = g ? (g.correct ? "✓" : g.skipped ? "→" : "✗") : i + 1;
           const iconColor = g ? (g.correct ? C.green : g.skipped ? C.amber : C.coral) : C.line;
           return (
