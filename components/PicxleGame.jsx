@@ -38,11 +38,13 @@ export default function PicxleGame() {
   // imgReady flips to true once the image has loaded into the offscreen canvas.
   // We need this because image loading is async — the canvas can't draw until it arrives.
   const [imgReady, setImgReady] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // srcRef holds an offscreen 440×440 canvas with the full-resolution source image.
   // We draw from it repeatedly at different resolutions to create the pixelation effect.
   const srcRef = useRef(null);
-  const canvasRef = useRef(null); // the visible canvas on screen
+  const canvasRef = useRef(null);
+  const modalCanvasRef = useRef(null);
 
   const guessesMade = guesses.length;
   const revealed = status !== "playing";
@@ -58,6 +60,7 @@ export default function PicxleGame() {
     setStatus("playing");
     setShake(false);
     setImgReady(false);
+    setIsExpanded(false);
     srcRef.current = null;
   }, [puzzleIdx]);
 
@@ -127,6 +130,31 @@ export default function PicxleGame() {
   useEffect(() => {
     draw();
   }, [draw, status, imgReady]);
+
+  // Draw the same pixelated frame onto the larger modal canvas when it opens
+  useEffect(() => {
+    if (!isExpanded) return;
+    const cv = modalCanvasRef.current;
+    const src = srcRef.current;
+    if (!cv || !src) return;
+    const ctx = cv.getContext("2d");
+    const tmp = document.createElement("canvas");
+    tmp.width = res;
+    tmp.height = res;
+    const tctx = tmp.getContext("2d");
+    tctx.imageSmoothingEnabled = true;
+    tctx.drawImage(src, 0, 0, res, res);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
+  }, [isExpanded, res, imgReady]);
+
+  // Close modal on Escape
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") setIsExpanded(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const handleInputChange = (e) => {
     const val = e.target.value;
@@ -259,6 +287,7 @@ export default function PicxleGame() {
 
       {/* ── Image canvas ── */}
       <div
+        onClick={() => imgReady && setIsExpanded(true)}
         style={{
           position: "relative",
           padding: 8,
@@ -267,6 +296,7 @@ export default function PicxleGame() {
           border: `1px solid ${C.line}`,
           boxShadow: "0 18px 40px -20px #000",
           animation: shake ? "shk .38s ease" : "none",
+          cursor: imgReady ? "zoom-in" : "default",
         }}
       >
         <canvas
@@ -297,6 +327,62 @@ export default function PicxleGame() {
           {!imgReady ? "LOADING…" : revealed ? "FULL RES" : `${res}×${res} PX`}
         </div>
       </div>
+
+      {/* ── Fullscreen modal ── */}
+      {isExpanded && (
+        <div
+          onClick={() => setIsExpanded(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.88)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{ position: "relative" }}
+          >
+            <canvas
+              ref={modalCanvasRef}
+              width={600}
+              height={600}
+              style={{
+                width: "min(88vw, 80vh)",
+                height: "min(88vw, 80vh)",
+                imageRendering: "pixelated",
+                borderRadius: 16,
+                display: "block",
+              }}
+            />
+            <button
+              onClick={() => setIsExpanded(false)}
+              style={{
+                position: "absolute",
+                top: -14,
+                right: -14,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: C.ink2,
+                border: `1px solid ${C.line}`,
+                color: C.cream,
+                fontSize: 20,
+                lineHeight: 1,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Guess rows ── */}
       <div style={{ display: "flex", flexDirection: "column", gap: 7, margin: "18px 0", width: 316 }}>
