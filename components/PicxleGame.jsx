@@ -451,11 +451,31 @@ export default function PicxleGame() {
       {/* ── Stats modal ── */}
       {statsOpen && stats && (
         <div onClick={() => setStatsOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "24px 20px", width: "min(90vw, 380px)", position: "relative" }}>
-            <button onClick={() => setStatsOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: C.line, border: "none", color: C.cream, fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", position: "relative", overflow: "hidden" }}>
+            <button onClick={() => setStatsOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,.5)", border: "none", color: "#fff", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
 
-            <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 18, color: C.cream, margin: "0 0 16px", textAlign: "center", letterSpacing: "-0.5px" }}>STATISTICS</p>
+            {/* Full-res image */}
+            <div style={{ width: "100%", aspectRatio: "1", overflow: "hidden" }}>
+              <img src={puzzle.image_src} alt="today's puzzle" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
 
+            {/* Tiered result message */}
+            <div style={{ padding: "16px 20px 0", textAlign: "center" }}>
+              {(() => {
+                const { text, color } = status === "won"
+                  ? [
+                      { text: "Absolutely unreal.",    color: C.amber },
+                      { text: "Sharp eye.",            color: C.green },
+                      { text: "Solid.",                color: C.green },
+                      { text: "Got there in the end.", color: C.cream },
+                      { text: "That was close.",       color: C.creamDim },
+                    ][guesses.length - 1]
+                  : { text: "Better luck tomorrow.",   color: C.coral };
+                return <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 20, color, margin: 0, letterSpacing: "-0.5px" }}>{text}</p>;
+              })()}
+            </div>
+
+            <div style={{ padding: "16px 20px 20px" }}>
             {/* Personal stat boxes */}
             {playerStreak && (
               <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
@@ -515,6 +535,7 @@ export default function PicxleGame() {
               style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
               {copied ? "COPIED ✓" : "SHARE RESULT"}
             </button>
+            </div>
           </div>
         </div>
       )}
