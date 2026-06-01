@@ -9,3 +9,10 @@ body {
   background: #17130d;
   overflow-x: hidden;
 }
+
+/* 100vh includes Safari's address bar; 100dvh excludes it.
+   Browsers that don't understand dvh fall back to the vh line. */
+.page-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}

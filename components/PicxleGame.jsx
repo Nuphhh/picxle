@@ -363,9 +363,9 @@ export default function PicxleGame() {
 
   return (
     <div
+      className="page-root"
       style={{
         background: `radial-gradient(120% 90% at 50% 0%, ${C.ink2} 0%, ${C.ink} 60%)`,
-        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

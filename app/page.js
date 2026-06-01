@@ -41,9 +41,8 @@ export default function LandingPage() {
   };
 
   return (
-    <div style={{
+    <div className="page-root" style={{
       background: `radial-gradient(140% 100% at 50% 0%, ${C.ink2} 0%, ${C.ink} 55%)`,
-      minHeight: "100vh",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
