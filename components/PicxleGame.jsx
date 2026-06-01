@@ -7,14 +7,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, LAUNCH_EPOCH_DAY, CATEGORY_HINTS } from "@/data/puzzles";
 
 const C = {
-  ink: "#17130d",
-  ink2: "#221b12",
-  cream: "#f4ead7",
-  creamDim: "#cdbfa6",
-  coral: "#60a5fa",   // was orange — now sky blue (SKIP, wrong rows, logo X)
+  ink: "#0d1b2e",     // cool near-black
+  ink2: "#0f2644",    // deep navy surface
+  cream: "#e2e8f0",   // slate-200
+  creamDim: "#94a3b8",// slate-400
+  coral: "#60a5fa",   // blue-400 — SKIP, wrong rows, logo X
   green: "#46c46a",
-  amber: "#2a4480",   // was yellow — now muted navy (GUESS, skipped rows, share button)
-  line: "#3a3024",
+  amber: "#2563eb",   // blue-600 — GUESS, skipped rows, share button
+  line: "#1e3a5c",    // cool slate-blue border
 };
 
 // Strip everything except lowercase letters and spaces so "Mona Lisa" === "mona lisa"
