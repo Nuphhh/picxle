@@ -512,89 +512,90 @@ export default function PicxleGame() {
       {/* ── Input or end-game panel ── */}
       {status === "playing" ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 316 }}>
-          <div style={{ display: "flex", gap: 8, position: "relative" }}>
-            <div style={{ flex: 1, position: "relative" }}>
-              <input
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={(e) => e.key === "Enter" && submit()}
-                onBlur={() => setTimeout(() => setSuggestions([]), 150)}
-                placeholder="type your guess"
-                style={{
-                  width: "100%",
-                  background: C.ink2,
-                  border: `1px solid ${C.line}`,
-                  borderRadius: 9,
-                  padding: "12px 14px",
-                  color: C.cream,
-                  fontFamily: "var(--font-space-mono), monospace",
-                  fontSize: 15,
-                  outline: "none",
-                }}
-              />
-              {suggestions.length > 0 && (
-                <div style={{
-                  position: "absolute",
-                  top: "calc(100% + 4px)",
-                  left: 0,
-                  right: 0,
-                  background: C.ink2,
-                  border: `1px solid ${C.line}`,
-                  borderRadius: 9,
-                  overflow: "hidden",
-                  zIndex: 10,
-                }}>
-                  {suggestions.map((s) => (
-                    <div
-                      key={s}
-                      onMouseDown={() => selectSuggestion(s)}
-                      style={{
-                        padding: "9px 14px",
-                        fontSize: 13,
-                        color: C.cream,
-                        cursor: "pointer",
-                        borderBottom: `1px solid ${C.line}`,
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = C.line}
-                      onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-                    >
-                      {s}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button
-              className="pxbtn"
-              onClick={submit}
+          {/* Input with autocomplete suggestions */}
+          <div style={{ position: "relative" }}>
+            <input
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={(e) => e.key === "Enter" && submit()}
+              onBlur={() => setTimeout(() => setSuggestions([]), 150)}
+              placeholder="type your guess"
               style={{
-                background: C.coral,
-                color: C.ink,
-                border: "none",
+                width: "100%",
+                background: C.ink2,
+                border: `1px solid ${C.line}`,
                 borderRadius: 9,
-                padding: "0 20px",
-                fontWeight: 700,
-                fontFamily: "var(--font-bricolage), sans-serif",
-                fontSize: 16,
-                cursor: "pointer",
+                padding: "12px 14px",
+                color: C.cream,
+                fontFamily: "var(--font-space-mono), monospace",
+                fontSize: 15,
+                outline: "none",
               }}
-            >
-              GO
-            </button>
+            />
+            {suggestions.length > 0 && (
+              <div style={{
+                position: "absolute",
+                top: "calc(100% + 4px)",
+                left: 0,
+                right: 0,
+                background: C.ink2,
+                border: `1px solid ${C.line}`,
+                borderRadius: 9,
+                overflow: "hidden",
+                zIndex: 10,
+              }}>
+                {suggestions.map((s) => (
+                  <div
+                    key={s}
+                    onMouseDown={() => selectSuggestion(s)}
+                    style={{
+                      padding: "9px 14px",
+                      fontSize: 13,
+                      color: C.cream,
+                      cursor: "pointer",
+                      borderBottom: `1px solid ${C.line}`,
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = C.line}
+                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                  >
+                    {s}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          {/* Skip uses a turn without requiring a guess — costs one of your 5 slots */}
+          {/* GUESS — big, full-width, amber */}
           <button
             className="pxbtn"
-            onClick={skip}
+            onClick={submit}
             style={{
               background: C.amber,
               color: C.ink,
               border: "none",
               borderRadius: 9,
-              padding: "9px 0",
+              padding: "14px 0",
               fontWeight: 700,
               fontFamily: "var(--font-bricolage), sans-serif",
-              fontSize: 16,
+              fontSize: 20,
+              cursor: "pointer",
+              width: "100%",
+            }}
+          >
+            GUESS
+          </button>
+          {/* SKIP — smaller, coral */}
+          <button
+            className="pxbtn"
+            onClick={skip}
+            style={{
+              background: C.coral,
+              color: C.ink,
+              border: "none",
+              borderRadius: 9,
+              padding: "7px 0",
+              fontWeight: 700,
+              fontFamily: "var(--font-bricolage), sans-serif",
+              fontSize: 13,
               cursor: "pointer",
             }}
           >
