@@ -26,8 +26,9 @@ export default function LandingPage() {
     try {
       const saved = localStorage.getItem("picxle-theme");
       if (saved !== null) return saved === "dark";
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
     } catch {}
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return true;
   });
 
   const C = isDark ? DARK : LIGHT;
