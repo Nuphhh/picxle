@@ -122,7 +122,20 @@ export default function PicxleGame() {
 
     const playerId = getPlayerId();
 
-    // Guard: only record once per puzzle (refresh-safe)
+    const fetchStreak = () => {
+      if (!playerId) return;
+      fetch(`/api/stats/streak?playerId=${playerId}`)
+        .then((r) => r.json())
+        .then((data) => setPlayerStreak(data))
+        .catch(() => {});
+    };
+
+    // Fetch today's distribution independently — opens the modal when ready
+    fetch("/api/stats/today")
+      .then((r) => r.json())
+      .then((data) => { setStats(data); setStatsOpen(true); })
+      .catch(() => {});
+
     const recordedKey = `picxle-recorded-${puzzle.id}`;
     if (!localStorage.getItem(recordedKey)) {
       // 1–5 = won on that guess, 6 = lost
@@ -132,20 +145,15 @@ export default function PicxleGame() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ puzzleId: puzzle.id, guessesTaken, playerId }),
       })
-        .then(() => localStorage.setItem(recordedKey, "1"))
+        .then(() => {
+          localStorage.setItem(recordedKey, "1");
+          // Fetch streak only after the record is confirmed in the DB
+          fetchStreak();
+        })
         .catch(() => {});
-    }
-
-    fetch("/api/stats/today")
-      .then((r) => r.json())
-      .then((data) => { setStats(data); setStatsOpen(true); })
-      .catch(() => {});
-
-    if (playerId) {
-      fetch(`/api/stats/streak?playerId=${playerId}`)
-        .then((r) => r.json())
-        .then((data) => setPlayerStreak(data))
-        .catch(() => {});
+    } else {
+      // Already recorded on a previous visit — streak is already up to date
+      fetchStreak();
     }
   }, [status, puzzle]); // guesses.length is stable by the time status flips
 
