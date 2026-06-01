@@ -206,6 +206,28 @@ export const DICTIONARY = [
   "milford sound",
   "coral triangle",
   "bioluminescent bay",
+
+  // ── Animals ──
+  "flamingo", "axolotl", "giant panda", "panda",
+  "tiger", "bengal tiger", "clownfish", "clown fish",
+  "toucan", "hummingbird", "humming bird",
+  "jellyfish", "jelly fish", "sea turtle", "turtle", "green turtle",
+  "bald eagle", "eagle", "manta ray", "manta",
+  "tree frog", "red-eyed tree frog", "red eyed tree frog",
+  "peacock", "poison dart frog", "dart frog", "poison frog",
+  // decoy animals
+  "lion", "cheetah", "leopard", "jaguar", "snow leopard",
+  "polar bear", "grizzly bear", "koala", "kangaroo", "platypus",
+  "dolphin", "whale", "orca", "narwhal", "manatee",
+  "octopus", "squid", "cuttlefish", "seahorse", "starfish",
+  "gorilla", "chimpanzee", "orangutan", "mandrill", "lemur",
+  "giraffe", "elephant", "rhinoceros", "hippopotamus", "zebra",
+  "parrot", "macaw", "cockatoo", "pelican", "puffin",
+  "chameleon", "iguana", "gecko", "komodo dragon",
+  "monarch butterfly", "blue morpho", "dragonfly",
+  "great white shark", "hammerhead shark", "whale shark",
+  "wolf", "fox", "lynx", "wolverine", "otter",
+  "meerkat", "red panda", "snow monkey", "proboscis monkey",
 ].sort();
 
 export const MAX_GUESSES = 5;
@@ -255,5 +277,16 @@ export const CATEGORY_HINTS = {
     "Meteora", "Milford Sound", "Patagonia", "Atacama Desert", "Namib Desert",
     "Okavango Delta", "Fjords", "Cliffs of Moher", "White Cliffs of Dover",
     "Mount Vesuvius", "Midnight Sun",
+  ],
+  "Animal": [
+    "Flamingo", "Axolotl", "Giant Panda", "Tiger", "Clownfish", "Toucan",
+    "Hummingbird", "Jellyfish", "Sea Turtle", "Bald Eagle", "Manta Ray",
+    "Tree Frog", "Peacock", "Poison Dart Frog",
+    "Lion", "Cheetah", "Leopard", "Snow Leopard", "Polar Bear", "Koala",
+    "Kangaroo", "Dolphin", "Orca", "Narwhal", "Octopus", "Seahorse",
+    "Gorilla", "Orangutan", "Giraffe", "Elephant", "Rhinoceros", "Zebra",
+    "Parrot", "Macaw", "Puffin", "Chameleon", "Komodo Dragon",
+    "Monarch Butterfly", "Blue Morpho", "Great White Shark", "Whale Shark",
+    "Wolf", "Red Panda", "Snow Monkey", "Meerkat", "Platypus",
   ],
 };
