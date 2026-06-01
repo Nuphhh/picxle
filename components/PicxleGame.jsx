@@ -232,7 +232,7 @@ export default function PicxleGame() {
       else if (g) row += "🟥";
       else row += "⬛";
     }
-    navigator.clipboard?.writeText(`Picxle ${score}\n${row}\nplay daily`);
+    navigator.clipboard?.writeText(`Picxle ${score}\n${row}\nhttps://picxle.vercel.app`);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };
