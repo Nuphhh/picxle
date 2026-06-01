@@ -55,6 +55,7 @@ export default function PicxleGame() {
   const [hintOpen, setHintOpen] = useState(false);
   // Fetched from /api/puzzle/reveal only after the game ends.
   const [revealedAnswer, setRevealedAnswer] = useState(null);
+  const [stats, setStats] = useState(null);
 
   const srcRef = useRef(null);
   const canvasRef = useRef(null);
@@ -101,6 +102,30 @@ export default function PicxleGame() {
       .then((data) => setRevealedAnswer(data.answer ?? null))
       .catch(() => {});
   }, [status, puzzle]);
+
+  // ── Record this play + fetch distribution once the game ends ──
+  useEffect(() => {
+    if (status === "playing" || !puzzle) return;
+
+    // Guard: only record once per puzzle (refresh-safe)
+    const recordedKey = `picxle-recorded-${puzzle.id}`;
+    if (!localStorage.getItem(recordedKey)) {
+      // 1–5 = won on that guess, 6 = lost
+      const guessesTaken = status === "won" ? guesses.length : 6;
+      fetch("/api/stats/record", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puzzleId: puzzle.id, guessesTaken }),
+      })
+        .then(() => localStorage.setItem(recordedKey, "1"))
+        .catch(() => {});
+    }
+
+    fetch("/api/stats/today")
+      .then((r) => r.json())
+      .then((data) => setStats(data))
+      .catch(() => {});
+  }, [status, puzzle]); // guesses.length is stable by the time status flips
 
   // ── Load the puzzle image into an offscreen 440×440 canvas ──
   useEffect(() => {
@@ -481,6 +506,54 @@ export default function PicxleGame() {
               {countdown}
             </p>
           </div>
+
+          {/* ── Guess distribution ── */}
+          {stats && (() => {
+            const maxCount = Math.max(...Object.values(stats.counts), 1);
+            return (
+              <div style={{ marginTop: 28, width: "100%", borderTop: `1px solid ${C.line}`, paddingTop: 20 }}>
+                <p style={{ fontSize: 11, letterSpacing: "2px", color: C.creamDim, margin: "0 0 14px", textAlign: "center" }}>
+                  GUESS DISTRIBUTION
+                </p>
+                {[1, 2, 3, 4, 5, 6].map((n) => {
+                  const count = stats.counts[n] ?? 0;
+                  const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+                  const barPct = Math.round((count / maxCount) * 100);
+                  const isMe = (status === "won" && n === guesses.length) || (status === "lost" && n === 6);
+                  const barColor = isMe ? (status === "won" ? C.green : C.coral) : C.line;
+                  return (
+                    <div key={n} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                      <span style={{ width: 14, textAlign: "right", fontSize: 13, color: isMe ? C.cream : C.creamDim, fontWeight: isMe ? 700 : 400, flexShrink: 0 }}>
+                        {n === 6 ? "X" : n}
+                      </span>
+                      <div style={{ flex: 1, background: C.ink2, borderRadius: 3, height: 22, overflow: "hidden" }}>
+                        <div style={{
+                          height: "100%",
+                          width: count > 0 ? `${Math.max(barPct, 8)}%` : "4%",
+                          background: barColor,
+                          borderRadius: 3,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
+                          paddingRight: 7,
+                          transition: "width .5s ease",
+                        }}>
+                          {count > 0 && (
+                            <span style={{ fontSize: 10, fontWeight: 700, color: isMe ? "#fff" : C.creamDim }}>
+                              {pct}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <p style={{ fontSize: 11, color: C.creamDim, textAlign: "center", margin: "12px 0 0", letterSpacing: "0.5px" }}>
+                  {stats.total.toLocaleString()} {stats.total === 1 ? "player" : "players"} today
+                </p>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>
