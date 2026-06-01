@@ -50,22 +50,7 @@ export default function LandingPage() {
       padding: "40px 24px",
       fontFamily: "var(--font-space-mono), monospace",
       color: C.cream,
-      position: "relative",
     }}>
-
-      {/* Theme toggle */}
-      <button
-        onClick={toggleTheme}
-        title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-        style={{
-          position: "absolute", top: 20, right: 20,
-          background: "transparent", border: `1px solid ${C.line}`,
-          borderRadius: 20, padding: "4px 10px", fontSize: 14,
-          cursor: "pointer", color: C.creamDim, lineHeight: 1,
-        }}
-      >
-        {isDark ? "☀" : "☾"}
-      </button>
 
       {/* Logo */}
       <h1 style={{
@@ -81,9 +66,23 @@ export default function LandingPage() {
       </h1>
 
       {/* Tagline */}
-      <p style={{ fontSize: "clamp(11px, 3vw, 13px)", letterSpacing: "2px", color: C.creamDim, margin: "0 0 48px", textAlign: "center" }}>
+      <p style={{ fontSize: "clamp(11px, 3vw, 13px)", letterSpacing: "2px", color: C.creamDim, margin: "0 0 14px", textAlign: "center" }}>
         GUESS THE IMAGE · IT SHARPENS AS YOU MISS
       </p>
+
+      {/* Theme toggle */}
+      <button
+        onClick={toggleTheme}
+        title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        style={{
+          background: "transparent", border: `1px solid ${C.line}`,
+          borderRadius: 20, padding: "4px 10px", fontSize: 14,
+          cursor: "pointer", color: C.creamDim, lineHeight: 1,
+          marginBottom: 48,
+        }}
+      >
+        {isDark ? "☀" : "☾"}
+      </button>
 
       {/* Pixelation step visual */}
       <div style={{ display: "flex", gap: 4, marginBottom: 48 }}>
