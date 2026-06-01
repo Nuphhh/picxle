@@ -4,7 +4,7 @@
 // browser-only APIs that don't exist on the server.
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, LAUNCH_EPOCH_DAY } from "@/data/puzzles";
+import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, LAUNCH_EPOCH_DAY, CATEGORY_HINTS } from "@/data/puzzles";
 
 const C = {
   ink: "#17130d",
@@ -39,6 +39,7 @@ export default function PicxleGame() {
   // We need this because image loading is async — the canvas can't draw until it arrives.
   const [imgReady, setImgReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hintOpen, setHintOpen] = useState(false);
 
   // srcRef holds an offscreen 440×440 canvas with the full-resolution source image.
   // We draw from it repeatedly at different resolutions to create the pixelation effect.
@@ -61,6 +62,7 @@ export default function PicxleGame() {
     setShake(false);
     setImgReady(false);
     setIsExpanded(false);
+    setHintOpen(false);
     srcRef.current = null;
   }, [puzzleIdx]);
 
@@ -149,9 +151,11 @@ export default function PicxleGame() {
     ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
   }, [isExpanded, res, imgReady]);
 
-  // Close modal on Escape
+  // Close any open modal on Escape
   useEffect(() => {
-    const onKey = (e) => { if (e.key === "Escape") setIsExpanded(false); };
+    const onKey = (e) => {
+      if (e.key === "Escape") { setIsExpanded(false); setHintOpen(false); }
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
@@ -269,21 +273,103 @@ export default function PicxleGame() {
         <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px" }}>
           GUESS THE IMAGE · IT SHARPENS AS YOU MISS
         </p>
-        <span
+        <button
+          onClick={() => setHintOpen(true)}
           style={{
             display: "inline-block",
             marginTop: 10,
             padding: "3px 12px",
             borderRadius: 20,
             border: `1px solid ${C.line}`,
+            background: "transparent",
             fontSize: 11,
             letterSpacing: "1.5px",
             color: C.creamDim,
+            cursor: "pointer",
+            transition: "border-color .15s, color .15s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.creamDim; }}
+        >
+          {puzzle.category.toUpperCase()} ›
+        </button>
+      </div>
+
+      {/* ── Category hint modal ── */}
+      {hintOpen && (
+        <div
+          onClick={() => setHintOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,.88)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 100,
           }}
         >
-          {puzzle.category.toUpperCase()}
-        </span>
-      </div>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: C.ink2,
+              border: `1px solid ${C.line}`,
+              borderRadius: 16,
+              padding: "24px 20px",
+              width: "min(90vw, 380px)",
+              maxHeight: "75vh",
+              display: "flex",
+              flexDirection: "column",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setHintOpen(false)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                background: C.line,
+                border: "none",
+                color: C.cream,
+                fontSize: 18,
+                lineHeight: 1,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ×
+            </button>
+            <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 18, color: C.cream, marginBottom: 4 }}>
+              {puzzle.category}
+            </p>
+            <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "0.5px", marginBottom: 16 }}>
+              Today's image is one of these.
+            </p>
+            <div style={{ overflowY: "auto", display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {(CATEGORY_HINTS[puzzle.category] ?? []).map((item) => (
+                <span
+                  key={item}
+                  style={{
+                    padding: "4px 10px",
+                    borderRadius: 20,
+                    border: `1px solid ${C.line}`,
+                    fontSize: 12,
+                    color: C.creamDim,
+                  }}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Image canvas ── */}
       <div

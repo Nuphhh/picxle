@@ -340,3 +340,47 @@ export const FULL_RES = 220;
 // Puzzle 1 launched on this UTC date. Every day after adds 1 to the index.
 // Change this date if you ever want to reset the rotation.
 export const LAUNCH_EPOCH_DAY = Math.floor(new Date('2026-06-01T00:00:00Z').getTime() / 86400000);
+
+// These lists power the category pill popup — everything a player might legitimately guess
+// for each category, so clicking the pill gives a useful (but not too easy) hint.
+export const CATEGORY_HINTS = {
+  "Painting": [
+    "Mona Lisa", "Starry Night", "Great Wave", "Birth of Venus", "Sunflowers",
+    "Girl with a Pearl Earring", "The Scream", "Water Lilies", "Impression Sunrise",
+    "The Night Watch", "The Milkmaid", "Las Meninas", "The Last Supper",
+    "The Creation of Adam", "Sistine Chapel", "The Garden of Earthly Delights",
+    "The Tower of Babel", "The Arnolfini Portrait", "The Hay Wain",
+    "Liberty Leading the People", "The Raft of the Medusa", "Guernica",
+    "The Persistence of Memory", "American Gothic", "The Thinker", "David",
+    "Venus de Milo", "The School of Athens", "The Third of May", "Olympia",
+    "Whistler's Mother", "The Blue Boy", "The Fighting Temeraire",
+    "Napoleon Crossing the Alps", "Judith Slaying Holofernes", "The Kiss",
+    "Wanderer Above the Sea of Fog", "Saturn Devouring His Son", "Ophelia",
+    "The Nightmare", "The Lady of Shalott",
+  ],
+  "Landmark": [
+    "Eiffel Tower", "Colosseum", "Taj Mahal", "Great Wall", "Parthenon",
+    "Machu Picchu", "Angkor Wat", "Petra", "Chichen Itza", "Easter Island",
+    "Pyramids of Giza", "Sphinx", "Stonehenge", "Notre Dame", "Sagrada Familia",
+    "Burj Khalifa", "Empire State Building", "Statue of Liberty", "Sydney Opera House",
+    "Neuschwanstein Castle", "Alhambra", "Hagia Sophia", "Pantheon",
+    "Leaning Tower of Pisa", "Versailles", "Mont Saint-Michel", "Cologne Cathedral",
+    "Brandenburg Gate", "St Basil's Cathedral", "Forbidden City", "Temple of Heaven",
+    "Terracotta Army", "Potala Palace", "Mount Rushmore", "Golden Gate Bridge",
+    "Christ the Redeemer", "Pompeii", "Borobudur", "Big Ben", "Arc de Triomphe",
+    "Buckingham Palace", "Tower of London", "Kremlin", "Petronas Towers",
+    "Abu Simbel", "Karnak Temple", "Valley of the Kings",
+  ],
+  "Natural Wonder": [
+    "Grand Canyon", "Niagara Falls", "Aurora Borealis", "Mount Fuji",
+    "Amazon River", "Great Barrier Reef", "Victoria Falls", "Mount Everest",
+    "Sahara Desert", "Yellowstone", "Mount Kilimanjaro", "Galápagos Islands",
+    "Serengeti", "Iguazu Falls", "Angel Falls", "Plitvice Lakes", "Pamukkale",
+    "Cappadocia", "Ha Long Bay", "Dead Sea", "Lake Baikal", "Antelope Canyon",
+    "Uluru", "Giants Causeway", "Blue Lagoon", "Rainbow Mountains",
+    "Zhangjiajie", "Matterhorn", "Dolomites", "Amalfi Coast", "Santorini",
+    "Meteora", "Milford Sound", "Patagonia", "Atacama Desert", "Namib Desert",
+    "Okavango Delta", "Fjords", "Cliffs of Moher", "White Cliffs of Dover",
+    "Mount Vesuvius", "Midnight Sun",
+  ],
+};
