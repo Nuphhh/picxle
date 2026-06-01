@@ -85,6 +85,8 @@ export default function PicxleGame() {
       .then((data) => {
         if (data.error) { setPuzzleError(true); return; }
         setPuzzle(data);
+        // Fetch stats early so difficulty shows during gameplay
+        fetch("/api/stats/today").then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
         // Restore any progress the player already made on today's puzzle.
         // Keyed by puzzle ID so yesterday's save never bleeds into today.
         const saved = localStorage.getItem(`picxle-${data.id}`);
@@ -400,19 +402,34 @@ export default function PicxleGame() {
         <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px" }}>
           GUESS THE IMAGE · IT SHARPENS AS YOU MISS
         </p>
-        <button
-          onClick={() => setHintOpen(true)}
-          style={{
-            display: "inline-block", marginTop: 10, padding: "3px 12px",
-            borderRadius: 20, border: `1px solid ${C.line}`, background: "transparent",
-            fontSize: 11, letterSpacing: "1.5px", color: C.creamDim, cursor: "pointer",
-            transition: "border-color .15s, color .15s",
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
-          onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.creamDim; }}
-        >
-          {puzzle.category.toUpperCase()} ›
-        </button>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10 }}>
+          <button
+            onClick={() => setHintOpen(true)}
+            style={{
+              padding: "3px 12px", borderRadius: 20, border: `1px solid ${C.line}`, background: "transparent",
+              fontSize: 11, letterSpacing: "1.5px", color: C.creamDim, cursor: "pointer",
+              transition: "border-color .15s, color .15s",
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.creamDim; }}
+          >
+            {puzzle.category.toUpperCase()} ›
+          </button>
+          {(() => {
+            if (!stats || stats.total < 5) return null;
+            const avg = [1,2,3,4,5,6].reduce((sum, n) => sum + n * (stats.counts[n] ?? 0), 0) / stats.total;
+            const { label, color } =
+              avg <= 2 ? { label: "EASY",   color: C.green } :
+              avg <= 3 ? { label: "MEDIUM", color: C.amber } :
+              avg <= 4 ? { label: "HARD",   color: "#f97316" } :
+                         { label: "BRUTAL", color: C.coral };
+            return (
+              <span style={{ padding: "3px 10px", borderRadius: 20, border: `1px solid ${color}`, fontSize: 11, letterSpacing: "1.5px", color }}>
+                {label}
+              </span>
+            );
+          })()}
+        </div>
       </div>
 
       {/* ── Category hint modal ── */}
