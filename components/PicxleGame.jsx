@@ -43,7 +43,7 @@ export default function PicxleGame() {
       const saved = localStorage.getItem("picxle-theme");
       if (saved !== null) return saved === "dark";
     } catch {}
-    return true;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
   const C = isDark ? DARK : LIGHT;
 
