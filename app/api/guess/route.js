@@ -1,5 +1,7 @@
 import { getSupabase } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 const norm = (s) =>
   s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
 
@@ -10,7 +12,9 @@ export async function POST(request) {
     return Response.json({ error: "Missing puzzleId or guess." }, { status: 400 });
   }
 
-  const { data, error } = await getSupabase()
+  const supabase = await getSupabase();
+
+  const { data, error } = await supabase
     .from("puzzles")
     .select("accepts")
     .eq("id", puzzleId)
