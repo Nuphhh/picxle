@@ -11,7 +11,7 @@ const C = {
   ink2: "#221b12",    // warm dark surface
   cream: "#f4ead7",   // warm off-white
   creamDim: "#cdbfa6",// warm dim text
-  coral: "#d97706",   // amber-600 — SKIP, wrong rows, logo X
+  coral: "#f97316",   // orange-500 — SKIP, wrong rows, logo X
   green: "#46c46a",
   amber: "#3b82f6",   // blue-500 — GUESS, skipped rows, share button
   line: "#3a3024",    // warm brown border
