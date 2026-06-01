@@ -6,15 +6,26 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, LAUNCH_EPOCH_DAY, CATEGORY_HINTS } from "@/data/puzzles";
 
-const C = {
-  ink: "#17130d",     // warm near-black
-  ink2: "#221b12",    // warm dark surface
-  cream: "#f4ead7",   // warm off-white
-  creamDim: "#cdbfa6",// warm dim text
-  coral: "#6b7280",   // gray-500 — SKIP, wrong rows, logo X
-  green: "#46c46a",
-  amber: "#3b82f6",   // blue-500 — GUESS, skipped rows, share button
-  line: "#3a3024",    // warm brown border
+const DARK = {
+  ink:      "#17130d",
+  ink2:     "#221b12",
+  cream:    "#f4ead7",
+  creamDim: "#cdbfa6",
+  coral:    "#6b7280",  // SKIP, wrong rows
+  green:    "#46c46a",
+  amber:    "#3b82f6",  // GUESS, logo X
+  line:     "#3a3024",
+};
+
+const LIGHT = {
+  ink:      "#faf6ef",  // warm paper white
+  ink2:     "#ede8de",  // warm cream surface
+  cream:    "#1c1208",  // near-black text
+  creamDim: "#7a6548",  // warm brown dim text
+  coral:    "#6b7280",  // SKIP, wrong rows (same)
+  green:    "#16a34a",  // green-600, readable on light bg
+  amber:    "#3b82f6",  // GUESS, logo X (same)
+  line:     "#d4c4b0",  // warm light border
 };
 
 // Strip everything except lowercase letters and spaces so "Mona Lisa" === "mona lisa"
@@ -26,6 +37,9 @@ const norm = (s) =>
 const todayIdx = () => (Math.floor(Date.now() / 86400000) - LAUNCH_EPOCH_DAY) % PUZZLES.length;
 
 export default function PicxleGame() {
+  const [isDark, setIsDark] = useState(true);
+  const C = isDark ? DARK : LIGHT;
+
   const [puzzleIdx, setPuzzleIdx] = useState(todayIdx);
   const puzzle = PUZZLES[puzzleIdx];
 
@@ -160,6 +174,11 @@ export default function PicxleGame() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Keep the body background in sync so there's no colour gap behind the component
+  useEffect(() => {
+    document.body.style.background = C.ink;
+  }, [C.ink]);
+
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInput(val);
@@ -256,7 +275,28 @@ export default function PicxleGame() {
       `}</style>
 
       {/* ── Header ── */}
-      <div style={{ textAlign: "center", marginBottom: 18 }}>
+      <div style={{ textAlign: "center", marginBottom: 18, position: "relative" }}>
+        {/* Dark / light toggle */}
+        <button
+          onClick={() => setIsDark((d) => !d)}
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            background: "transparent",
+            border: `1px solid ${C.line}`,
+            borderRadius: 20,
+            padding: "4px 10px",
+            fontSize: 14,
+            cursor: "pointer",
+            color: C.creamDim,
+            lineHeight: 1,
+          }}
+        >
+          {isDark ? "☀" : "☾"}
+        </button>
+
         <h1
           style={{
             fontFamily: "var(--font-bricolage), sans-serif",
