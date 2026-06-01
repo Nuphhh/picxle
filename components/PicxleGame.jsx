@@ -11,9 +11,9 @@ const C = {
   ink2: "#221b12",
   cream: "#f4ead7",
   creamDim: "#cdbfa6",
-  coral: "#ff5a36",
+  coral: "#60a5fa",   // was orange — now sky blue (SKIP, wrong rows, logo X)
   green: "#46c46a",
-  amber: "#ffb627",
+  amber: "#3b82f6",   // was yellow — now solid blue (GUESS, skipped rows, share button)
   line: "#3a3024",
 };
 
