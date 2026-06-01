@@ -451,11 +451,15 @@ export default function PicxleGame() {
       {/* ── Stats modal ── */}
       {statsOpen && stats && (
         <div onClick={() => setStatsOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          {/* outer: clips rounded corners + anchors the × button */}
           <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", position: "relative", overflow: "hidden" }}>
-            <button onClick={() => setStatsOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,.5)", border: "none", color: "#fff", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
+            <button onClick={() => setStatsOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,.5)", border: "none", color: "#fff", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>×</button>
 
-            {/* Full-res image */}
-            <div style={{ width: "100%", aspectRatio: "1", overflow: "hidden" }}>
+            {/* inner: scrollable so tall content doesn't overflow screen */}
+            <div style={{ maxHeight: "90vh", overflowY: "auto" }}>
+
+            {/* Full-res image — capped so it doesn't dominate on small phones */}
+            <div style={{ width: "100%", height: "min(55vw, 220px)", overflow: "hidden" }}>
               <img src={puzzle.image_src} alt="today's puzzle" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
 
@@ -535,8 +539,9 @@ export default function PicxleGame() {
               style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
               {copied ? "COPIED ✓" : "SHARE RESULT"}
             </button>
-            </div>
-          </div>
+            </div>{/* end padding wrapper */}
+            </div>{/* end inner scroll */}
+          </div>{/* end outer card */}
         </div>
       )}
 
@@ -609,7 +614,7 @@ export default function PicxleGame() {
             {isSubmitting ? "…" : "GUESS"}
           </button>
           <button className="pxbtn" onClick={skip}
-            style={{ background: C.coral, color: "#fff", border: "none", borderRadius: 9, padding: "7px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 13, cursor: "pointer" }}>
+            style={{ background: C.coral, color: "#fff", border: "none", borderRadius: 9, padding: "13px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 13, cursor: "pointer" }}>
             SKIP
           </button>
         </div>
@@ -638,7 +643,7 @@ export default function PicxleGame() {
 
           {stats && (
             <button className="pxbtn" onClick={() => setStatsOpen(true)}
-              style={{ marginTop: 16, background: "transparent", color: C.creamDim, border: `1px solid ${C.line}`, borderRadius: 9, padding: "9px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 14, cursor: "pointer", width: "100%" }}>
+              style={{ marginTop: 16, background: "transparent", color: C.creamDim, border: `1px solid ${C.line}`, borderRadius: 9, padding: "14px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 14, cursor: "pointer", width: "100%" }}>
               STATS
             </button>
           )}
