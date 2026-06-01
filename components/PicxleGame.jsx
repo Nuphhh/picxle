@@ -28,6 +28,15 @@ const LIGHT = {
 const norm = (s) =>
   s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
 
+// Returns a stable anonymous UUID for this browser, creating one on first visit.
+function getPlayerId() {
+  try {
+    let id = localStorage.getItem("picxle-player-id");
+    if (!id) { id = crypto.randomUUID(); localStorage.setItem("picxle-player-id", id); }
+    return id;
+  } catch { return null; }
+}
+
 export default function PicxleGame() {
   const [isDark, setIsDark] = useState(() => {
     try {
@@ -56,6 +65,7 @@ export default function PicxleGame() {
   // Fetched from /api/puzzle/reveal only after the game ends.
   const [revealedAnswer, setRevealedAnswer] = useState(null);
   const [stats, setStats] = useState(null);
+  const [playerStreak, setPlayerStreak] = useState(null);
 
   const srcRef = useRef(null);
   const canvasRef = useRef(null);
@@ -107,6 +117,8 @@ export default function PicxleGame() {
   useEffect(() => {
     if (status === "playing" || !puzzle) return;
 
+    const playerId = getPlayerId();
+
     // Guard: only record once per puzzle (refresh-safe)
     const recordedKey = `picxle-recorded-${puzzle.id}`;
     if (!localStorage.getItem(recordedKey)) {
@@ -115,7 +127,7 @@ export default function PicxleGame() {
       fetch("/api/stats/record", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ puzzleId: puzzle.id, guessesTaken }),
+        body: JSON.stringify({ puzzleId: puzzle.id, guessesTaken, playerId }),
       })
         .then(() => localStorage.setItem(recordedKey, "1"))
         .catch(() => {});
@@ -125,6 +137,13 @@ export default function PicxleGame() {
       .then((r) => r.json())
       .then((data) => setStats(data))
       .catch(() => {});
+
+    if (playerId) {
+      fetch(`/api/stats/streak?playerId=${playerId}`)
+        .then((r) => r.json())
+        .then((data) => setPlayerStreak(data))
+        .catch(() => {});
+    }
   }, [status, puzzle]); // guesses.length is stable by the time status flips
 
   // ── Load the puzzle image into an offscreen 440×440 canvas ──
@@ -515,6 +534,23 @@ export default function PicxleGame() {
                 <p style={{ fontSize: 11, letterSpacing: "2px", color: C.creamDim, margin: "0 0 14px", textAlign: "center" }}>
                   GUESS DISTRIBUTION
                 </p>
+
+                {/* ── Personal stat boxes ── */}
+                {playerStreak && (
+                  <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+                    {[
+                      { label: "PLAYED",  value: playerStreak.played },
+                      { label: "WIN %",   value: `${playerStreak.winPct}%` },
+                      { label: "STREAK",  value: playerStreak.current },
+                      { label: "BEST",    value: playerStreak.max },
+                    ].map(({ label, value }) => (
+                      <div key={label} style={{ flex: 1, textAlign: "center", background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 4px" }}>
+                        <div style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, lineHeight: 1 }}>{value}</div>
+                        <div style={{ fontSize: 9, letterSpacing: "1px", color: C.creamDim, marginTop: 4 }}>{label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {[1, 2, 3, 4, 5, 6].map((n) => {
                   const count = stats.counts[n] ?? 0;
                   const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
