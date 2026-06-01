@@ -1,4 +1,4 @@
-import { getSupabase } from "@/lib/supabase";
+import { supabaseFetch } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -12,19 +12,14 @@ export async function POST(request) {
     return Response.json({ error: "Missing puzzleId or guess." }, { status: 400 });
   }
 
-  const supabase = await getSupabase();
+  const res = await supabaseFetch(`puzzles?id=eq.${puzzleId}&select=accepts`);
+  const rows = await res.json();
 
-  const { data, error } = await supabase
-    .from("puzzles")
-    .select("accepts")
-    .eq("id", puzzleId)
-    .single();
-
-  if (error || !data) {
+  if (!Array.isArray(rows) || rows.length === 0) {
     return Response.json({ error: "Puzzle not found." }, { status: 404 });
   }
 
-  const correct = data.accepts.some((a) => norm(a) === norm(guess));
+  const correct = rows[0].accepts.some((a) => norm(a) === norm(guess));
 
   return Response.json({ correct });
 }
