@@ -4,7 +4,7 @@
 // browser-only APIs that don't exist on the server.
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES } from "@/data/puzzles";
+import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, LAUNCH_EPOCH_DAY } from "@/data/puzzles";
 
 const C = {
   ink: "#17130d",
@@ -21,9 +21,9 @@ const C = {
 const norm = (s) =>
   s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
 
-// Pick today's puzzle by dividing the current timestamp by one day in milliseconds.
-// Everyone on the same calendar day gets the same puzzle index.
-const todayIdx = () => Math.floor(Date.now() / 86400000) % PUZZLES.length;
+// Puzzle index = days elapsed since launch date, wrapping around the pool.
+// Everyone on the same UTC day gets the same puzzle.
+const todayIdx = () => (Math.floor(Date.now() / 86400000) - LAUNCH_EPOCH_DAY) % PUZZLES.length;
 
 export default function PicxleGame() {
   const [puzzleIdx, setPuzzleIdx] = useState(todayIdx);

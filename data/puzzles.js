@@ -336,3 +336,7 @@ export const MAX_GUESSES = 5;
 // Pixel grid size at each stage: index 0 = before any guess, index 4 = 5th wrong guess
 export const RES_STEPS = [7, 11, 17, 26, 40];
 export const FULL_RES = 220;
+
+// Puzzle 1 launched on this UTC date. Every day after adds 1 to the index.
+// Change this date if you ever want to reset the rotation.
+export const LAUNCH_EPOCH_DAY = Math.floor(new Date('2026-06-01T00:00:00Z').getTime() / 86400000);
