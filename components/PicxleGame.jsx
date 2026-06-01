@@ -7,8 +7,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { PUZZLES, DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, LAUNCH_EPOCH_DAY, CATEGORY_HINTS } from "@/data/puzzles";
 
 const C = {
-  ink: "#0d1b2e",     // cool near-black
-  ink2: "#0f2644",    // deep navy surface
+  ink: "#07101a",     // near-black, barely-blue undertone
+  ink2: "#0c1928",    // dark surface
   cream: "#e2e8f0",   // slate-200
   creamDim: "#94a3b8",// slate-400
   coral: "#60a5fa",   // blue-400 — SKIP, wrong rows, logo X
