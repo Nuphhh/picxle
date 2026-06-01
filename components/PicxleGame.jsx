@@ -493,6 +493,11 @@ export default function PicxleGame() {
             <p style={{ fontSize: 11, color: C.creamDim, textAlign: "center", margin: "12px 0 0", letterSpacing: "0.5px" }}>
               {stats.total.toLocaleString()} {stats.total === 1 ? "player" : "players"} today
             </p>
+
+            <button className="pxbtn" onClick={shareGrid}
+              style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
+              {copied ? "COPIED ✓" : "SHARE RESULT"}
+            </button>
           </div>
         </div>
       )}
