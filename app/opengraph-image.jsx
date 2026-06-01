@@ -17,25 +17,10 @@ export default function OGImage() {
           background: "#17130d",
         }}
       >
-        {/* X mark — two crossing strokes */}
-        <div style={{ display: "flex", width: 340, height: 340, position: "relative" }}>
-          <div style={{
-            position: "absolute", top: 0, left: "50%",
-            width: 72, height: 480,
-            background: "#3b82f6",
-            borderRadius: 36,
-            transform: "translateX(-50%) rotate(45deg)",
-            transformOrigin: "center",
-          }} />
-          <div style={{
-            position: "absolute", top: 0, left: "50%",
-            width: 72, height: 480,
-            background: "#3b82f6",
-            borderRadius: 36,
-            transform: "translateX(-50%) rotate(-45deg)",
-            transformOrigin: "center",
-          }} />
-        </div>
+        <svg width="320" height="320" viewBox="0 0 100 100">
+          <line x1="18" y1="18" x2="82" y2="82" stroke="#3b82f6" strokeWidth="17" strokeLinecap="round"/>
+          <line x1="82" y1="18" x2="18" y2="82" stroke="#3b82f6" strokeWidth="17" strokeLinecap="round"/>
+        </svg>
       </div>
     ),
     size
