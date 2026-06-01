@@ -13,7 +13,7 @@ const C = {
   creamDim: "#cdbfa6",// warm dim text
   coral: "#d97706",   // amber-600 — SKIP, wrong rows, logo X
   green: "#46c46a",
-  amber: "#60a5fa",   // blue-400 — GUESS, skipped rows, share button
+  amber: "#3b82f6",   // blue-500 — GUESS, skipped rows, share button
   line: "#3a3024",    // warm brown border
 };
 
