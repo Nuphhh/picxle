@@ -66,6 +66,7 @@ export default function PicxleGame() {
   const [revealedAnswer, setRevealedAnswer] = useState(null);
   const [stats, setStats] = useState(null);
   const [playerStreak, setPlayerStreak] = useState(null);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   const srcRef = useRef(null);
   const canvasRef = useRef(null);
@@ -135,7 +136,7 @@ export default function PicxleGame() {
 
     fetch("/api/stats/today")
       .then((r) => r.json())
-      .then((data) => setStats(data))
+      .then((data) => { setStats(data); setStatsOpen(true); })
       .catch(() => {});
 
     if (playerId) {
@@ -220,7 +221,7 @@ export default function PicxleGame() {
   // ── Keyboard / body ──
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape") { setIsExpanded(false); setHintOpen(false); }
+      if (e.key === "Escape") { setIsExpanded(false); setHintOpen(false); setStatsOpen(false); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -430,6 +431,72 @@ export default function PicxleGame() {
         </div>
       )}
 
+      {/* ── Stats modal ── */}
+      {statsOpen && stats && (
+        <div onClick={() => setStatsOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "24px 20px", width: "min(90vw, 380px)", position: "relative" }}>
+            <button onClick={() => setStatsOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: C.line, border: "none", color: C.cream, fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+
+            <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 18, color: C.cream, margin: "0 0 16px", textAlign: "center", letterSpacing: "-0.5px" }}>STATISTICS</p>
+
+            {/* Personal stat boxes */}
+            {playerStreak && (
+              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                {[
+                  { label: "PLAYED", value: playerStreak.played },
+                  { label: "WIN %",  value: `${playerStreak.winPct}%` },
+                  { label: "STREAK", value: playerStreak.current },
+                  { label: "BEST",   value: playerStreak.max },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ flex: 1, textAlign: "center", background: C.ink, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 4px" }}>
+                    <div style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, lineHeight: 1 }}>{value}</div>
+                    <div style={{ fontSize: 9, letterSpacing: "1px", color: C.creamDim, marginTop: 4 }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Distribution bars */}
+            <p style={{ fontSize: 10, letterSpacing: "2px", color: C.creamDim, margin: "0 0 10px", textAlign: "center" }}>GUESS DISTRIBUTION</p>
+            {(() => {
+              const maxCount = Math.max(...Object.values(stats.counts), 1);
+              return [1, 2, 3, 4, 5, 6].map((n) => {
+                const count = stats.counts[n] ?? 0;
+                const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+                const barPct = Math.round((count / maxCount) * 100);
+                const isMe = (status === "won" && n === guesses.length) || (status === "lost" && n === 6);
+                const barColor = isMe ? (status === "won" ? C.green : C.coral) : C.line;
+                return (
+                  <div key={n} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <span style={{ width: 14, textAlign: "right", fontSize: 13, color: isMe ? C.cream : C.creamDim, fontWeight: isMe ? 700 : 400, flexShrink: 0 }}>
+                      {n === 6 ? "X" : n}
+                    </span>
+                    <div style={{ flex: 1, background: C.ink, borderRadius: 3, height: 22, overflow: "hidden" }}>
+                      <div style={{
+                        height: "100%",
+                        width: count > 0 ? `${Math.max(barPct, 8)}%` : "4%",
+                        background: barColor,
+                        borderRadius: 3,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        paddingRight: 7,
+                        transition: "width .5s ease",
+                      }}>
+                        {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: isMe ? "#fff" : C.creamDim }}>{pct}%</span>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
+            <p style={{ fontSize: 11, color: C.creamDim, textAlign: "center", margin: "12px 0 0", letterSpacing: "0.5px" }}>
+              {stats.total.toLocaleString()} {stats.total === 1 ? "player" : "players"} today
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* ── Image canvas ── */}
       <div
         onClick={() => imgReady && setIsExpanded(true)}
@@ -526,70 +593,12 @@ export default function PicxleGame() {
             </p>
           </div>
 
-          {/* ── Guess distribution ── */}
-          {stats && (() => {
-            const maxCount = Math.max(...Object.values(stats.counts), 1);
-            return (
-              <div style={{ marginTop: 28, width: "100%", borderTop: `1px solid ${C.line}`, paddingTop: 20 }}>
-                <p style={{ fontSize: 11, letterSpacing: "2px", color: C.creamDim, margin: "0 0 14px", textAlign: "center" }}>
-                  GUESS DISTRIBUTION
-                </p>
-
-                {/* ── Personal stat boxes ── */}
-                {playerStreak && (
-                  <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
-                    {[
-                      { label: "PLAYED",  value: playerStreak.played },
-                      { label: "WIN %",   value: `${playerStreak.winPct}%` },
-                      { label: "STREAK",  value: playerStreak.current },
-                      { label: "BEST",    value: playerStreak.max },
-                    ].map(({ label, value }) => (
-                      <div key={label} style={{ flex: 1, textAlign: "center", background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 4px" }}>
-                        <div style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, lineHeight: 1 }}>{value}</div>
-                        <div style={{ fontSize: 9, letterSpacing: "1px", color: C.creamDim, marginTop: 4 }}>{label}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {[1, 2, 3, 4, 5, 6].map((n) => {
-                  const count = stats.counts[n] ?? 0;
-                  const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
-                  const barPct = Math.round((count / maxCount) * 100);
-                  const isMe = (status === "won" && n === guesses.length) || (status === "lost" && n === 6);
-                  const barColor = isMe ? (status === "won" ? C.green : C.coral) : C.line;
-                  return (
-                    <div key={n} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                      <span style={{ width: 14, textAlign: "right", fontSize: 13, color: isMe ? C.cream : C.creamDim, fontWeight: isMe ? 700 : 400, flexShrink: 0 }}>
-                        {n === 6 ? "X" : n}
-                      </span>
-                      <div style={{ flex: 1, background: C.ink2, borderRadius: 3, height: 22, overflow: "hidden" }}>
-                        <div style={{
-                          height: "100%",
-                          width: count > 0 ? `${Math.max(barPct, 8)}%` : "4%",
-                          background: barColor,
-                          borderRadius: 3,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "flex-end",
-                          paddingRight: 7,
-                          transition: "width .5s ease",
-                        }}>
-                          {count > 0 && (
-                            <span style={{ fontSize: 10, fontWeight: 700, color: isMe ? "#fff" : C.creamDim }}>
-                              {pct}%
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-                <p style={{ fontSize: 11, color: C.creamDim, textAlign: "center", margin: "12px 0 0", letterSpacing: "0.5px" }}>
-                  {stats.total.toLocaleString()} {stats.total === 1 ? "player" : "players"} today
-                </p>
-              </div>
-            );
-          })()}
+          {stats && (
+            <button className="pxbtn" onClick={() => setStatsOpen(true)}
+              style={{ marginTop: 16, background: "transparent", color: C.creamDim, border: `1px solid ${C.line}`, borderRadius: 9, padding: "9px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 14, cursor: "pointer", width: "100%" }}>
+              STATS
+            </button>
+          )}
         </div>
       )}
     </div>
