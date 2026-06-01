@@ -72,6 +72,9 @@ export default function PicxleGame() {
   const srcRef = useRef(null);
   const canvasRef = useRef(null);
   const modalCanvasRef = useRef(null);
+  // True when the page loads with a game already finished (refresh) — prevents
+  // the stats modal auto-opening on revisit; it should only open on completion.
+  const alreadyFinishedOnMount = useRef(false);
 
   const guessesMade = guesses.length;
   const revealed = status !== "playing";
@@ -96,6 +99,7 @@ export default function PicxleGame() {
             const { guesses: g, status: s } = JSON.parse(saved);
             setGuesses(g);
             setStatus(s);
+            if (s !== "playing") alreadyFinishedOnMount.current = true;
           } catch {}
         }
       })
@@ -132,9 +136,10 @@ export default function PicxleGame() {
     };
 
     // Fetch today's distribution independently — opens the modal when ready
+    const openOnComplete = !alreadyFinishedOnMount.current;
     fetch("/api/stats/today")
       .then((r) => r.json())
-      .then((data) => { setStats(data); setStatsOpen(true); })
+      .then((data) => { setStats(data); if (openOnComplete) setStatsOpen(true); })
       .catch(() => {});
 
     const recordedKey = `picxle-recorded-${puzzle.id}`;
