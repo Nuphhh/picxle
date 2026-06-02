@@ -248,14 +248,22 @@ export default function PicxleGame() {
     const src = srcRef.current;
     if (!cv || !src) return;
     const ctx = cv.getContext("2d");
-    const tmp = document.createElement("canvas");
-    tmp.width = res; tmp.height = res;
-    const tctx = tmp.getContext("2d");
-    tctx.imageSmoothingEnabled = true;
-    tctx.drawImage(src, 0, 0, res, res);
-    ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
+    if (res === FULL_RES) {
+      // Draw the full 440×440 source directly with smoothing for a crisp result
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(src, 0, 0, cv.width, cv.height);
+    } else {
+      // Downsample to a tiny canvas then upscale without smoothing for the pixel effect
+      const tmp = document.createElement("canvas");
+      tmp.width = res; tmp.height = res;
+      const tctx = tmp.getContext("2d");
+      tctx.imageSmoothingEnabled = true;
+      tctx.drawImage(src, 0, 0, res, res);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
+    }
   }, [res]);
 
   useEffect(() => { draw(); }, [draw, status, imgReady]);
@@ -267,14 +275,20 @@ export default function PicxleGame() {
     const src = srcRef.current;
     if (!cv || !src) return;
     const ctx = cv.getContext("2d");
-    const tmp = document.createElement("canvas");
-    tmp.width = res; tmp.height = res;
-    const tctx = tmp.getContext("2d");
-    tctx.imageSmoothingEnabled = true;
-    tctx.drawImage(src, 0, 0, res, res);
-    ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, cv.width, cv.height);
-    ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
+    if (res === FULL_RES) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(src, 0, 0, cv.width, cv.height);
+    } else {
+      const tmp = document.createElement("canvas");
+      tmp.width = res; tmp.height = res;
+      const tctx = tmp.getContext("2d");
+      tctx.imageSmoothingEnabled = true;
+      tctx.drawImage(src, 0, 0, res, res);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(tmp, 0, 0, res, res, 0, 0, cv.width, cv.height);
+    }
   }, [isExpanded, res, imgReady]);
 
   // ── Keyboard / body ──
