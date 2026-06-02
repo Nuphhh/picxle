@@ -824,6 +824,10 @@ export default function PicxleGame() {
               onBlur={() => setTimeout(() => setSuggestions([]), 150)}
               placeholder="type your guess"
               disabled={isSubmitting}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="none"
+              spellCheck={false}
               style={{ width: "100%", background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 9, padding: "12px 14px", color: C.cream, fontFamily: "var(--font-space-mono), monospace", fontSize: 15, outline: "none", opacity: isSubmitting ? 0.6 : 1 }}
             />
             {suggestions.length > 0 && (
