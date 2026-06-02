@@ -87,6 +87,9 @@ export default function PicxleGame() {
     ? FULL_RES
     : RES_STEPS[Math.min(guessesMade, RES_STEPS.length - 1)];
 
+  const isYesterdaysPuzzle = puzzle &&
+    puzzle.puzzle_date !== new Date().toISOString().slice(0, 10);
+
   // Helper: activate a puzzle — restores saved progress and fetches difficulty stats
   const activatePuzzle = (data) => {
     setPuzzle(data);
@@ -99,6 +102,24 @@ export default function PicxleGame() {
         setStatus(s);
         if (s !== "playing") alreadyFinishedOnMount.current = true;
       } catch {}
+    }
+  };
+
+  // Switch to today's puzzle after finishing yesterday's — resets state then activates
+  const switchToToday = () => {
+    setGuesses([]);
+    setStatus("playing");
+    setRevealedAnswer(null);
+    setStats(null);
+    setPlayerStreak(null);
+    alreadyFinishedOnMount.current = false;
+    if (pendingTodayRef.current) {
+      activatePuzzle(pendingTodayRef.current);
+    } else {
+      fetch("/api/puzzle/today")
+        .then((r) => r.json())
+        .then((data) => { if (!data.error) activatePuzzle(data); })
+        .catch(() => {});
     }
   };
 
@@ -726,14 +747,21 @@ export default function PicxleGame() {
             style={{ background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
             {copied ? "COPIED ✓" : "SHARE RESULT"}
           </button>
-          <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-            <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "1px", margin: 0 }}>
-              NEXT PICXLE IN
-            </p>
-            <p style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: 22, fontWeight: 700, color: C.cream, margin: 0, letterSpacing: "2px" }}>
-              {countdown}
-            </p>
-          </div>
+          {isYesterdaysPuzzle ? (
+            <button className="pxbtn" onClick={switchToToday}
+              style={{ marginTop: 20, background: C.cream, color: C.ink, border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 800, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer", width: "100%" }}>
+              Play today&apos;s puzzle →
+            </button>
+          ) : (
+            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+              <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "1px", margin: 0 }}>
+                NEXT PICXLE IN
+              </p>
+              <p style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: 22, fontWeight: 700, color: C.cream, margin: 0, letterSpacing: "2px" }}>
+                {countdown}
+              </p>
+            </div>
+          )}
 
           {stats && (
             <button className="pxbtn" onClick={() => setStatsOpen(true)}
