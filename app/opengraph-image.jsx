@@ -1,9 +1,11 @@
 import { ImageResponse } from "next/og";
+import sharp from "sharp";
 
-export const runtime = "edge";
+// Must be nodejs (not edge) so sharp can run
+export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-// Revalidate every hour so the image refreshes shortly after midnight UTC
+// Refresh every hour so it switches to the next puzzle within an hour of midnight UTC
 export const revalidate = 3600;
 
 async function fetchTodayImageUrl() {
@@ -23,33 +25,37 @@ async function fetchTodayImageUrl() {
 }
 
 export default async function OGImage() {
-  let imageUrl = null;
-  try { imageUrl = await fetchTodayImageUrl(); } catch {}
+  let pixelatedDataUrl = null;
 
-  if (imageUrl) {
-    // Render at 8×8 pixels and scale up with imageRendering: pixelated
-    // scale(150) → 1200×1200, centred in the 1200×630 frame, cropped by overflow:hidden
+  try {
+    const imageUrl = await fetchTodayImageUrl();
+    if (imageUrl) {
+      const imageRes = await fetch(imageUrl);
+      const buffer = Buffer.from(await imageRes.arrayBuffer());
+
+      // Crop to square, downsample to 8×8, upscale to 630×630 with nearest-neighbour
+      // so each of the 64 pixels becomes a 78×78 block — exactly the pixelation effect
+      const pixelated = await sharp(buffer)
+        .resize(8, 8, { fit: "cover", kernel: sharp.kernel.nearest })
+        .resize(630, 630, { fit: "fill", kernel: sharp.kernel.nearest })
+        .png()
+        .toBuffer();
+
+      pixelatedDataUrl = `data:image/png;base64,${pixelated.toString("base64")}`;
+    }
+  } catch {}
+
+  if (pixelatedDataUrl) {
     return new ImageResponse(
       <div style={{
         width: "100%",
         height: "100%",
-        overflow: "hidden",
         background: "#17130d",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        position: "relative",
       }}>
-        <img
-          src={imageUrl}
-          style={{
-            position: "absolute",
-            width: 8,
-            height: 8,
-            imageRendering: "pixelated",
-            transform: "scale(150)",
-          }}
-        />
+        <img src={pixelatedDataUrl} style={{ width: 630, height: 630 }} />
       </div>,
       size
     );
