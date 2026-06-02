@@ -86,7 +86,7 @@ export default function LandingPage() {
 
       {/* Pixelation step visual */}
       <div style={{ display: "flex", gap: 4, marginBottom: 48 }}>
-        {[{ label: "7px" }, { label: "11px" }, { label: "17px" }, { label: "26px" }, { label: "✓" }].map(({ label }, i) => (
+        {[{ label: "8px" }, { label: "12px" }, { label: "19px" }, { label: "29px" }, { label: "✓" }].map(({ label }, i) => (
           <div key={i} style={{
             width: 44, height: 44, borderRadius: 6,
             background: isDark

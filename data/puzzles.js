@@ -233,7 +233,7 @@ export const DICTIONARY = [
 export const MAX_GUESSES = 5;
 
 // Pixel grid size at each stage: index 0 = before any guess, index 4 = 5th wrong guess
-export const RES_STEPS = [7, 11, 17, 26, 40];
+export const RES_STEPS = [8, 12, 19, 29, 45];
 export const FULL_RES = 220;
 
 // These lists power the category pill popup — everything a player might legitimately guess

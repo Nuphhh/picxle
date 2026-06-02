@@ -13,7 +13,7 @@ mechanic is **the image resolving as you fail.**
   do NOT pre-render multiple resolution files. Draw the image to a small
   N×N canvas, then scale it up to display size with
   `imageSmoothingEnabled = false`. N increases per guess.
-- Reference resolution steps used in the prototype: 7, 11, 17, 26, 40 px,
+- Reference resolution steps used in the prototype: 8, 12, 19, 29, 45 px,
   then full resolution on solve/loss. Tune for difficulty.
 - On win or loss: reveal the full image + answer, then show a
   Wordle-style emoji share grid.
