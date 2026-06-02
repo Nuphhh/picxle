@@ -68,6 +68,7 @@ export default function PicxleGame() {
   const [stats, setStats] = useState(null);
   const [playerStreak, setPlayerStreak] = useState(null);
   const [statsOpen, setStatsOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [dictError, setDictError] = useState(false);
   const [showMissedPrompt, setShowMissedPrompt] = useState(false);
   const [yesterdayPuzzle, setYesterdayPuzzle] = useState(null);
@@ -279,7 +280,7 @@ export default function PicxleGame() {
   // ── Keyboard / body ──
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape") { setIsExpanded(false); setHintOpen(false); setStatsOpen(false); }
+      if (e.key === "Escape") { setIsExpanded(false); setHintOpen(false); setStatsOpen(false); setProfileOpen(false); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -480,6 +481,31 @@ export default function PicxleGame() {
 
       {/* ── Header ── */}
       <div style={{ textAlign: "center", marginBottom: 18, position: "relative" }}>
+
+        {/* Profile button — top left */}
+        <button
+          onClick={() => {
+            setProfileOpen(true);
+            if (!playerStreak) {
+              const pid = getPlayerId();
+              if (pid) fetch(`/api/stats/streak?playerId=${pid}`).then(r => r.json()).then(d => setPlayerStreak(d)).catch(() => {});
+            }
+          }}
+          title="Your profile"
+          style={{
+            position: "absolute", top: 0, left: 0,
+            background: "transparent", border: `1px solid ${C.line}`,
+            borderRadius: 20, padding: "4px 10px", fontSize: 13,
+            cursor: "pointer", color: C.creamDim, lineHeight: 1, display: "flex", alignItems: "center", gap: 5,
+          }}
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="7" r="5"/>
+            <path d="M3 21c0-5 4-8 9-8s9 3 9 8"/>
+          </svg>
+        </button>
+
+        {/* Theme toggle — top right */}
         <button
           onClick={() => setIsDark((d) => {
           try { localStorage.setItem("picxle-theme", d ? "light" : "dark"); } catch {}
@@ -652,6 +678,82 @@ export default function PicxleGame() {
             </div>{/* end padding wrapper */}
             </div>{/* end inner scroll */}
           </div>{/* end outer card */}
+        </div>
+      )}
+
+      {/* ── Profile modal ── */}
+      {profileOpen && (
+        <div onClick={() => setProfileOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", maxHeight: "90vh", overflowY: "auto", position: "relative" }}>
+            <button onClick={() => setProfileOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: C.line, border: "none", color: C.cream, fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
+
+            <div style={{ padding: "24px 20px 20px" }}>
+              {/* Name */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: C.line, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill={C.creamDim}>
+                    <circle cx="12" cy="7" r="5"/>
+                    <path d="M3 21c0-5 4-8 9-8s9 3 9 8"/>
+                  </svg>
+                </div>
+                <div>
+                  <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 18, color: C.cream, margin: 0, letterSpacing: "-0.5px" }}>Guest</p>
+                  <p style={{ fontSize: 11, color: C.creamDim, margin: 0, letterSpacing: "0.5px" }}>anonymous player</p>
+                </div>
+              </div>
+
+              {playerStreak ? (
+                <>
+                  {/* Stat boxes */}
+                  <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                    {[
+                      { label: "PLAYED",  value: playerStreak.played },
+                      { label: "WIN %",   value: `${playerStreak.winPct}%` },
+                      { label: "STREAK",  value: playerStreak.current },
+                      { label: "BEST",    value: playerStreak.max },
+                    ].map(({ label, value }) => (
+                      <div key={label} style={{ flex: 1, textAlign: "center", background: C.ink, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 4px" }}>
+                        <div style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, lineHeight: 1 }}>{value}</div>
+                        <div style={{ fontSize: 9, letterSpacing: "1px", color: C.creamDim, marginTop: 4 }}>{label}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* All-time guess distribution */}
+                  <p style={{ fontSize: 10, letterSpacing: "2px", color: C.creamDim, margin: "0 0 10px", textAlign: "center" }}>GUESS DISTRIBUTION</p>
+                  {(() => {
+                    const counts = playerStreak.counts ?? {};
+                    const total = playerStreak.played;
+                    const maxCount = Math.max(...Object.values(counts), 1);
+                    return [1, 2, 3, 4, 5, 6].map((n) => {
+                      const count = counts[n] ?? 0;
+                      const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                      const barPct = Math.round((count / maxCount) * 100);
+                      return (
+                        <div key={n} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                          <span style={{ width: 14, textAlign: "right", fontSize: 13, color: C.creamDim, flexShrink: 0 }}>{n === 6 ? "X" : n}</span>
+                          <div style={{ flex: 1, background: C.ink, borderRadius: 3, height: 22, overflow: "hidden" }}>
+                            <div style={{
+                              height: "100%",
+                              width: count > 0 ? `${Math.max(barPct, 8)}%` : "4%",
+                              background: n === 6 ? C.coral : C.amber,
+                              borderRadius: 3,
+                              display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 7,
+                              transition: "width .5s ease",
+                            }}>
+                              {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: "#fff" }}>{pct}%</span>}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </>
+              ) : (
+                <p style={{ textAlign: "center", color: C.creamDim, fontSize: 13 }}>Loading…</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

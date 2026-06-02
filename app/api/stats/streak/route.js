@@ -45,7 +45,7 @@ export async function GET(request) {
   const rows = await res.json();
 
   if (!Array.isArray(rows) || rows.length === 0) {
-    return Response.json({ current: 0, max: 0, played: 0, winPct: 0 });
+    return Response.json({ current: 0, max: 0, played: 0, winPct: 0, counts: { 1:0,2:0,3:0,4:0,5:0,6:0 } });
   }
 
   const dates = rows.map((r) => r.puzzles?.puzzle_date).filter(Boolean);
@@ -54,5 +54,9 @@ export async function GET(request) {
   const winPct = played > 0 ? Math.round((won / played) * 100) : 0;
   const { current, max } = computeStreaks(dates);
 
-  return Response.json({ current, max, played, winPct });
+  // All-time guess distribution
+  const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+  rows.forEach((r) => { const g = r.guesses_taken; if (g >= 1 && g <= 6) counts[g]++; });
+
+  return Response.json({ current, max, played, winPct, counts });
 }
