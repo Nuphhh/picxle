@@ -735,9 +735,22 @@ export default function PicxleGame() {
         </div>
       ) : (
         <div style={{ textAlign: "center", width: 316 }}>
-          <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 24, margin: "0 0 4px", color: status === "won" ? C.green : C.coral }}>
-            {status === "won" ? "NAILED IT" : "OUT OF GUESSES"}
-          </p>
+          {(() => {
+            const { text, color } = status === "won"
+              ? [
+                  { text: "Absolutely unreal.", color: C.amber },
+                  { text: "Sharp eye.",         color: C.green },
+                  { text: "Solid.",             color: C.green },
+                  { text: "Got there in the end.", color: C.cream },
+                  { text: "That was close.",    color: C.creamDim },
+                ][guesses.length - 1]
+              : { text: "Better luck tomorrow.", color: C.coral };
+            return (
+              <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 24, margin: "0 0 4px", color }}>
+                {text}
+              </p>
+            );
+          })()}
           <p style={{ margin: "0 0 16px", fontSize: 14, color: C.creamDim }}>
             {revealedAnswer
               ? <>it was <b style={{ color: C.cream, textTransform: "uppercase" }}>{revealedAnswer}</b></>
