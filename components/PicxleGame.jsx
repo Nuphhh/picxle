@@ -533,8 +533,18 @@ export default function PicxleGame() {
               <img src={puzzle.image_src} alt="today's puzzle" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </div>
 
+            {/* Answer reveal */}
+            {revealedAnswer && (
+              <p style={{ textAlign: "center", margin: "14px 20px 0", fontSize: 13, color: C.creamDim }}>
+                it was{" "}
+                <span style={{ color: C.cream, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>
+                  {revealedAnswer}
+                </span>
+              </p>
+            )}
+
             {/* Tiered result message */}
-            <div style={{ padding: "16px 20px 0", textAlign: "center" }}>
+            <div style={{ padding: "8px 20px 0", textAlign: "center" }}>
               {(() => {
                 const { text, color } = status === "won"
                   ? [
