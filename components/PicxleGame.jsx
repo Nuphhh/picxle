@@ -178,12 +178,13 @@ export default function PicxleGame() {
         .catch(() => {});
     };
 
-    // Fetch today's distribution independently — opens the modal when ready
-    const openOnComplete = !alreadyFinishedOnMount.current;
-    fetch(`/api/stats/today?puzzleId=${puzzle.id}`)
-      .then((r) => r.json())
-      .then((data) => { setStats(data); if (openOnComplete) setStatsOpen(true); })
-      .catch(() => {});
+    const fetchDistribution = () => {
+      const openOnComplete = !alreadyFinishedOnMount.current;
+      fetch(`/api/stats/today?puzzleId=${puzzle.id}`)
+        .then((r) => r.json())
+        .then((data) => { setStats(data); if (openOnComplete) setStatsOpen(true); })
+        .catch(() => {});
+    };
 
     const recordedKey = `picxle-recorded-${puzzle.id}`;
     if (!localStorage.getItem(recordedKey)) {
@@ -196,12 +197,14 @@ export default function PicxleGame() {
       })
         .then(() => {
           localStorage.setItem(recordedKey, "1");
-          // Fetch streak only after the record is confirmed in the DB
+          // Fetch distribution and streak only after the record is confirmed in the DB
+          fetchDistribution();
           fetchStreak();
         })
         .catch(() => {});
     } else {
-      // Already recorded on a previous visit — streak is already up to date
+      // Already recorded on a previous visit — fetch distribution and streak directly
+      fetchDistribution();
       fetchStreak();
     }
   }, [status, puzzle]); // guesses.length is stable by the time status flips
