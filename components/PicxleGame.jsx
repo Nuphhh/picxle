@@ -68,6 +68,8 @@ export default function PicxleGame() {
   const [stats, setStats] = useState(null);
   const [playerStreak, setPlayerStreak] = useState(null);
   const [statsOpen, setStatsOpen] = useState(false);
+  const [showMissedPrompt, setShowMissedPrompt] = useState(false);
+  const [yesterdayPuzzle, setYesterdayPuzzle] = useState(null);
 
   const srcRef = useRef(null);
   const canvasRef = useRef(null);
@@ -75,6 +77,8 @@ export default function PicxleGame() {
   // True when the page loads with a game already finished (refresh) — prevents
   // the stats modal auto-opening on revisit; it should only open on completion.
   const alreadyFinishedOnMount = useRef(false);
+  // Holds today's puzzle data while the missed-yesterday prompt is shown
+  const pendingTodayRef = useRef(null);
 
   const guessesMade = guesses.length;
   const revealed = status !== "playing";
@@ -82,29 +86,45 @@ export default function PicxleGame() {
     ? FULL_RES
     : RES_STEPS[Math.min(guessesMade, RES_STEPS.length - 1)];
 
-  // ── Fetch today's puzzle from the API on mount ──
+  // Helper: activate a puzzle — restores saved progress and fetches difficulty stats
+  const activatePuzzle = (data) => {
+    setPuzzle(data);
+    fetch("/api/stats/today").then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
+    const saved = localStorage.getItem(`picxle-${data.id}`);
+    if (saved) {
+      try {
+        const { guesses: g, status: s } = JSON.parse(saved);
+        setGuesses(g);
+        setStatus(s);
+        if (s !== "playing") alreadyFinishedOnMount.current = true;
+      } catch {}
+    }
+  };
+
+  // ── Fetch today + yesterday on mount; prompt if yesterday was missed ──
   useEffect(() => {
-    fetch("/api/puzzle/today")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.error) { setPuzzleError(true); return; }
-        setPuzzle(data);
-        // Fetch stats early so difficulty shows during gameplay
-        fetch("/api/stats/today").then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
-        // Restore any progress the player already made on today's puzzle.
-        // Keyed by puzzle ID so yesterday's save never bleeds into today.
-        const saved = localStorage.getItem(`picxle-${data.id}`);
-        if (saved) {
-          try {
-            const { guesses: g, status: s } = JSON.parse(saved);
-            setGuesses(g);
-            setStatus(s);
-            if (s !== "playing") alreadyFinishedOnMount.current = true;
-          } catch {}
+    Promise.all([
+      fetch("/api/puzzle/today").then((r) => r.json()),
+      fetch("/api/puzzle/yesterday").then((r) => r.json()).catch(() => ({ error: true })),
+    ])
+      .then(([todayData, yesterdayData]) => {
+        if (todayData.error) { setPuzzleError(true); return; }
+
+        const missedYesterday =
+          yesterdayData &&
+          !yesterdayData.error &&
+          !localStorage.getItem(`picxle-${yesterdayData.id}`);
+
+        if (missedYesterday) {
+          setYesterdayPuzzle(yesterdayData);
+          pendingTodayRef.current = todayData;
+          setShowMissedPrompt(true);
+        } else {
+          activatePuzzle(todayData);
         }
       })
       .catch(() => setPuzzleError(true));
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Persist progress whenever guesses or status change ──
   useEffect(() => {
@@ -115,7 +135,7 @@ export default function PicxleGame() {
   // ── Fetch the answer once the game ends so we can show it ──
   useEffect(() => {
     if (status === "playing" || !puzzle) return;
-    fetch("/api/puzzle/reveal")
+    fetch(`/api/puzzle/reveal?puzzleId=${puzzle.id}`)
       .then((r) => r.json())
       .then((data) => setRevealedAnswer(data.answer ?? null))
       .catch(() => {});
@@ -349,6 +369,42 @@ export default function PicxleGame() {
     return (
       <div style={{ background: C.ink, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.creamDim, fontFamily: "var(--font-space-mono), monospace", fontSize: 14 }}>
         No puzzle today — check back tomorrow.
+      </div>
+    );
+  }
+
+  // ── Missed yesterday prompt ──
+  if (showMissedPrompt && yesterdayPuzzle) {
+    return (
+      <div className="page-root" style={{ background: `radial-gradient(140% 100% at 50% 0%, ${C.ink2} 0%, ${C.ink} 55%)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", fontFamily: "var(--font-space-mono), monospace" }}>
+        <style>{`.pxbtn{transition:transform .12s ease,background .15s ease}.pxbtn:hover{transform:translateY(-2px)}.pxbtn:active{transform:translateY(0)}`}</style>
+        <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 46, letterSpacing: "-1.5px", margin: "0 0 32px", lineHeight: 1, color: C.cream }}>
+          PIC<span style={{ color: C.amber }}>X</span>LE
+        </h1>
+        <div style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "28px 24px", width: "100%", maxWidth: 340, textAlign: "center" }}>
+          <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 20, color: C.cream, margin: "0 0 10px", letterSpacing: "-0.5px" }}>
+            You missed yesterday&apos;s puzzle.
+          </p>
+          <p style={{ fontSize: 13, color: C.creamDim, lineHeight: 1.7, margin: "0 0 28px" }}>
+            Want to play it now before today&apos;s?
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <button
+              className="pxbtn"
+              onClick={() => { setShowMissedPrompt(false); activatePuzzle(yesterdayPuzzle); }}
+              style={{ background: C.cream, color: C.ink, border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 800, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer", width: "100%" }}
+            >
+              Play yesterday&apos;s
+            </button>
+            <button
+              className="pxbtn"
+              onClick={() => { setShowMissedPrompt(false); activatePuzzle(pendingTodayRef.current); }}
+              style={{ background: "transparent", color: C.creamDim, border: `1px solid ${C.line}`, borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 14, cursor: "pointer", width: "100%" }}
+            >
+              Skip to today&apos;s
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
