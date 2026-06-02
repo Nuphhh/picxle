@@ -90,7 +90,7 @@ export default function PicxleGame() {
   // Helper: activate a puzzle — restores saved progress and fetches difficulty stats
   const activatePuzzle = (data) => {
     setPuzzle(data);
-    fetch("/api/stats/today").then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
+    fetch(`/api/stats/today?puzzleId=${data.id}`).then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
     const saved = localStorage.getItem(`picxle-${data.id}`);
     if (saved) {
       try {
@@ -158,7 +158,7 @@ export default function PicxleGame() {
 
     // Fetch today's distribution independently — opens the modal when ready
     const openOnComplete = !alreadyFinishedOnMount.current;
-    fetch("/api/stats/today")
+    fetch(`/api/stats/today?puzzleId=${puzzle.id}`)
       .then((r) => r.json())
       .then((data) => { setStats(data); if (openOnComplete) setStatsOpen(true); })
       .catch(() => {});

@@ -2,17 +2,21 @@ import { supabaseFetch } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  const today = new Date().toISOString().slice(0, 10);
+export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+  const puzzleIdParam = searchParams.get("puzzleId");
 
-  const puzzleRes = await supabaseFetch(`puzzles?puzzle_date=eq.${today}&select=id`);
-  const puzzles = await puzzleRes.json();
-
-  if (!Array.isArray(puzzles) || puzzles.length === 0) {
-    return Response.json({ error: "No puzzle today." }, { status: 404 });
+  // If a specific puzzle ID is given use it directly, otherwise look up today's
+  let puzzleId = puzzleIdParam;
+  if (!puzzleId) {
+    const today = new Date().toISOString().slice(0, 10);
+    const puzzleRes = await supabaseFetch(`puzzles?puzzle_date=eq.${today}&select=id`);
+    const puzzles = await puzzleRes.json();
+    if (!Array.isArray(puzzles) || puzzles.length === 0) {
+      return Response.json({ error: "No puzzle today." }, { status: 404 });
+    }
+    puzzleId = puzzles[0].id;
   }
-
-  const puzzleId = puzzles[0].id;
 
   const completionsRes = await supabaseFetch(
     `completions?puzzle_id=eq.${puzzleId}&select=guesses_taken`
