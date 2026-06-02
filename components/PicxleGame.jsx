@@ -631,7 +631,7 @@ export default function PicxleGame() {
         style={{ position: "relative", padding: 8, background: C.ink2, borderRadius: 18, border: `1px solid ${C.line}`, boxShadow: "0 18px 40px -20px #000", animation: shake ? "shk .38s ease" : "none", cursor: imgReady ? "zoom-in" : "default" }}
       >
         <canvas ref={canvasRef} width={300} height={300} style={{ width: 300, height: 300, borderRadius: 12, display: "block", imageRendering: "pixelated" }} />
-        <div style={{ position: "absolute", top: 16, left: 16, background: "rgba(0,0,0,.45)", color: C.cream, fontSize: 11, padding: "3px 8px", borderRadius: 6, letterSpacing: "1px" }}>
+        <div style={{ position: "absolute", top: 16, left: 16, background: "rgba(0,0,0,.45)", color: "#f4ead7", fontSize: 11, padding: "3px 8px", borderRadius: 6, letterSpacing: "1px" }}>
           {!imgReady ? "LOADING…" : revealed ? "FULL RES" : `${res}×${res} PX`}
         </div>
       </div>
