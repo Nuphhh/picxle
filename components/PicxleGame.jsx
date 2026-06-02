@@ -707,10 +707,10 @@ export default function PicxleGame() {
                   {/* Stat boxes */}
                   <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
                     {[
-                      { label: "PLAYED",  value: playerStreak.played },
-                      { label: "WIN %",   value: `${playerStreak.winPct}%` },
-                      { label: "STREAK",  value: playerStreak.current },
-                      { label: "BEST",    value: playerStreak.max },
+                      { label: "PLAYED",       value: playerStreak.played },
+                      { label: "WIN %",        value: `${playerStreak.winPct}%` },
+                      { label: "STREAK",       value: playerStreak.current },
+                      { label: "BEST STREAK",  value: playerStreak.max },
                     ].map(({ label, value }) => (
                       <div key={label} style={{ flex: 1, textAlign: "center", background: C.ink, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 4px" }}>
                         <div style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, lineHeight: 1 }}>{value}</div>
@@ -720,7 +720,7 @@ export default function PicxleGame() {
                   </div>
 
                   {/* All-time guess distribution */}
-                  <p style={{ fontSize: 10, letterSpacing: "2px", color: C.creamDim, margin: "0 0 10px", textAlign: "center" }}>GUESS DISTRIBUTION</p>
+                  <p style={{ fontSize: 10, letterSpacing: "2px", color: C.creamDim, margin: "0 0 10px", textAlign: "center" }}>YOUR GUESS DISTRIBUTION</p>
                   {(() => {
                     const counts = playerStreak.counts ?? {};
                     const total = playerStreak.played;
