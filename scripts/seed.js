@@ -20,6 +20,22 @@ const supabase = createClient(
 
 const PUZZLES = [
   {
+    image_src: "https://upload.wikimedia.org/wikipedia/commons/0/07/Sword-billed_hummingbird_in_Ecuador_-_%2854572220117%29.jpg",
+    answer: "hummingbird",
+    accepts: ["hummingbird"],
+    category: "Animal",
+    license: "CC-BY",
+    attribution: "Andy Morffew, CC BY 2.0",
+  },
+  {
+    image_src: "https://upload.wikimedia.org/wikipedia/commons/5/5b/Okinawa_Churaumi_aquarium_Manta_hdsr_Vlux5_01.jpg",
+    answer: "manta ray",
+    accepts: ["manta ray"],
+    category: "Animal",
+    license: "CC-BY",
+    attribution: "Hyppolyte de Saint-Rambert, CC BY 4.0",
+  },
+  {
     image_src: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
     answer: "mona lisa",
     accepts: ["mona lisa"],
