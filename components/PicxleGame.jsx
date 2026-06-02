@@ -68,6 +68,7 @@ export default function PicxleGame() {
   const [stats, setStats] = useState(null);
   const [playerStreak, setPlayerStreak] = useState(null);
   const [statsOpen, setStatsOpen] = useState(false);
+  const [dictError, setDictError] = useState(false);
   const [showMissedPrompt, setShowMissedPrompt] = useState(false);
   const [yesterdayPuzzle, setYesterdayPuzzle] = useState(null);
 
@@ -291,6 +292,7 @@ export default function PicxleGame() {
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInput(val);
+    setDictError(false);
     const q = norm(val);
     if (q.length < 2) { setSuggestions([]); return; }
     setSuggestions(DICTIONARY.filter((w) => w.includes(q)).slice(0, 6));
@@ -306,6 +308,13 @@ export default function PicxleGame() {
     if (status !== "playing" || !puzzle || isSubmitting) return;
     const g = norm(input);
     if (!g) return;
+
+    if (!DICTIONARY.includes(g)) {
+      setDictError(true);
+      setShake(true);
+      setTimeout(() => setShake(false), 380);
+      return;
+    }
 
     setIsSubmitting(true);
     let correct = false;
@@ -689,6 +698,11 @@ export default function PicxleGame() {
               </div>
             )}
           </div>
+          {dictError && (
+            <p style={{ margin: "0", fontSize: 12, color: C.coral, textAlign: "center", letterSpacing: "0.5px" }}>
+              Not in the answer list — pick from the suggestions.
+            </p>
+          )}
           <button className="pxbtn" onClick={submit} disabled={isSubmitting}
             style={{ background: C.amber, color: "#fff", border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 20, cursor: isSubmitting ? "wait" : "pointer", width: "100%", opacity: isSubmitting ? 0.7 : 1 }}>
             {isSubmitting ? "…" : "GUESS"}
