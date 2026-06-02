@@ -349,19 +349,15 @@ const PUZZLES = [
   },
 ];
 
-// Build 6 months of daily puzzle_date rows starting from today,
-// cycling through the puzzle pool so the game never runs out.
+// One row per puzzle starting from today — no cycling.
+// Add future puzzles directly in the Supabase table editor.
 function buildRows() {
   const launch = new Date(new Date().toISOString().slice(0, 10) + "T00:00:00Z");
-  const rows = [];
-  for (let i = 0; i < 180; i++) {
+  return PUZZLES.map((puzzle, i) => {
     const d = new Date(launch);
     d.setUTCDate(d.getUTCDate() + i);
-    const dateStr = d.toISOString().slice(0, 10);
-    const puzzle = PUZZLES[i % PUZZLES.length];
-    rows.push({ puzzle_date: dateStr, ...puzzle });
-  }
-  return rows;
+    return { puzzle_date: d.toISOString().slice(0, 10), ...puzzle };
+  });
 }
 
 async function seed() {
