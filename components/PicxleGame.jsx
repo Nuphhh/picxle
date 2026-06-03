@@ -44,7 +44,7 @@ export default function PicxleGame() {
       if (saved !== null) return saved === "dark";
       return window.matchMedia("(prefers-color-scheme: dark)").matches;
     } catch {}
-    return true;
+    return false;
   });
   const C = isDark ? DARK : LIGHT;
 
