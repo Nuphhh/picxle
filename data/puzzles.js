@@ -590,6 +590,184 @@ export const DICTIONARY = [
 
 ].sort();
 
+// Maps normalised artist names (and common aliases) to their works in DICTIONARY.
+// Keys are lowercase with no punctuation to match the norm() function output.
+// Typing an artist name in the guess box will surface all their works.
+export const ARTIST_MAP = {
+  // Paintings
+  "monet":        ["water lilies", "impression sunrise", "haystacks", "rouen cathedral", "poppies", "the japanese bridge"],
+  "claude monet": ["water lilies", "impression sunrise", "haystacks", "rouen cathedral", "poppies", "the japanese bridge"],
+
+  "van gogh":         ["the starry night", "sunflowers", "the bedroom", "cafe terrace at night", "irises", "wheat field with crows", "portrait of dr gachet", "the potato eaters", "self portrait with bandaged ear", "almond blossom", "starry night over the rhone", "van gogh self portrait"],
+  "vincent van gogh": ["the starry night", "sunflowers", "the bedroom", "cafe terrace at night", "irises", "wheat field with crows", "portrait of dr gachet", "the potato eaters", "self portrait with bandaged ear", "almond blossom", "starry night over the rhone", "van gogh self portrait"],
+
+  "da vinci":          ["mona lisa", "the last supper", "the vitruvian man", "lady with an ermine", "the virgin of the rocks", "la belle ferronniere", "annunciation", "the virgin and child with saint anne"],
+  "leonardo":          ["mona lisa", "the last supper", "the vitruvian man", "lady with an ermine", "the virgin of the rocks", "la belle ferronniere", "annunciation", "the virgin and child with saint anne"],
+  "leonardo da vinci": ["mona lisa", "the last supper", "the vitruvian man", "lady with an ermine", "the virgin of the rocks", "la belle ferronniere", "annunciation", "the virgin and child with saint anne"],
+
+  "picasso":       ["guernica", "les demoiselles davignon", "weeping woman", "old guitarist", "family of saltimbanques", "portrait of ambroise vollard", "ma jolie", "three musicians", "boy with a pipe", "dora maar au chat", "the red armchair"],
+  "pablo picasso": ["guernica", "les demoiselles davignon", "weeping woman", "old guitarist", "family of saltimbanques", "portrait of ambroise vollard", "ma jolie", "three musicians", "boy with a pipe", "dora maar au chat", "the red armchair"],
+
+  "rembrandt":          ["the night watch", "the anatomy lesson of dr nicolaes tulp", "the jewish bride", "the storm on the sea of galilee", "aristotle with a bust of homer", "the blinding of samson", "belshazzars feast", "self portrait with two circles", "man with a golden helmet", "hendrickje bathing in a river", "portrait of jan six", "danae", "the conspiracy of claudius civilis", "rembrandt self portrait"],
+  "rembrandt van rijn": ["the night watch", "the anatomy lesson of dr nicolaes tulp", "the jewish bride", "the storm on the sea of galilee", "aristotle with a bust of homer", "the blinding of samson", "belshazzars feast", "self portrait with two circles", "man with a golden helmet", "hendrickje bathing in a river", "portrait of jan six", "danae", "the conspiracy of claudius civilis", "rembrandt self portrait"],
+
+  "vermeer":           ["girl with a pearl earring", "the milkmaid", "the lacemaker", "the geographer", "woman reading a letter", "young woman with a water pitcher", "view of delft", "the art of painting", "allegory of painting", "woman holding a balance", "girl reading a letter at an open window", "the love letter", "allegory of the catholic faith"],
+  "johannes vermeer":  ["girl with a pearl earring", "the milkmaid", "the lacemaker", "the geographer", "woman reading a letter", "young woman with a water pitcher", "view of delft", "the art of painting", "allegory of painting", "woman holding a balance", "girl reading a letter at an open window", "the love letter", "allegory of the catholic faith"],
+
+  "michelangelo": ["the creation of adam", "sistine chapel ceiling", "the last judgment michelangelo", "doni tondo", "david", "pieta", "bacchus michelangelo"],
+
+  "botticelli":        ["the birth of venus", "primavera"],
+  "sandro botticelli": ["the birth of venus", "primavera"],
+
+  "klimt":        ["the kiss", "portrait of adele bloch bauer", "tree of life", "the beethoven frieze", "judith with the head of holofernes"],
+  "gustav klimt": ["the kiss", "portrait of adele bloch bauer", "tree of life", "the beethoven frieze", "judith with the head of holofernes"],
+
+  "magritte":      ["the treachery of images", "the son of man", "golconda"],
+  "rene magritte": ["the treachery of images", "the son of man", "golconda"],
+
+  "matisse":       ["the dance", "joy of life", "blue nude", "woman with a hat"],
+  "henri matisse": ["the dance", "joy of life", "blue nude", "woman with a hat"],
+
+  "dali":          ["the persistence of memory"],
+  "salvador dali": ["the persistence of memory"],
+
+  "warhol":     ["campbell soup cans"],
+  "andy warhol":["campbell soup cans"],
+
+  "hopper":        ["nighthawks"],
+  "edward hopper": ["nighthawks"],
+
+  "munch":        ["the scream"],
+  "edvard munch": ["the scream"],
+
+  "raphael": ["the school of athens", "sistine madonna", "the transfiguration", "the triumph of galatea", "madonna of the goldfinch", "portrait of pope julius ii", "the liberation of saint peter"],
+
+  "goya":             ["saturn devouring his son", "the third of may"],
+  "francisco goya":   ["saturn devouring his son", "the third of may"],
+
+  "velazquez":         ["las meninas", "las hilanderas", "the rokeby venus", "venus at her mirror", "portrait of innocent x", "the forge of vulcan"],
+  "diego velazquez":   ["las meninas", "las hilanderas", "the rokeby venus", "venus at her mirror", "portrait of innocent x", "the forge of vulcan"],
+
+  "rubens":              ["the massacre of the innocents", "the descent from the cross", "the garden of love", "the raising of the cross", "prometheus bound", "the birth of the milky way"],
+  "peter paul rubens":   ["the massacre of the innocents", "the descent from the cross", "the garden of love", "the raising of the cross", "prometheus bound", "the birth of the milky way"],
+
+  "caravaggio": ["the calling of saint matthew", "the supper at emmaus", "the incredulity of saint thomas", "the entombment of christ", "judith slaying holofernes"],
+
+  "degas":       ["ballet rehearsal", "the dance class"],
+  "edgar degas": ["ballet rehearsal", "the dance class"],
+
+  "seurat":         ["a sunday afternoon on the island of la grande jatte", "bathers at asnieres"],
+  "georges seurat": ["a sunday afternoon on the island of la grande jatte", "bathers at asnieres"],
+
+  "millet":              ["the gleaners", "the angelus", "the sower"],
+  "jean francois millet":["the gleaners", "the angelus", "the sower"],
+
+  "cezanne":       ["the card players", "the large bathers"],
+  "paul cezanne":  ["the card players", "the large bathers"],
+
+  "renoir":               ["le moulin de la galette"],
+  "pierre auguste renoir":["le moulin de la galette"],
+
+  "manet":         ["a bar at the folies bergere", "olympia", "luncheon on the grass", "the balcony"],
+  "edouard manet": ["a bar at the folies bergere", "olympia", "luncheon on the grass", "the balcony"],
+
+  "kahlo":       ["the two fridas", "self portrait with thorn necklace", "the broken column", "what the water gave me"],
+  "frida":       ["the two fridas", "self portrait with thorn necklace", "the broken column", "what the water gave me"],
+  "frida kahlo": ["the two fridas", "self portrait with thorn necklace", "the broken column", "what the water gave me"],
+
+  "el greco": ["the burial of the count of orgaz"],
+  "greco":    ["the burial of the count of orgaz"],
+
+  "turner":      ["rain steam and speed", "the fighting temeraire"],
+  "jmw turner":  ["rain steam and speed", "the fighting temeraire"],
+
+  "constable":      ["the hay wain"],
+  "john constable": ["the hay wain"],
+
+  "whistler":             ["whistlers mother", "arrangement in grey and black"],
+  "james whistler":       ["whistlers mother", "arrangement in grey and black"],
+
+  "hokusai":            ["the great wave off kanagawa"],
+  "katsushika hokusai": ["the great wave off kanagawa"],
+
+  "gainsborough":       ["the blue boy"],
+  "thomas gainsborough":["the blue boy"],
+
+  "friedrich":              ["wanderer above the sea of fog"],
+  "caspar david friedrich": ["wanderer above the sea of fog"],
+
+  "delacroix":        ["liberty leading the people"],
+  "eugene delacroix": ["liberty leading the people"],
+
+  "gericault":        ["the raft of the medusa"],
+  "theodore gericault":["the raft of the medusa"],
+
+  "david":             ["napoleon crossing the alps", "the coronation of napoleon"],
+  "jacqueslouis david":["napoleon crossing the alps", "the coronation of napoleon"],
+
+  "bosch":             ["the garden of earthly delights"],
+  "hieronymus bosch":  ["the garden of earthly delights"],
+
+  "bruegel":           ["the tower of babel"],
+  "pieter bruegel":    ["the tower of babel"],
+
+  "holbein":           ["the ambassadors"],
+  "hans holbein":      ["the ambassadors"],
+
+  "blake":             ["the ancient of days"],
+  "william blake":     ["the ancient of days"],
+
+  "fuseli":            ["the nightmare"],
+  "henry fuseli":      ["the nightmare"],
+
+  "millais":              ["ophelia"],
+  "john everett millais": ["ophelia"],
+
+  "waterhouse":          ["the lady of shalott"],
+  "john william waterhouse":["the lady of shalott"],
+
+  "sargent":             ["portrait of madame x"],
+  "john singer sargent": ["portrait of madame x"],
+
+  "wyeth":         ["christinas world"],
+  "andrew wyeth":  ["christinas world"],
+
+  "hogarth":        ["a rakes progress"],
+  "william hogarth":["a rakes progress"],
+
+  "gentileschi":          ["judith slaying holofernes"],
+  "artemisia":            ["judith slaying holofernes"],
+  "artemisia gentileschi":["judith slaying holofernes"],
+
+  "rousseau":       ["tiger in a tropical storm", "the sleeping gypsy", "the dream rousseau", "carnival evening"],
+  "henri rousseau": ["tiger in a tropical storm", "the sleeping gypsy", "the dream rousseau", "carnival evening"],
+
+  "van eyck":   ["the arnolfini portrait"],
+  "jan van eyck":["the arnolfini portrait"],
+
+  "kandinsky":          ["composition viii"],
+  "wassily kandinsky":  ["composition viii"],
+
+  "mondrian":     ["broadway boogie woogie"],
+  "piet mondrian":["broadway boogie woogie"],
+
+  // Sculptors
+  "rodin":         ["the thinker", "the burghers of calais", "monument to balzac", "the kiss rodin", "the age of bronze"],
+  "auguste rodin": ["the thinker", "the burghers of calais", "monument to balzac", "the kiss rodin", "the age of bronze"],
+
+  "bernini":            ["the rape of proserpina", "apollo and daphne", "ecstasy of saint teresa"],
+  "gian lorenzo bernini":["the rape of proserpina", "apollo and daphne", "ecstasy of saint teresa"],
+
+  "canova":          ["the three graces", "psyche revived by cupids kiss", "perseus with the head of medusa"],
+  "antonio canova":  ["the three graces", "psyche revived by cupids kiss", "perseus with the head of medusa"],
+
+  "boccioni":          ["unique forms of continuity in space"],
+  "umberto boccioni":  ["unique forms of continuity in space"],
+
+  "brancusi":            ["bird in space"],
+  "constantin brancusi": ["bird in space"],
+};
+
 export const MAX_GUESSES = 5;
 
 // Pixel grid size at each stage: index 0 = before any guess, index 4 = 5th wrong guess

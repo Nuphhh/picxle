@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { DICTIONARY, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
+import { DICTIONARY, ARTIST_MAP, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
 
 const DARK = {
   ink:      "#17130d",
@@ -334,7 +334,16 @@ export default function PicxleGame() {
     setDictError(false);
     const q = norm(val);
     if (q.length < 2) { setSuggestions([]); return; }
-    setSuggestions(DICTIONARY.filter((w) => w.includes(q)).slice(0, 6));
+
+    // Collect works by any artist whose name contains the query
+    const artistWorks = new Set();
+    for (const [artist, works] of Object.entries(ARTIST_MAP)) {
+      if (artist.includes(q)) works.forEach((w) => artistWorks.add(w));
+    }
+
+    // Artist matches first, then title matches (deduped), capped at 6
+    const titleMatches = DICTIONARY.filter((w) => w.includes(q) && !artistWorks.has(w));
+    setSuggestions([...artistWorks, ...titleMatches].slice(0, 6));
   };
 
   const selectSuggestion = (word) => {
