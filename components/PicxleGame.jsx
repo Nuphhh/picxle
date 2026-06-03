@@ -10,7 +10,7 @@ const DARK = {
   creamDim: "#cdbfa6",
   coral:    "#e05252",
   green:    "#46c46a",
-  amber:    "#3b82f6",
+  blue:     "#3b82f6",
   line:     "#3a3024",
 };
 
@@ -21,7 +21,7 @@ const LIGHT = {
   creamDim: "#7a6548",
   coral:    "#c23b3b",
   green:    "#16a34a",
-  amber:    "#3b82f6",
+  blue:     "#3b82f6",
   line:     "#d4c4b0",
 };
 
@@ -427,7 +427,7 @@ export default function PicxleGame() {
       <div className="page-root" style={{ background: `radial-gradient(140% 100% at 50% 0%, ${C.ink2} 0%, ${C.ink} 55%)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", fontFamily: "var(--font-space-mono), monospace" }}>
         <style>{`.pxbtn{transition:transform .12s ease,background .15s ease}.pxbtn:hover{transform:translateY(-2px)}.pxbtn:active{transform:translateY(0)}`}</style>
         <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 46, letterSpacing: "-1.5px", margin: "0 0 32px", lineHeight: 1, color: C.cream }}>
-          PIC<span style={{ color: C.amber }}>X</span>LE
+          PIC<span style={{ color: C.blue }}>X</span>LE
         </h1>
         <div style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "28px 24px", width: "100%", maxWidth: 340, textAlign: "center" }}>
           <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 20, color: C.cream, margin: "0 0 10px", letterSpacing: "-0.5px" }}>
@@ -540,7 +540,7 @@ export default function PicxleGame() {
         </button>
 
         <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 46, letterSpacing: "-1.5px", margin: 0, lineHeight: 1, color: C.cream }}>
-          PIC<span style={{ color: C.amber }}>X</span>LE
+          PIC<span style={{ color: C.blue }}>X</span>LE
         </h1>
         <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px" }}>
           GUESS THE IMAGE · IT SHARPENS AS YOU MISS
@@ -563,7 +563,7 @@ export default function PicxleGame() {
             const avg = [1,2,3,4,5,6].reduce((sum, n) => sum + n * (stats.counts[n] ?? 0), 0) / stats.total;
             const { label, color } =
               avg <= 2 ? { label: "EASY",   color: C.green } :
-              avg <= 3 ? { label: "MEDIUM", color: C.amber } :
+              avg <= 3 ? { label: "MEDIUM", color: C.blue } :
               avg <= 4 ? { label: "HARD",   color: "#f97316" } :
                          { label: "BRUTAL", color: C.coral };
             return (
@@ -621,7 +621,7 @@ export default function PicxleGame() {
               {(() => {
                 const { text, color } = status === "won"
                   ? [
-                      { text: "Absolutely unreal.",    color: C.amber },
+                      { text: "Absolutely unreal.",    color: C.blue },
                       { text: "Sharp eye.",            color: C.green },
                       { text: "Solid.",                color: C.green },
                       { text: "Got there in the end.", color: C.cream },
@@ -689,7 +689,7 @@ export default function PicxleGame() {
             </p>
 
             <button className="pxbtn" onClick={shareGrid}
-              style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
+              style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
               {copied ? "COPIED ✓" : "SHARE RESULT"}
             </button>
             </div>{/* end padding wrapper */}
@@ -753,7 +753,7 @@ export default function PicxleGame() {
                             <div style={{
                               height: "100%",
                               width: count > 0 ? `${Math.max(barPct, 8)}%` : "4%",
-                              background: n === 6 ? C.coral : C.amber,
+                              background: n === 6 ? C.coral : C.blue,
                               borderRadius: 3,
                               display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 7,
                               transition: "width .5s ease",
@@ -798,10 +798,10 @@ export default function PicxleGame() {
       {/* ── Guess rows ── */}
       <div style={{ display: "flex", flexDirection: "column", gap: 7, margin: "18px 0", width: 316 }}>
         {rows.map((g, i) => {
-          const borderColor = g ? (g.correct ? C.green : g.skipped ? C.amber : C.coral) : C.line;
+          const borderColor = g ? (g.correct ? C.green : g.skipped ? C.blue : C.coral) : C.line;
           const bg = g ? (g.correct ? "rgba(70,196,106,.12)" : g.skipped ? "rgba(59,130,246,.08)" : "rgba(220,80,80,.10)") : "transparent";
           const icon = g ? (g.correct ? "✓" : g.skipped ? "→" : "✗") : i + 1;
-          const iconColor = g ? (g.correct ? C.green : g.skipped ? C.amber : C.coral) : C.line;
+          const iconColor = g ? (g.correct ? C.green : g.skipped ? C.blue : C.coral) : C.line;
           return (
             <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: `1px solid ${borderColor}`, background: bg, animation: g ? "pop .25s ease" : "none" }}>
               <span style={{ color: iconColor, fontWeight: 700, width: 16 }}>{icon}</span>
@@ -848,7 +848,7 @@ export default function PicxleGame() {
             </p>
           )}
           <button className="pxbtn" onClick={submit} disabled={isSubmitting}
-            style={{ background: C.amber, color: "#fff", border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 20, cursor: isSubmitting ? "wait" : "pointer", width: "100%", opacity: isSubmitting ? 0.7 : 1 }}>
+            style={{ background: C.blue, color: "#fff", border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 20, cursor: isSubmitting ? "wait" : "pointer", width: "100%", opacity: isSubmitting ? 0.7 : 1 }}>
             {isSubmitting ? "…" : "GUESS"}
           </button>
           <button className="pxbtn" onClick={skip}
@@ -861,7 +861,7 @@ export default function PicxleGame() {
           {(() => {
             const { text, color } = status === "won"
               ? [
-                  { text: "Absolutely unreal.", color: C.amber },
+                  { text: "Absolutely unreal.", color: C.blue },
                   { text: "Sharp eye.",         color: C.green },
                   { text: "Solid.",             color: C.green },
                   { text: "Got there in the end.", color: C.cream },
@@ -880,7 +880,7 @@ export default function PicxleGame() {
               : "fetching answer…"}
           </p>
           <button className="pxbtn" onClick={shareGrid}
-            style={{ background: copied ? C.green : C.amber, color: C.ink, border: "none", borderRadius: 9, padding: "12px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
+            style={{ background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
             {copied ? "COPIED ✓" : "SHARE RESULT"}
           </button>
           {isYesterdaysPuzzle ? (
