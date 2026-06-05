@@ -3,6 +3,8 @@ import { supabaseFetch } from "@/lib/supabase";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  // Puzzle date is UTC — the puzzle flips at midnight UTC (same for all players globally).
+  // This matches Wordle's approach: one shared puzzle per calendar day worldwide.
   const today = new Date().toISOString().slice(0, 10);
 
   const res = await supabaseFetch(

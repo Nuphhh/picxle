@@ -1,3 +1,9 @@
+// ⚠️  DEPRECATED — do not run this script.
+// It overwrites puzzle rows destructively and has been replaced by
+// scripts/seed-puzzles.mjs + data/puzzles.json.
+// Kept for reference only.
+//
+// Original header:
 // node scripts/seed.cjs
 // Upserts 29 puzzles (15 originals + 14 animals) in shuffled order, then
 // fills 180 days of puzzle_date rows cycling through the pool.

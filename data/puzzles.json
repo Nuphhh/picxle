@@ -1,0 +1,2183 @@
+[
+  {
+    "puzzle_number": 1,
+    "puzzle_date": "2026-06-01",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 2,
+    "puzzle_date": "2026-06-02",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Lightmatter_panda.jpg",
+    "answer": "giant panda",
+    "accepts": [
+      "giant panda"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Aaron Logan / Lightmatter, CC BY 1.0"
+  },
+  {
+    "puzzle_number": 3,
+    "puzzle_date": "2026-06-03",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 4,
+    "puzzle_date": "2026-06-04",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/96/Greater_flamingoes_%40_Jurong_Bird_Park_%2816101891605%29.jpg",
+    "answer": "flamingo",
+    "accepts": [
+      "flamingo"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "_paVan_, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 5,
+    "puzzle_date": "2026-06-05",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 6,
+    "puzzle_date": "2026-06-06",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/df/Axolotl.jpg",
+    "answer": "axolotl",
+    "accepts": [
+      "axolotl"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "Erzengel, public domain"
+  },
+  {
+    "puzzle_number": 7,
+    "puzzle_date": "2026-06-07",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 8,
+    "puzzle_date": "2026-06-08",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/7/73/Indian_Peacock.jpg",
+    "answer": "peacock",
+    "accepts": [
+      "peacock"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "William Warby, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 9,
+    "puzzle_date": "2026-06-09",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 10,
+    "puzzle_date": "2026-06-10",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Hawksbill_sea_turtle.jpg",
+    "answer": "sea turtle",
+    "accepts": [
+      "sea turtle"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "Colin Johnson, public domain"
+  },
+  {
+    "puzzle_number": 11,
+    "puzzle_date": "2026-06-11",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 12,
+    "puzzle_date": "2026-06-12",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/07/Sword-billed_hummingbird_in_Ecuador_-_%2854572220117%29.jpg",
+    "answer": "hummingbird",
+    "accepts": [
+      "hummingbird"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Andy Morffew, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 13,
+    "puzzle_date": "2026-06-13",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 14,
+    "puzzle_date": "2026-06-14",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/7/73/Lion_waiting_in_Namibia.jpg",
+    "answer": "lion",
+    "accepts": [
+      "lion"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Kevin Pluck, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 15,
+    "puzzle_date": "2026-06-15",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 16,
+    "puzzle_date": "2026-06-16",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Amphiprion_percula.jpg",
+    "answer": "clownfish",
+    "accepts": [
+      "clownfish"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "ZooFari, public domain"
+  },
+  {
+    "puzzle_number": 17,
+    "puzzle_date": "2026-06-17",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 18,
+    "puzzle_date": "2026-06-18",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Okinawa_Churaumi_aquarium_Manta_hdsr_Vlux5_01.jpg",
+    "answer": "manta ray",
+    "accepts": [
+      "manta ray"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Hyppolyte de Saint-Rambert, CC BY 4.0"
+  },
+  {
+    "puzzle_number": 19,
+    "puzzle_date": "2026-06-19",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 20,
+    "puzzle_date": "2026-06-20",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Giraffe_at_Nairobi_National_Park%2C_Kenya.jpg",
+    "answer": "giraffe",
+    "accepts": [
+      "giraffe"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "Andrea Hanks / White House, public domain"
+  },
+  {
+    "puzzle_number": 21,
+    "puzzle_date": "2026-06-21",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 22,
+    "puzzle_date": "2026-06-22",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/3/37/Toucanet.jpg",
+    "answer": "toucan",
+    "accepts": [
+      "toucan"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Rossysphotos, CC BY 4.0"
+  },
+  {
+    "puzzle_number": 23,
+    "puzzle_date": "2026-06-23",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 24,
+    "puzzle_date": "2026-06-24",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Chameleon_portrait.jpg",
+    "answer": "chameleon",
+    "accepts": [
+      "chameleon"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "CC BY 2.0"
+  },
+  {
+    "puzzle_number": 25,
+    "puzzle_date": "2026-06-25",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 26,
+    "puzzle_date": "2026-06-26",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Elephas_maximus.jpg",
+    "answer": "elephant",
+    "accepts": [
+      "elephant"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "G King, public domain"
+  },
+  {
+    "puzzle_number": 27,
+    "puzzle_date": "2026-06-27",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 28,
+    "puzzle_date": "2026-06-28",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Poison_dart_Frog._Dendrobates_auratus_%2843568138571%29.jpg",
+    "answer": "poison dart frog",
+    "accepts": [
+      "poison dart frog"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "gailhampshire, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 29,
+    "puzzle_date": "2026-06-29",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 30,
+    "puzzle_date": "2026-06-30",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 31,
+    "puzzle_date": "2026-07-01",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Lightmatter_panda.jpg",
+    "answer": "giant panda",
+    "accepts": [
+      "giant panda"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Aaron Logan / Lightmatter, CC BY 1.0"
+  },
+  {
+    "puzzle_number": 32,
+    "puzzle_date": "2026-07-02",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/7/73/Indian_Peacock.jpg",
+    "answer": "peacock",
+    "accepts": [
+      "peacock"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "William Warby, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 33,
+    "puzzle_date": "2026-07-03",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/3/37/Toucanet.jpg",
+    "answer": "toucan",
+    "accepts": [
+      "toucan"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Rossysphotos, CC BY 4.0"
+  },
+  {
+    "puzzle_number": 34,
+    "puzzle_date": "2026-07-04",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Amphiprion_percula.jpg",
+    "answer": "clownfish",
+    "accepts": [
+      "clownfish"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "ZooFari, public domain"
+  },
+  {
+    "puzzle_number": 35,
+    "puzzle_date": "2026-07-05",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/2/2b/Hawksbill_sea_turtle.jpg",
+    "answer": "sea turtle",
+    "accepts": [
+      "sea turtle"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "Colin Johnson, public domain"
+  },
+  {
+    "puzzle_number": 36,
+    "puzzle_date": "2026-07-06",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Poison_dart_Frog._Dendrobates_auratus_%2843568138571%29.jpg",
+    "answer": "poison dart frog",
+    "accepts": [
+      "poison dart frog"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "gailhampshire, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 37,
+    "puzzle_date": "2026-07-07",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/7/73/Lion_waiting_in_Namibia.jpg",
+    "answer": "lion",
+    "accepts": [
+      "lion"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "Kevin Pluck, CC BY 2.0"
+  },
+  {
+    "puzzle_number": 38,
+    "puzzle_date": "2026-07-08",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b5/Elephas_maximus.jpg",
+    "answer": "elephant",
+    "accepts": [
+      "elephant"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "G King, public domain"
+  },
+  {
+    "puzzle_number": 39,
+    "puzzle_date": "2026-07-09",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/2/2d/Giraffe_at_Nairobi_National_Park%2C_Kenya.jpg",
+    "answer": "giraffe",
+    "accepts": [
+      "giraffe"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "Andrea Hanks / White House, public domain"
+  },
+  {
+    "puzzle_number": 40,
+    "puzzle_date": "2026-07-10",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/df/Axolotl.jpg",
+    "answer": "axolotl",
+    "accepts": [
+      "axolotl"
+    ],
+    "category": "Animal",
+    "license": "PD",
+    "attribution": "Erzengel, public domain"
+  },
+  {
+    "puzzle_number": 41,
+    "puzzle_date": "2026-07-11",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/7/7a/Chameleon_portrait.jpg",
+    "answer": "chameleon",
+    "accepts": [
+      "chameleon"
+    ],
+    "category": "Animal",
+    "license": "CC-BY",
+    "attribution": "CC BY 2.0"
+  },
+  {
+    "puzzle_number": 42,
+    "puzzle_date": "2026-07-12",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 43,
+    "puzzle_date": "2026-07-13",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 44,
+    "puzzle_date": "2026-07-14",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 45,
+    "puzzle_date": "2026-07-15",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 46,
+    "puzzle_date": "2026-07-16",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 47,
+    "puzzle_date": "2026-07-17",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 48,
+    "puzzle_date": "2026-07-18",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 49,
+    "puzzle_date": "2026-07-19",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 50,
+    "puzzle_date": "2026-07-20",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 51,
+    "puzzle_date": "2026-07-21",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 52,
+    "puzzle_date": "2026-07-22",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 53,
+    "puzzle_date": "2026-07-23",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 54,
+    "puzzle_date": "2026-07-24",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 55,
+    "puzzle_date": "2026-07-25",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 56,
+    "puzzle_date": "2026-07-26",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 57,
+    "puzzle_date": "2026-07-27",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 58,
+    "puzzle_date": "2026-07-28",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 59,
+    "puzzle_date": "2026-07-29",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 60,
+    "puzzle_date": "2026-07-30",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 61,
+    "puzzle_date": "2026-07-31",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 62,
+    "puzzle_date": "2026-08-01",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 63,
+    "puzzle_date": "2026-08-02",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 64,
+    "puzzle_date": "2026-08-03",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 65,
+    "puzzle_date": "2026-08-04",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 66,
+    "puzzle_date": "2026-08-05",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 67,
+    "puzzle_date": "2026-08-06",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 68,
+    "puzzle_date": "2026-08-07",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 69,
+    "puzzle_date": "2026-08-08",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 70,
+    "puzzle_date": "2026-08-09",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 71,
+    "puzzle_date": "2026-08-10",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 72,
+    "puzzle_date": "2026-08-11",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 73,
+    "puzzle_date": "2026-08-12",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 74,
+    "puzzle_date": "2026-08-13",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 75,
+    "puzzle_date": "2026-08-14",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 76,
+    "puzzle_date": "2026-08-15",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 77,
+    "puzzle_date": "2026-08-16",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 78,
+    "puzzle_date": "2026-08-17",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 79,
+    "puzzle_date": "2026-08-18",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 80,
+    "puzzle_date": "2026-08-19",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 81,
+    "puzzle_date": "2026-08-20",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 82,
+    "puzzle_date": "2026-08-21",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 83,
+    "puzzle_date": "2026-08-22",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 84,
+    "puzzle_date": "2026-08-23",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 85,
+    "puzzle_date": "2026-08-24",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 86,
+    "puzzle_date": "2026-08-25",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 87,
+    "puzzle_date": "2026-08-26",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 88,
+    "puzzle_date": "2026-08-27",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 89,
+    "puzzle_date": "2026-08-28",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 90,
+    "puzzle_date": "2026-08-29",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 91,
+    "puzzle_date": "2026-08-30",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 92,
+    "puzzle_date": "2026-08-31",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 93,
+    "puzzle_date": "2026-09-01",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 94,
+    "puzzle_date": "2026-09-02",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 95,
+    "puzzle_date": "2026-09-03",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 96,
+    "puzzle_date": "2026-09-04",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 97,
+    "puzzle_date": "2026-09-05",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 98,
+    "puzzle_date": "2026-09-06",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 99,
+    "puzzle_date": "2026-09-07",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 100,
+    "puzzle_date": "2026-09-08",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 101,
+    "puzzle_date": "2026-09-09",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 102,
+    "puzzle_date": "2026-09-10",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 103,
+    "puzzle_date": "2026-09-11",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 104,
+    "puzzle_date": "2026-09-12",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 105,
+    "puzzle_date": "2026-09-13",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 106,
+    "puzzle_date": "2026-09-14",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 107,
+    "puzzle_date": "2026-09-15",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 108,
+    "puzzle_date": "2026-09-16",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 109,
+    "puzzle_date": "2026-09-17",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 110,
+    "puzzle_date": "2026-09-18",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 111,
+    "puzzle_date": "2026-09-19",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 112,
+    "puzzle_date": "2026-09-20",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 113,
+    "puzzle_date": "2026-09-21",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 114,
+    "puzzle_date": "2026-09-22",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 115,
+    "puzzle_date": "2026-09-23",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 116,
+    "puzzle_date": "2026-09-24",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 117,
+    "puzzle_date": "2026-09-25",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 118,
+    "puzzle_date": "2026-09-26",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 119,
+    "puzzle_date": "2026-09-27",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 120,
+    "puzzle_date": "2026-09-28",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 121,
+    "puzzle_date": "2026-09-29",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 122,
+    "puzzle_date": "2026-09-30",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 123,
+    "puzzle_date": "2026-10-01",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 124,
+    "puzzle_date": "2026-10-02",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 125,
+    "puzzle_date": "2026-10-03",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 126,
+    "puzzle_date": "2026-10-04",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 127,
+    "puzzle_date": "2026-10-05",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 128,
+    "puzzle_date": "2026-10-06",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 129,
+    "puzzle_date": "2026-10-07",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 130,
+    "puzzle_date": "2026-10-08",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 131,
+    "puzzle_date": "2026-10-09",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 132,
+    "puzzle_date": "2026-10-10",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 133,
+    "puzzle_date": "2026-10-11",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 134,
+    "puzzle_date": "2026-10-12",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 135,
+    "puzzle_date": "2026-10-13",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 136,
+    "puzzle_date": "2026-10-14",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 137,
+    "puzzle_date": "2026-10-15",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 138,
+    "puzzle_date": "2026-10-16",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 139,
+    "puzzle_date": "2026-10-17",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 140,
+    "puzzle_date": "2026-10-18",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 141,
+    "puzzle_date": "2026-10-19",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 142,
+    "puzzle_date": "2026-10-20",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 143,
+    "puzzle_date": "2026-10-21",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 144,
+    "puzzle_date": "2026-10-22",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 145,
+    "puzzle_date": "2026-10-23",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 146,
+    "puzzle_date": "2026-10-24",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 147,
+    "puzzle_date": "2026-10-25",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 148,
+    "puzzle_date": "2026-10-26",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 149,
+    "puzzle_date": "2026-10-27",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 150,
+    "puzzle_date": "2026-10-28",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 151,
+    "puzzle_date": "2026-10-29",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 152,
+    "puzzle_date": "2026-10-30",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 153,
+    "puzzle_date": "2026-10-31",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 154,
+    "puzzle_date": "2026-11-01",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 155,
+    "puzzle_date": "2026-11-02",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 156,
+    "puzzle_date": "2026-11-03",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 157,
+    "puzzle_date": "2026-11-04",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 158,
+    "puzzle_date": "2026-11-05",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 159,
+    "puzzle_date": "2026-11-06",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 160,
+    "puzzle_date": "2026-11-07",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 161,
+    "puzzle_date": "2026-11-08",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 162,
+    "puzzle_date": "2026-11-09",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 163,
+    "puzzle_date": "2026-11-10",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 164,
+    "puzzle_date": "2026-11-11",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 165,
+    "puzzle_date": "2026-11-12",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  },
+  {
+    "puzzle_number": 166,
+    "puzzle_date": "2026-11-13",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "answer": "mona lisa",
+    "accepts": [
+      "mona lisa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Leonardo da Vinci, public domain"
+  },
+  {
+    "puzzle_number": 167,
+    "puzzle_date": "2026-11-14",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/0/0a/The_Great_Wave_off_Kanagawa.jpg",
+    "answer": "the great wave off kanagawa",
+    "accepts": [
+      "the great wave off kanagawa"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Katsushika Hokusai, public domain"
+  },
+  {
+    "puzzle_number": 168,
+    "puzzle_date": "2026-11-15",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/1280px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "answer": "the starry night",
+    "accepts": [
+      "the starry night"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, public domain"
+  },
+  {
+    "puzzle_number": 169,
+    "puzzle_date": "2026-11-16",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "answer": "the birth of venus",
+    "accepts": [
+      "the birth of venus"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Sandro Botticelli, public domain"
+  },
+  {
+    "puzzle_number": 170,
+    "puzzle_date": "2026-11-17",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/9/9d/Vincent_van_Gogh_-_Sunflowers_-_VGM_F458.jpg",
+    "answer": "sunflowers",
+    "accepts": [
+      "sunflowers"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Vincent van Gogh, 1888, public domain"
+  },
+  {
+    "puzzle_number": 171,
+    "puzzle_date": "2026-11-18",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/ee/Restoration_Parthenon_Acropolis_Athens.jpg",
+    "answer": "parthenon",
+    "accepts": [
+      "parthenon",
+      "acropolis of athens"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 172,
+    "puzzle_date": "2026-11-19",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Johannes_Vermeer_-_Girl_with_a_Pearl_Earring_-_670_-_Mauritshuis.jpg",
+    "answer": "girl with a pearl earring",
+    "accepts": [
+      "girl with a pearl earring"
+    ],
+    "category": "Painting",
+    "license": "PD",
+    "attribution": "Johannes Vermeer, c.1665, public domain"
+  },
+  {
+    "puzzle_number": 173,
+    "puzzle_date": "2026-11-20",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Fuji_Kawaguchi_465.JPG",
+    "answer": "mount fuji",
+    "accepts": [
+      "mount fuji"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "Aistleitner, CC0 public domain"
+  },
+  {
+    "puzzle_number": 174,
+    "puzzle_date": "2026-11-21",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c5/%27Taj_Mahal%2C_Sunset%27%2C_woodblock_by_Charles_W._Bartlett%2C_1920.jpg",
+    "answer": "taj mahal",
+    "accepts": [
+      "taj mahal"
+    ],
+    "category": "Landmark",
+    "license": "PD",
+    "attribution": "Charles W. Bartlett, 1920, public domain"
+  },
+  {
+    "puzzle_number": 175,
+    "puzzle_date": "2026-11-22",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Great_Wall_of_China_at_Mutianyu.JPG",
+    "answer": "great wall of china",
+    "accepts": [
+      "great wall of china"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "CC0 public domain"
+  },
+  {
+    "puzzle_number": 176,
+    "puzzle_date": "2026-11-23",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/8/85/Roma_coliseo.JPG",
+    "answer": "colosseum",
+    "accepts": [
+      "colosseum"
+    ],
+    "category": "Landmark",
+    "license": "CC0",
+    "attribution": "Gisela Huerta, CC0 public domain"
+  },
+  {
+    "puzzle_number": 177,
+    "puzzle_date": "2026-11-24",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/b/b0/Machu_picchu_grande.jpg",
+    "answer": "machu picchu",
+    "accepts": [
+      "machu picchu"
+    ],
+    "category": "Landmark",
+    "license": "CC-BY",
+    "attribution": "Thomas Quine, CC-BY 2.0"
+  },
+  {
+    "puzzle_number": 178,
+    "puzzle_date": "2026-11-25",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/a/ae/Aurora_borealis_over_Lapland_%28Unsplash%29.jpg",
+    "answer": "aurora borealis",
+    "accepts": [
+      "aurora borealis",
+      "northern lights"
+    ],
+    "category": "Natural Wonder",
+    "license": "CC0",
+    "attribution": "CC0 public domain (Unsplash)"
+  },
+  {
+    "puzzle_number": 179,
+    "puzzle_date": "2026-11-26",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Frederic_Edwin_Church_-_Niagara_Falls_-_WGA04867.jpg",
+    "answer": "niagara falls",
+    "accepts": [
+      "niagara falls"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Frederic Edwin Church, 1857, public domain"
+  },
+  {
+    "puzzle_number": 180,
+    "puzzle_date": "2026-11-27",
+    "image_src": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Grand_Canyon_by_Gunnar_Widiorss%2C_c._1928%2C_watercolor.jpg",
+    "answer": "grand canyon",
+    "accepts": [
+      "grand canyon"
+    ],
+    "category": "Natural Wonder",
+    "license": "PD",
+    "attribution": "Gunnar Widiorss, c.1928, public domain"
+  }
+]

@@ -1,3 +1,9 @@
+// ⚠️  DEPRECATED — do not run this script.
+// It is destructive (clears completions, overwrites puzzle rows) and has been
+// replaced by scripts/seed-puzzles.mjs + data/puzzles.json.
+// Kept for reference only.
+//
+// Original header:
 // Run once: node scripts/seed.js
 // Populates the Supabase puzzles table and inserts 6 months of daily dates.
 

@@ -3,6 +3,7 @@ import { supabaseFetch } from "@/lib/supabase";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
+  // UTC date arithmetic — consistent with today/route.js (midnight UTC flip).
   const d = new Date();
   d.setUTCDate(d.getUTCDate() - 1);
   const yesterday = d.toISOString().slice(0, 10);
