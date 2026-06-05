@@ -35,7 +35,9 @@ const REQUIRED_FIELDS = [
 ];
 
 // "PD" is the existing DB convention for public domain.
-const VALID_LICENSES = new Set(["CC0", "PD", "public-domain", "CC-BY"]);
+// CC-BY-SA: share-alike applies to derivative works — displaying an image in a
+// game is not a derivative, so CC-BY-SA images are fine with attribution.
+const VALID_LICENSES = new Set(["CC0", "PD", "public-domain", "CC-BY", "CC-BY-SA"]);
 
 function validateEntry(entry) {
   const errors = [];
