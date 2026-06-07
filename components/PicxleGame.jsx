@@ -223,10 +223,26 @@ export default function PicxleGame() {
       const s = document.createElement("canvas");
       s.width = 440; s.height = 440;
       const ctx = s.getContext("2d");
-      const side = Math.min(img.naturalWidth, img.naturalHeight);
-      const sx = (img.naturalWidth - side) / 2;
-      const sy = (img.naturalHeight - side) / 2;
-      ctx.drawImage(img, sx, sy, side, side, 0, 0, 440, 440);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+
+      if (puzzle.category === "Flag") {
+        // Flags are rectangular — scale to fit so the full flag is visible.
+        // The transparent letterbox areas show through as the card background.
+        const scale = Math.min(440 / img.naturalWidth, 440 / img.naturalHeight);
+        const dw = Math.round(img.naturalWidth * scale);
+        const dh = Math.round(img.naturalHeight * scale);
+        const dx = Math.round((440 - dw) / 2);
+        const dy = Math.round((440 - dh) / 2);
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, dx, dy, dw, dh);
+      } else {
+        // Square center-crop — works well for most subjects
+        const side = Math.min(img.naturalWidth, img.naturalHeight);
+        const sx = (img.naturalWidth - side) / 2;
+        const sy = (img.naturalHeight - side) / 2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, 440, 440);
+      }
+
       srcRef.current = s;
       setImgReady(true);
     };
