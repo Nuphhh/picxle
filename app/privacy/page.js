@@ -1,5 +1,9 @@
 "use client";
 
+const cream = "#f4ead7";
+const dim = "#cdbfa6";
+const blue = "#3b82f6";
+
 export default function PrivacyPolicy() {
   return (
     <div style={{
@@ -7,25 +11,25 @@ export default function PrivacyPolicy() {
       margin: "0 auto",
       padding: "48px 24px 80px",
       fontFamily: "Georgia, serif",
-      color: "#1c1208",
+      color: cream,
       lineHeight: 1.8,
       fontSize: 16,
     }}>
-      <a href="/" style={{ fontFamily: "monospace", fontSize: 13, color: "#7a6548", textDecoration: "none", letterSpacing: "1px" }}>
+      <a href="/" style={{ fontFamily: "monospace", fontSize: 13, color: dim, textDecoration: "none", letterSpacing: "1px" }}>
         ← PICXLE
       </a>
 
-      <h1 style={{ fontFamily: "sans-serif", fontWeight: 800, fontSize: 32, margin: "32px 0 4px", letterSpacing: "-1px" }}>
+      <h1 style={{ fontFamily: "sans-serif", fontWeight: 800, fontSize: 32, margin: "32px 0 4px", letterSpacing: "-1px", color: cream }}>
         Privacy Policy
       </h1>
-      <p style={{ color: "#7a6548", fontSize: 14, margin: "0 0 40px" }}>Last updated: June 2026</p>
+      <p style={{ color: dim, fontSize: 14, margin: "0 0 40px" }}>Last updated: June 2026</p>
 
       <p>
         Picxle is a free daily image-guessing game. This policy explains what
         information the app collects and how it is used.
       </p>
 
-      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px" }}>
+      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
         What we collect
       </h2>
       <p>
@@ -38,20 +42,18 @@ export default function PrivacyPolicy() {
         any way. It is used only to track your personal game streak and
         statistics within the app.
       </p>
-      <p>
-        When you complete a puzzle, the following is recorded:
-      </p>
-      <ul style={{ paddingLeft: 24 }}>
+      <p>When you complete a puzzle, the following is recorded:</p>
+      <ul style={{ paddingLeft: 24, color: cream }}>
         <li>Your anonymous ID</li>
         <li>The puzzle identifier for that day</li>
         <li>How many guesses you took</li>
       </ul>
-      <p>
+      <p style={{ marginTop: 16 }}>
         Your in-progress guesses and theme preference are stored locally on your
         device only and are never sent anywhere.
       </p>
 
-      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px" }}>
+      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
         How we use it
       </h2>
       <p>
@@ -61,31 +63,24 @@ export default function PrivacyPolicy() {
         profiling, or sold to any third party.
       </p>
 
-      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px" }}>
+      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
         Third-party services
       </h2>
-      <p>
-        Picxle uses the following third-party services to operate:
-      </p>
-      <ul style={{ paddingLeft: 24 }}>
-        <li>
+      <p>Picxle uses the following third-party services to operate:</p>
+      <ul style={{ paddingLeft: 24, color: cream }}>
+        <li style={{ marginBottom: 8 }}>
           <strong>Supabase</strong> — stores puzzle data and anonymous completion
           records. Data may be stored in the EU or US.{" "}
-          <a href="https://supabase.com/privacy" style={{ color: "#3b82f6" }}>
-            Supabase Privacy Policy
-          </a>
+          <a href="https://supabase.com/privacy" style={{ color: blue }}>Supabase Privacy Policy</a>
         </li>
         <li>
           <strong>Vercel</strong> — hosts the app and handles web requests.
-          Standard server access logs (IP address, timestamp) may be retained
-          briefly by Vercel.{" "}
-          <a href="https://vercel.com/legal/privacy-policy" style={{ color: "#3b82f6" }}>
-            Vercel Privacy Policy
-          </a>
+          Standard server access logs may be retained briefly by Vercel.{" "}
+          <a href="https://vercel.com/legal/privacy-policy" style={{ color: blue }}>Vercel Privacy Policy</a>
         </li>
       </ul>
 
-      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px" }}>
+      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
         Children
       </h2>
       <p>
@@ -93,7 +88,7 @@ export default function PrivacyPolicy() {
         the age of 13.
       </p>
 
-      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px" }}>
+      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
         Changes
       </h2>
       <p>
@@ -101,12 +96,12 @@ export default function PrivacyPolicy() {
         with a revised date.
       </p>
 
-      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px" }}>
+      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
         Contact
       </h2>
       <p>
         Questions about this policy can be sent to{" "}
-        <a href="mailto:nathancowell011001@gmail.com" style={{ color: "#3b82f6" }}>
+        <a href="mailto:nathancowell011001@gmail.com" style={{ color: blue }}>
           nathancowell011001@gmail.com
         </a>
       </p>
