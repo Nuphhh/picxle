@@ -1,0 +1,9 @@
+{
+  "appId": "com.penrose.picxle",
+  "appName": "Picxle",
+  "webDir": "out",
+  "server": {
+    "url": "https://picxle.vercel.app",
+    "cleartext": false
+  }
+}

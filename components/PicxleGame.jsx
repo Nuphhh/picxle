@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { DICTIONARY, ARTIST_MAP, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
+import { apiUrl } from "@/lib/api";
 
 const DARK = {
   ink:      "#17130d",
@@ -94,7 +95,7 @@ export default function PicxleGame() {
   // Helper: activate a puzzle — restores saved progress and fetches difficulty stats
   const activatePuzzle = (data) => {
     setPuzzle(data);
-    fetch(`/api/stats/today?puzzleId=${data.id}`).then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
+    fetch(apiUrl(`/api/stats/today?puzzleId=${data.id}`)).then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
     const saved = localStorage.getItem(`picxle-${data.id}`);
     if (saved) {
       try {
@@ -117,7 +118,7 @@ export default function PicxleGame() {
     if (pendingTodayRef.current) {
       activatePuzzle(pendingTodayRef.current);
     } else {
-      fetch("/api/puzzle/today")
+      fetch(apiUrl("/api/puzzle/today"))
         .then((r) => r.json())
         .then((data) => { if (!data.error) activatePuzzle(data); })
         .catch(() => {});
@@ -127,8 +128,8 @@ export default function PicxleGame() {
   // ── Fetch today + yesterday on mount; prompt if yesterday was missed ──
   useEffect(() => {
     Promise.all([
-      fetch("/api/puzzle/today").then((r) => r.json()),
-      fetch("/api/puzzle/yesterday").then((r) => r.json()).catch(() => ({ error: true })),
+      fetch(apiUrl("/api/puzzle/today")).then((r) => r.json()),
+      fetch(apiUrl("/api/puzzle/yesterday")).then((r) => r.json()).catch(() => ({ error: true })),
     ])
       .then(([todayData, yesterdayData]) => {
         if (todayData.error) { setPuzzleError(true); return; }
@@ -158,7 +159,7 @@ export default function PicxleGame() {
   // ── Fetch the answer once the game ends so we can show it ──
   useEffect(() => {
     if (status === "playing" || !puzzle) return;
-    fetch(`/api/puzzle/reveal?puzzleId=${puzzle.id}`)
+    fetch(apiUrl(`/api/puzzle/reveal?puzzleId=${puzzle.id}`))
       .then((r) => r.json())
       .then((data) => setRevealedAnswer(data.answer ?? null))
       .catch(() => {});
@@ -172,7 +173,7 @@ export default function PicxleGame() {
 
     const fetchStreak = () => {
       if (!playerId) return;
-      fetch(`/api/stats/streak?playerId=${playerId}`)
+      fetch(apiUrl(`/api/stats/streak?playerId=${playerId}`))
         .then((r) => r.json())
         .then((data) => setPlayerStreak(data))
         .catch(() => {});
@@ -180,7 +181,7 @@ export default function PicxleGame() {
 
     const fetchDistribution = () => {
       const openOnComplete = !alreadyFinishedOnMount.current;
-      fetch(`/api/stats/today?puzzleId=${puzzle.id}`)
+      fetch(apiUrl(`/api/stats/today?puzzleId=${puzzle.id}`))
         .then((r) => r.json())
         .then((data) => { setStats(data); if (openOnComplete) setStatsOpen(true); })
         .catch(() => {});
@@ -190,7 +191,7 @@ export default function PicxleGame() {
     if (!localStorage.getItem(recordedKey)) {
       // 1–5 = won on that guess, 6 = lost
       const guessesTaken = status === "won" ? guesses.length : 6;
-      fetch("/api/stats/record", {
+      fetch(apiUrl("/api/stats/record"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ puzzleId: puzzle.id, guessesTaken, playerId }),
@@ -383,7 +384,7 @@ export default function PicxleGame() {
     setIsSubmitting(true);
     let correct = false;
     try {
-      const res = await fetch("/api/guess", {
+      const res = await fetch(apiUrl("/api/guess"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ puzzleId: puzzle.id, guess: g }),
@@ -530,7 +531,7 @@ export default function PicxleGame() {
             setProfileOpen(true);
             if (!playerStreak) {
               const pid = getPlayerId();
-              if (pid) fetch(`/api/stats/streak?playerId=${pid}`).then(r => r.json()).then(d => setPlayerStreak(d)).catch(() => {});
+              if (pid) fetch(apiUrl(`/api/stats/streak?playerId=${pid}`)).then(r => r.json()).then(d => setPlayerStreak(d)).catch(() => {});
             }
           }}
           title="Your profile"

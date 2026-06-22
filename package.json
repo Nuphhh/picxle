@@ -6,9 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "seed": "node scripts/seed-puzzles.mjs"
+    "seed": "node scripts/seed-puzzles.mjs",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
     "next": "16.2.6",
@@ -17,6 +22,7 @@
     "sharp": "^0.34.5"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "dotenv": "^17.4.2"
   }
 }
