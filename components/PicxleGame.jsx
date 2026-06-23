@@ -29,7 +29,6 @@ const LIGHT = {
 const norm = (s) =>
   s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
 
-// Returns a stable anonymous UUID for this browser, creating one on first visit.
 function getPlayerId() {
   try {
     let id = localStorage.getItem("picxle-player-id");
@@ -49,7 +48,6 @@ export default function PicxleGame() {
   });
   const C = isDark ? DARK : LIGHT;
 
-  // puzzle is fetched from /api/puzzle/today — it never contains the answer.
   const [puzzle, setPuzzle] = useState(null);
   const [puzzleError, setPuzzleError] = useState(false);
 
@@ -64,7 +62,6 @@ export default function PicxleGame() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [countdown, setCountdown] = useState("");
   const [hintOpen, setHintOpen] = useState(false);
-  // Fetched from /api/puzzle/reveal only after the game ends.
   const [revealedAnswer, setRevealedAnswer] = useState(null);
   const [stats, setStats] = useState(null);
   const [playerStreak, setPlayerStreak] = useState(null);
@@ -74,14 +71,20 @@ export default function PicxleGame() {
   const [showMissedPrompt, setShowMissedPrompt] = useState(false);
   const [yesterdayPuzzle, setYesterdayPuzzle] = useState(null);
 
+  // Design state
+  const [flashing, setFlashing] = useState(false);   // canvas sharpen flash
+  const [inputFocused, setInputFocused] = useState(false);
+  const [barsActive, setBarsActive] = useState(false); // stats bar animation trigger
+
   const srcRef = useRef(null);
   const canvasRef = useRef(null);
   const modalCanvasRef = useRef(null);
-  // True when the page loads with a game already finished (refresh) — prevents
-  // the stats modal auto-opening on revisit; it should only open on completion.
   const alreadyFinishedOnMount = useRef(false);
-  // Holds today's puzzle data while the missed-yesterday prompt is shown
   const pendingTodayRef = useRef(null);
+  // Tracks which guess row indices have already played their entrance animation
+  const animatedRowIndices = useRef(new Set());
+  // Tracks previous res value to detect sharpening moments
+  const prevResRef = useRef(null);
 
   const guessesMade = guesses.length;
   const revealed = status !== "playing";
@@ -92,7 +95,6 @@ export default function PicxleGame() {
   const isYesterdaysPuzzle = puzzle &&
     puzzle.puzzle_date !== new Date().toISOString().slice(0, 10);
 
-  // Helper: activate a puzzle — restores saved progress and fetches difficulty stats
   const activatePuzzle = (data) => {
     setPuzzle(data);
     fetch(apiUrl(`/api/stats/today?puzzleId=${data.id}`)).then((r) => r.json()).then((d) => setStats(d)).catch(() => {});
@@ -107,13 +109,14 @@ export default function PicxleGame() {
     }
   };
 
-  // Switch to today's puzzle after finishing yesterday's — resets state then activates
   const switchToToday = () => {
     setGuesses([]);
     setStatus("playing");
     setRevealedAnswer(null);
     setStats(null);
     setPlayerStreak(null);
+    animatedRowIndices.current.clear();
+    prevResRef.current = null;
     alreadyFinishedOnMount.current = false;
     if (pendingTodayRef.current) {
       activatePuzzle(pendingTodayRef.current);
@@ -125,7 +128,6 @@ export default function PicxleGame() {
     }
   };
 
-  // ── Fetch today + yesterday on mount; prompt if yesterday was missed ──
   useEffect(() => {
     Promise.all([
       fetch(apiUrl("/api/puzzle/today")).then((r) => r.json()),
@@ -133,12 +135,10 @@ export default function PicxleGame() {
     ])
       .then(([todayData, yesterdayData]) => {
         if (todayData.error) { setPuzzleError(true); return; }
-
         const missedYesterday =
           yesterdayData &&
           !yesterdayData.error &&
           !localStorage.getItem(`picxle-${yesterdayData.id}`);
-
         if (missedYesterday) {
           setYesterdayPuzzle(yesterdayData);
           pendingTodayRef.current = todayData;
@@ -150,13 +150,11 @@ export default function PicxleGame() {
       .catch(() => setPuzzleError(true));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Persist progress whenever guesses or status change ──
   useEffect(() => {
     if (!puzzle) return;
     localStorage.setItem(`picxle-${puzzle.id}`, JSON.stringify({ guesses, status }));
   }, [puzzle, guesses, status]);
 
-  // ── Fetch the answer once the game ends so we can show it ──
   useEffect(() => {
     if (status === "playing" || !puzzle) return;
     fetch(apiUrl(`/api/puzzle/reveal?puzzleId=${puzzle.id}`))
@@ -165,12 +163,9 @@ export default function PicxleGame() {
       .catch(() => {});
   }, [status, puzzle]);
 
-  // ── Record this play + fetch distribution once the game ends ──
   useEffect(() => {
     if (status === "playing" || !puzzle) return;
-
     const playerId = getPlayerId();
-
     const fetchStreak = () => {
       if (!playerId) return;
       fetch(apiUrl(`/api/stats/streak?playerId=${playerId}`))
@@ -178,7 +173,6 @@ export default function PicxleGame() {
         .then((data) => setPlayerStreak(data))
         .catch(() => {});
     };
-
     const fetchDistribution = () => {
       const openOnComplete = !alreadyFinishedOnMount.current;
       fetch(apiUrl(`/api/stats/today?puzzleId=${puzzle.id}`))
@@ -186,10 +180,8 @@ export default function PicxleGame() {
         .then((data) => { setStats(data); if (openOnComplete) setStatsOpen(true); })
         .catch(() => {});
     };
-
     const recordedKey = `picxle-recorded-${puzzle.id}`;
     if (!localStorage.getItem(recordedKey)) {
-      // 1–5 = won on that guess, 6 = lost
       const guessesTaken = status === "won" ? guesses.length : 6;
       fetch(apiUrl("/api/stats/record"), {
         method: "POST",
@@ -198,38 +190,30 @@ export default function PicxleGame() {
       })
         .then(() => {
           localStorage.setItem(recordedKey, "1");
-          // Fetch distribution and streak only after the record is confirmed in the DB
           fetchDistribution();
           fetchStreak();
         })
         .catch(() => {});
     } else {
-      // Already recorded on a previous visit — fetch distribution and streak directly
       fetchDistribution();
       fetchStreak();
     }
-  }, [status, puzzle]); // guesses.length is stable by the time status flips
+  }, [status, puzzle]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Load the puzzle image into an offscreen 440×440 canvas ──
   useEffect(() => {
     if (!puzzle) return;
     setImgReady(false);
     srcRef.current = null;
-
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = puzzle.image_src;
-
     img.onload = () => {
       const s = document.createElement("canvas");
       s.width = 440; s.height = 440;
       const ctx = s.getContext("2d");
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
-
       if (puzzle.category === "Flag") {
-        // Flags are rectangular — scale to fit so the full flag is visible.
-        // The transparent letterbox areas show through as the card background.
         const scale = Math.min(440 / img.naturalWidth, 440 / img.naturalHeight);
         const dw = Math.round(img.naturalWidth * scale);
         const dh = Math.round(img.naturalHeight * scale);
@@ -237,17 +221,14 @@ export default function PicxleGame() {
         const dy = Math.round((440 - dh) / 2);
         ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, dx, dy, dw, dh);
       } else {
-        // Square center-crop — works well for most subjects
         const side = Math.min(img.naturalWidth, img.naturalHeight);
         const sx = (img.naturalWidth - side) / 2;
         const sy = (img.naturalHeight - side) / 2;
         ctx.drawImage(img, sx, sy, side, side, 0, 0, 440, 440);
       }
-
       srcRef.current = s;
       setImgReady(true);
     };
-
     img.onerror = () => {
       const cv = canvasRef.current;
       if (!cv) return;
@@ -260,9 +241,8 @@ export default function PicxleGame() {
       ctx.textBaseline = "middle";
       ctx.fillText("image failed to load", cv.width / 2, cv.height / 2);
     };
-  }, [puzzle]);
+  }, [puzzle]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Pixelation draw ──
   const draw = useCallback(() => {
     const cv = canvasRef.current;
     const src = srcRef.current;
@@ -270,12 +250,10 @@ export default function PicxleGame() {
     const ctx = cv.getContext("2d");
     ctx.clearRect(0, 0, cv.width, cv.height);
     if (res === FULL_RES) {
-      // Draw the full 440×440 source directly with smoothing for a crisp result
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
       ctx.drawImage(src, 0, 0, cv.width, cv.height);
     } else {
-      // Downsample to a tiny canvas then upscale without smoothing for the pixel effect
       const tmp = document.createElement("canvas");
       tmp.width = res; tmp.height = res;
       const tctx = tmp.getContext("2d");
@@ -288,7 +266,20 @@ export default function PicxleGame() {
 
   useEffect(() => { draw(); }, [draw, status, imgReady]);
 
-  // ── Modal canvas ──
+  // Flash the canvas when the image sharpens to a new resolution —
+  // a brief bright overlay fades out to reveal the crisper image.
+  // This makes the core game mechanic feel like a real reveal moment.
+  useEffect(() => {
+    if (!imgReady) return;
+    if (prevResRef.current !== null && prevResRef.current !== res) {
+      setFlashing(true);
+      const t = setTimeout(() => setFlashing(false), 420);
+      prevResRef.current = res;
+      return () => clearTimeout(t);
+    }
+    prevResRef.current = res;
+  }, [res, imgReady]);
+
   useEffect(() => {
     if (!isExpanded) return;
     const cv = modalCanvasRef.current;
@@ -311,7 +302,6 @@ export default function PicxleGame() {
     }
   }, [isExpanded, res, imgReady]);
 
-  // ── Keyboard / body ──
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") { setIsExpanded(false); setHintOpen(false); setStatsOpen(false); setProfileOpen(false); }
@@ -324,7 +314,15 @@ export default function PicxleGame() {
     document.body.style.background = C.ink;
   }, [C.ink]);
 
-  // Countdown to next puzzle — ticks every second once the game ends
+  // Trigger bar animation after stats modal has opened and rendered
+  useEffect(() => {
+    if (statsOpen) {
+      setBarsActive(false);
+      const t = setTimeout(() => setBarsActive(true), 80);
+      return () => clearTimeout(t);
+    }
+  }, [statsOpen]);
+
   useEffect(() => {
     if (status === "playing") return;
     const tick = () => {
@@ -344,21 +342,16 @@ export default function PicxleGame() {
     return () => clearInterval(id);
   }, [status]);
 
-  // ── Input ──
   const handleInputChange = (e) => {
     const val = e.target.value;
     setInput(val);
     setDictError(false);
     const q = norm(val);
     if (q.length < 2) { setSuggestions([]); return; }
-
-    // Collect works by any artist whose name contains the query
     const artistWorks = new Set();
     for (const [artist, works] of Object.entries(ARTIST_MAP)) {
       if (artist.includes(q)) works.forEach((w) => artistWorks.add(w));
     }
-
-    // Artist matches first, then title matches (deduped), capped at 6
     const titleMatches = DICTIONARY.filter((w) => w.includes(q) && !artistWorks.has(w));
     setSuggestions([...artistWorks, ...titleMatches].slice(0, 6));
   };
@@ -368,19 +361,16 @@ export default function PicxleGame() {
     setSuggestions([]);
   };
 
-  // ── Guess — now async, validated server-side ──
   const submit = async () => {
     if (status !== "playing" || !puzzle || isSubmitting) return;
     const g = norm(input);
     if (!g) return;
-
     if (!DICTIONARY.includes(g)) {
       setDictError(true);
       setShake(true);
       setTimeout(() => setShake(false), 380);
       return;
     }
-
     setIsSubmitting(true);
     let correct = false;
     try {
@@ -390,16 +380,12 @@ export default function PicxleGame() {
         body: JSON.stringify({ puzzleId: puzzle.id, guess: g }),
       });
       ({ correct } = await res.json());
-    } catch {
-      // Network error — treat as wrong guess rather than crashing
-    }
+    } catch {}
     setIsSubmitting(false);
-
     const next = [...guesses, { text: input.trim(), correct, skipped: false }];
     setGuesses(next);
     setInput("");
     setSuggestions([]);
-
     if (correct) {
       setStatus("won");
     } else if (next.length >= MAX_GUESSES) {
@@ -438,7 +424,6 @@ export default function PicxleGame() {
   const rows = [];
   for (let i = 0; i < MAX_GUESSES; i++) rows.push(guesses[i] || null);
 
-  // ── Loading / error states ──
   if (puzzleError) {
     return (
       <div style={{ background: C.ink, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.creamDim, fontFamily: "var(--font-space-mono), monospace", fontSize: 14 }}>
@@ -447,11 +432,14 @@ export default function PicxleGame() {
     );
   }
 
-  // ── Missed yesterday prompt ──
   if (showMissedPrompt && yesterdayPuzzle) {
     return (
       <div className="page-root" style={{ background: `radial-gradient(140% 100% at 50% 0%, ${C.ink2} 0%, ${C.ink} 55%)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 24px", fontFamily: "var(--font-space-mono), monospace" }}>
-        <style>{`.pxbtn{transition:transform .12s ease,background .15s ease}.pxbtn:hover{transform:translateY(-2px)}.pxbtn:active{transform:translateY(0)}`}</style>
+        <style>{`
+          .pxbtn{transition:transform .12s ease,background .2s ease,color .2s ease}
+          .pxbtn:hover{transform:translateY(-2px)}
+          .pxbtn:active{transform:translateY(1px)}
+        `}</style>
         <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 46, letterSpacing: "-1.5px", margin: "0 0 32px", lineHeight: 1, color: C.cream }}>
           PIC<span style={{ color: C.blue }}>X</span>LE
         </h1>
@@ -463,18 +451,12 @@ export default function PicxleGame() {
             Want to play it now before today&apos;s?
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <button
-              className="pxbtn"
-              onClick={() => { setShowMissedPrompt(false); activatePuzzle(yesterdayPuzzle); }}
-              style={{ background: C.cream, color: C.ink, border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 800, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer", width: "100%" }}
-            >
+            <button className="pxbtn" onClick={() => { setShowMissedPrompt(false); activatePuzzle(yesterdayPuzzle); }}
+              style={{ background: C.cream, color: C.ink, border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 800, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer", width: "100%" }}>
               Play yesterday&apos;s
             </button>
-            <button
-              className="pxbtn"
-              onClick={() => { setShowMissedPrompt(false); activatePuzzle(pendingTodayRef.current); }}
-              style={{ background: "transparent", color: C.creamDim, border: `1px solid ${C.line}`, borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 14, cursor: "pointer", width: "100%" }}
-            >
+            <button className="pxbtn" onClick={() => { setShowMissedPrompt(false); activatePuzzle(pendingTodayRef.current); }}
+              style={{ background: "transparent", color: C.creamDim, border: `1px solid ${C.line}`, borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 14, cursor: "pointer", width: "100%" }}>
               Skip to today&apos;s
             </button>
           </div>
@@ -491,6 +473,13 @@ export default function PicxleGame() {
     );
   }
 
+  // Derive canvas glow based on game state
+  const canvasGlow = status === "won"
+    ? `0 18px 40px -20px #000, 0 0 0 2px ${C.green}55`
+    : status === "lost"
+    ? `0 18px 40px -20px #000, 0 0 0 2px ${C.coral}45`
+    : "0 18px 40px -20px #000";
+
   return (
     <div
       className="page-root"
@@ -502,30 +491,56 @@ export default function PicxleGame() {
         padding: "28px 18px 40px",
         fontFamily: "var(--font-space-mono), monospace",
         color: C.cream,
+        animation: "pageIn .35s ease both",
       }}
     >
       <style>{`
         @keyframes shk {
           0%,100% { transform: translateX(0) }
-          20%      { transform: translateX(-7px) }
+          20%      { transform: translateX(-8px) }
           40%      { transform: translateX(6px) }
           60%      { transform: translateX(-4px) }
-          80%      { transform: translateX(3px) }
+          80%      { transform: translateX(2px) }
         }
         @keyframes pop {
-          from { transform: scale(.9); opacity: 0 }
-          to   { transform: scale(1);  opacity: 1 }
+          0%   { transform: scale(.86) translateY(6px); opacity: 0 }
+          65%  { transform: scale(1.04) translateY(-2px); opacity: 1 }
+          100% { transform: scale(1) translateY(0); opacity: 1 }
         }
-        .pxbtn { transition: transform .12s ease, background .15s ease }
+        @keyframes flashFade {
+          0%   { opacity: .8 }
+          40%  { opacity: .5 }
+          100% { opacity: 0 }
+        }
+        @keyframes modalIn {
+          from { transform: scale(0.95) translateY(10px); opacity: 0 }
+          to   { transform: scale(1) translateY(0); opacity: 1 }
+        }
+        @keyframes overlayIn {
+          from { opacity: 0 }
+          to   { opacity: 1 }
+        }
+        @keyframes dropIn {
+          from { opacity: 0; transform: translateY(-5px) }
+          to   { opacity: 1; transform: translateY(0) }
+        }
+        @keyframes pageIn {
+          from { opacity: 0; transform: translateY(10px) }
+          to   { opacity: 1; transform: translateY(0) }
+        }
+        .pxbtn { transition: transform .12s ease, background .2s ease, color .2s ease, box-shadow .2s ease }
         .pxbtn:hover  { transform: translateY(-2px) }
-        .pxbtn:active { transform: translateY(0) }
-        input::placeholder { color: ${C.creamDim}; opacity: .7 }
+        .pxbtn:active { transform: translateY(1px) }
+        input::placeholder { color: ${C.creamDim}; opacity: .6 }
+        .px-suggestion { padding: 9px 14px; font-size: 13px; color: ${C.cream}; cursor: pointer; border-bottom: 1px solid ${C.line}; transition: background .1s ease; }
+        .px-suggestion:hover { background: ${C.line}; }
+        .px-suggestion:last-child { border-bottom: none; }
       `}</style>
 
       {/* ── Header ── */}
       <div style={{ textAlign: "center", marginBottom: 18, position: "relative" }}>
 
-        {/* Profile button — top left */}
+        {/* Profile button */}
         <button
           onClick={() => {
             setProfileOpen(true);
@@ -540,7 +555,10 @@ export default function PicxleGame() {
             background: "transparent", border: `1px solid ${C.line}`,
             borderRadius: 20, padding: "4px 10px", fontSize: 13,
             cursor: "pointer", color: C.creamDim, lineHeight: 1, display: "flex", alignItems: "center", gap: 5,
+            transition: "border-color .15s, color .15s",
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.creamDim; }}
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="7" r="5"/>
@@ -548,19 +566,22 @@ export default function PicxleGame() {
           </svg>
         </button>
 
-        {/* Theme toggle — top right */}
+        {/* Theme toggle */}
         <button
           onClick={() => setIsDark((d) => {
-          try { localStorage.setItem("picxle-theme", d ? "light" : "dark"); } catch {}
-          return !d;
-        })}
+            try { localStorage.setItem("picxle-theme", d ? "light" : "dark"); } catch {}
+            return !d;
+          })}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
           style={{
             position: "absolute", top: 0, right: 0,
             background: "transparent", border: `1px solid ${C.line}`,
             borderRadius: 20, padding: "4px 10px", fontSize: 14,
             cursor: "pointer", color: C.creamDim, lineHeight: 1,
+            transition: "border-color .15s, color .15s",
           }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.creamDim; }}
         >
           {isDark ? "☀" : "☾"}
         </button>
@@ -603,8 +624,8 @@ export default function PicxleGame() {
 
       {/* ── Category hint modal ── */}
       {hintOpen && (
-        <div onClick={() => setHintOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "24px 20px", width: "min(90vw, 380px)", maxHeight: "75vh", display: "flex", flexDirection: "column", position: "relative" }}>
+        <div onClick={() => setHintOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, animation: "overlayIn .15s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "24px 20px", width: "min(90vw, 380px)", maxHeight: "75vh", display: "flex", flexDirection: "column", position: "relative", animation: "modalIn .22s cubic-bezier(0.175,0.885,0.32,1.275) both" }}>
             <button onClick={() => setHintOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: C.line, border: "none", color: C.cream, fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
             <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 18, color: C.cream, marginBottom: 4 }}>{puzzle.category}</p>
             <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "0.5px", marginBottom: 16 }}>Examples from this category — your answer is something like these.</p>
@@ -619,119 +640,112 @@ export default function PicxleGame() {
 
       {/* ── Stats modal ── */}
       {statsOpen && stats && (
-        <div onClick={() => setStatsOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          {/* outer: clips rounded corners + anchors the × button */}
-          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", position: "relative", overflow: "hidden" }}>
+        <div onClick={() => setStatsOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, animation: "overlayIn .15s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", position: "relative", overflow: "hidden", animation: "modalIn .22s cubic-bezier(0.175,0.885,0.32,1.275) both" }}>
             <button onClick={() => setStatsOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: "rgba(0,0,0,.5)", border: "none", color: "#fff", fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>×</button>
 
-            {/* inner: scrollable so tall content doesn't overflow screen */}
             <div style={{ maxHeight: "90vh", overflowY: "auto" }}>
-
-            {/* Full-res image — capped so it doesn't dominate on small phones */}
-            <div style={{ width: "100%", height: "min(55vw, 220px)", overflow: "hidden" }}>
-              <img src={puzzle.image_src} alt="today's puzzle" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </div>
-
-            {/* Answer reveal */}
-            {revealedAnswer && (
-              <p style={{ textAlign: "center", margin: "14px 20px 0", fontSize: 13, color: C.creamDim }}>
-                it was{" "}
-                <span style={{ color: C.cream, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>
-                  {revealedAnswer}
-                </span>
-              </p>
-            )}
-
-            {/* Tiered result message */}
-            <div style={{ padding: "8px 20px 0", textAlign: "center" }}>
-              {(() => {
-                const { text, color } = status === "won"
-                  ? [
-                      { text: "Absolutely unreal.",    color: C.blue },
-                      { text: "Sharp eye.",            color: C.green },
-                      { text: "Solid.",                color: C.green },
-                      { text: "Got there in the end.", color: C.cream },
-                      { text: "That was close.",       color: C.creamDim },
-                    ][guesses.length - 1]
-                  : { text: "Better luck tomorrow.",   color: C.coral };
-                return <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 20, color, margin: 0, letterSpacing: "-0.5px" }}>{text}</p>;
-              })()}
-            </div>
-
-            <div style={{ padding: "16px 20px 20px" }}>
-            {/* Personal stat boxes */}
-            {playerStreak && (
-              <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-                {[
-                  { label: "PLAYED", value: playerStreak.played },
-                  { label: "WIN %",  value: `${playerStreak.winPct}%` },
-                  { label: "STREAK", value: playerStreak.current },
-                  { label: "BEST",   value: playerStreak.max },
-                ].map(({ label, value }) => (
-                  <div key={label} style={{ flex: 1, textAlign: "center", background: C.ink, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 4px" }}>
-                    <div style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, lineHeight: 1 }}>{value}</div>
-                    <div style={{ fontSize: 9, letterSpacing: "1px", color: C.creamDim, marginTop: 4 }}>{label}</div>
-                  </div>
-                ))}
+              <div style={{ width: "100%", height: "min(55vw, 220px)", overflow: "hidden" }}>
+                <img src={puzzle.image_src} alt="today's puzzle" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
-            )}
 
-            {/* Distribution bars */}
-            <p style={{ fontSize: 10, letterSpacing: "2px", color: C.creamDim, margin: "0 0 10px", textAlign: "center" }}>GUESS DISTRIBUTION</p>
-            {(() => {
-              const maxCount = Math.max(...Object.values(stats.counts), 1);
-              return [1, 2, 3, 4, 5, 6].map((n) => {
-                const count = stats.counts[n] ?? 0;
-                const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
-                const barPct = Math.round((count / maxCount) * 100);
-                const isMe = (status === "won" && n === guesses.length) || (status === "lost" && n === 6);
-                const barColor = isMe ? (status === "won" ? C.green : C.coral) : C.line;
-                return (
-                  <div key={n} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-                    <span style={{ width: 14, textAlign: "right", fontSize: 13, color: isMe ? C.cream : C.creamDim, fontWeight: isMe ? 700 : 400, flexShrink: 0 }}>
-                      {n === 6 ? "X" : n}
-                    </span>
-                    <div style={{ flex: 1, background: C.ink, borderRadius: 3, height: 22, overflow: "hidden" }}>
-                      <div style={{
-                        height: "100%",
-                        width: count > 0 ? `${Math.max(barPct, 8)}%` : "4%",
-                        background: barColor,
-                        borderRadius: 3,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                        paddingRight: 7,
-                        transition: "width .5s ease",
-                      }}>
-                        {count > 0 && <span style={{ fontSize: 10, fontWeight: 700, color: isMe ? "#fff" : C.creamDim }}>{pct}%</span>}
+              {revealedAnswer && (
+                <p style={{ textAlign: "center", margin: "14px 20px 0", fontSize: 13, color: C.creamDim }}>
+                  it was{" "}
+                  <span style={{ color: C.cream, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>
+                    {revealedAnswer}
+                  </span>
+                </p>
+              )}
+
+              <div style={{ padding: "8px 20px 0", textAlign: "center" }}>
+                {(() => {
+                  const { text, color } = status === "won"
+                    ? [
+                        { text: "Absolutely unreal.",    color: C.blue },
+                        { text: "Sharp eye.",            color: C.green },
+                        { text: "Solid.",                color: C.green },
+                        { text: "Got there in the end.", color: C.cream },
+                        { text: "That was close.",       color: C.creamDim },
+                      ][guesses.length - 1]
+                    : { text: "Better luck tomorrow.",   color: C.coral };
+                  return <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 20, color, margin: 0, letterSpacing: "-0.5px" }}>{text}</p>;
+                })()}
+              </div>
+
+              <div style={{ padding: "16px 20px 20px" }}>
+                {playerStreak && (
+                  <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+                    {[
+                      { label: "PLAYED", value: playerStreak.played },
+                      { label: "WIN %",  value: `${playerStreak.winPct}%` },
+                      { label: "STREAK", value: playerStreak.current },
+                      { label: "BEST",   value: playerStreak.max },
+                    ].map(({ label, value }) => (
+                      <div key={label} style={{ flex: 1, textAlign: "center", background: C.ink, border: `1px solid ${C.line}`, borderRadius: 10, padding: "10px 4px" }}>
+                        <div style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, lineHeight: 1 }}>{value}</div>
+                        <div style={{ fontSize: 9, letterSpacing: "1px", color: C.creamDim, marginTop: 4 }}>{label}</div>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                );
-              });
-            })()}
-            <p style={{ fontSize: 11, color: C.creamDim, textAlign: "center", margin: "12px 0 0", letterSpacing: "0.5px" }}>
-              {stats.total.toLocaleString()} {stats.total === 1 ? "player" : "players"} today
-            </p>
+                )}
 
-            <button className="pxbtn" onClick={shareGrid}
-              style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
-              {copied ? "COPIED ✓" : "SHARE RESULT"}
-            </button>
-            </div>{/* end padding wrapper */}
-            </div>{/* end inner scroll */}
-          </div>{/* end outer card */}
+                <p style={{ fontSize: 10, letterSpacing: "2px", color: C.creamDim, margin: "0 0 10px", textAlign: "center" }}>GUESS DISTRIBUTION</p>
+                {(() => {
+                  const maxCount = Math.max(...Object.values(stats.counts), 1);
+                  return [1, 2, 3, 4, 5, 6].map((n) => {
+                    const count = stats.counts[n] ?? 0;
+                    const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
+                    const barPct = Math.round((count / maxCount) * 100);
+                    const isMe = (status === "won" && n === guesses.length) || (status === "lost" && n === 6);
+                    const barColor = isMe ? (status === "won" ? C.green : C.coral) : C.line;
+                    // Bars animate from 0 → target width after modal opens (barsActive state)
+                    const targetWidth = count > 0 ? `${Math.max(barPct, 8)}%` : "4%";
+                    return (
+                      <div key={n} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                        <span style={{ width: 14, textAlign: "right", fontSize: 13, color: isMe ? C.cream : C.creamDim, fontWeight: isMe ? 700 : 400, flexShrink: 0 }}>
+                          {n === 6 ? "X" : n}
+                        </span>
+                        <div style={{ flex: 1, background: C.ink, borderRadius: 3, height: 22, overflow: "hidden" }}>
+                          <div style={{
+                            height: "100%",
+                            width: barsActive ? targetWidth : "0%",
+                            background: barColor,
+                            borderRadius: 3,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "flex-end",
+                            paddingRight: 7,
+                            transition: `width .5s cubic-bezier(0.22,1,0.36,1) ${n * 40}ms`,
+                          }}>
+                            {count > 0 && barsActive && <span style={{ fontSize: 10, fontWeight: 700, color: isMe ? "#fff" : C.creamDim }}>{pct}%</span>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+                <p style={{ fontSize: 11, color: C.creamDim, textAlign: "center", margin: "12px 0 0", letterSpacing: "0.5px" }}>
+                  {stats.total.toLocaleString()} {stats.total === 1 ? "player" : "players"} today
+                </p>
+
+                <button className="pxbtn" onClick={shareGrid}
+                  style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
+                  {copied ? "COPIED ✓" : "SHARE RESULT"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
       {/* ── Profile modal ── */}
       {profileOpen && (
-        <div onClick={() => setProfileOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", maxHeight: "90vh", overflowY: "auto", position: "relative" }}>
+        <div onClick={() => setProfileOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, animation: "overlayIn .15s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", maxHeight: "90vh", overflowY: "auto", position: "relative", animation: "modalIn .22s cubic-bezier(0.175,0.885,0.32,1.275) both" }}>
             <button onClick={() => setProfileOpen(false)} style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: C.line, border: "none", color: C.cream, fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
 
             <div style={{ padding: "24px 20px 20px" }}>
-              {/* Name */}
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
                 <div style={{ width: 40, height: 40, borderRadius: "50%", background: C.line, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill={C.creamDim}>
@@ -747,7 +761,6 @@ export default function PicxleGame() {
 
               {playerStreak ? (
                 <>
-                  {/* Stat boxes */}
                   <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
                     {[
                       { label: "PLAYED",       value: playerStreak.played },
@@ -762,7 +775,6 @@ export default function PicxleGame() {
                     ))}
                   </div>
 
-                  {/* All-time guess distribution */}
                   <p style={{ fontSize: 10, letterSpacing: "2px", color: C.creamDim, margin: "0 0 10px", textAlign: "center" }}>YOUR GUESS DISTRIBUTION</p>
                   {(() => {
                     const counts = playerStreak.counts ?? {};
@@ -803,18 +815,48 @@ export default function PicxleGame() {
       {/* ── Image canvas ── */}
       <div
         onClick={() => imgReady && setIsExpanded(true)}
-        style={{ position: "relative", padding: 8, background: C.ink2, borderRadius: 18, border: `1px solid ${C.line}`, boxShadow: "0 18px 40px -20px #000", animation: shake ? "shk .38s ease" : "none", cursor: imgReady ? "zoom-in" : "default" }}
+        style={{
+          position: "relative",
+          padding: 8,
+          background: C.ink2,
+          borderRadius: 18,
+          border: `1px solid ${C.line}`,
+          boxShadow: canvasGlow,
+          animation: shake ? "shk .38s ease" : "none",
+          cursor: imgReady ? "zoom-in" : "default",
+          transition: "box-shadow .4s ease",
+        }}
       >
         <canvas ref={canvasRef} width={300} height={300} style={{ width: 300, height: 300, borderRadius: 12, display: "block", imageRendering: "pixelated" }} />
-        <div style={{ position: "absolute", top: 16, left: 16, background: "rgba(0,0,0,.45)", color: "#f4ead7", fontSize: 11, padding: "3px 8px", borderRadius: 6, letterSpacing: "1px" }}>
+
+        {/* Resolution badge — theme-matched, sits in top-left of canvas */}
+        <div style={{
+          position: "absolute", top: 16, left: 16,
+          background: C.ink2,
+          border: `1px solid ${C.line}`,
+          color: C.creamDim,
+          fontSize: 11, padding: "3px 8px", borderRadius: 6, letterSpacing: "1px",
+        }}>
           {!imgReady ? "LOADING…" : revealed ? "FULL RES" : `${res}×${res} PX`}
         </div>
+
+        {/* Flash overlay — fades in and out when image sharpens to next resolution */}
+        {flashing && (
+          <div style={{
+            position: "absolute",
+            inset: 8,
+            borderRadius: 12,
+            background: isDark ? "rgba(244,234,215,0.22)" : "rgba(250,246,239,0.6)",
+            animation: "flashFade .42s ease forwards",
+            pointerEvents: "none",
+          }} />
+        )}
       </div>
 
       {/* ── Fullscreen modal ── */}
       {isExpanded && (
-        <div onClick={() => setIsExpanded(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ position: "relative" }}>
+        <div onClick={() => setIsExpanded(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, animation: "overlayIn .15s ease" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ position: "relative", animation: "modalIn .2s ease both" }}>
             <canvas ref={modalCanvasRef} width={600} height={600} style={{ width: "min(88vw, 80vh)", height: "min(88vw, 80vh)", imageRendering: "pixelated", borderRadius: 16, display: "block" }} />
             <button onClick={() => setIsExpanded(false)} style={{ position: "absolute", top: -14, right: -14, width: 32, height: 32, borderRadius: "50%", background: C.ink2, border: `1px solid ${C.line}`, color: C.cream, fontSize: 20, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
           </div>
@@ -828,8 +870,24 @@ export default function PicxleGame() {
           const bg = g ? (g.correct ? "rgba(70,196,106,.12)" : g.skipped ? "rgba(59,130,246,.08)" : "rgba(220,80,80,.10)") : "transparent";
           const icon = g ? (g.correct ? "✓" : g.skipped ? "→" : "✗") : i + 1;
           const iconColor = g ? (g.correct ? C.green : g.skipped ? C.blue : C.coral) : C.line;
+
+          // Only play entrance animation once per row (tracked in a ref Set)
+          const isNewRow = g && !animatedRowIndices.current.has(i);
+          if (isNewRow) animatedRowIndices.current.add(i);
+
           return (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 9, border: `1px solid ${borderColor}`, background: bg, animation: g ? "pop .25s ease" : "none" }}>
+            <div
+              key={i}
+              style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "9px 12px", borderRadius: 9,
+                border: `1px solid ${borderColor}`,
+                background: bg,
+                opacity: g ? 1 : 0.45,
+                animation: isNewRow ? "pop .32s cubic-bezier(0.175,0.885,0.32,1.275) both" : "none",
+                transition: "border-color .2s ease, background .2s ease, opacity .2s ease",
+              }}
+            >
               <span style={{ color: iconColor, fontWeight: 700, width: 16 }}>{icon}</span>
               <span style={{ fontSize: 14, textTransform: "lowercase", color: g ? (g.skipped ? C.creamDim : C.cream) : C.line }}>
                 {g ? (g.skipped ? "skipped" : g.text) : "—"}
@@ -847,23 +905,39 @@ export default function PicxleGame() {
               value={input}
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === "Enter" && submit()}
-              onBlur={() => setTimeout(() => setSuggestions([]), 150)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => { setInputFocused(false); setTimeout(() => setSuggestions([]), 150); }}
               placeholder="type your guess"
               disabled={isSubmitting}
               autoComplete="off"
               autoCorrect="off"
               autoCapitalize="none"
               spellCheck={false}
-              style={{ width: "100%", background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 9, padding: "12px 14px", color: C.cream, fontFamily: "var(--font-space-mono), monospace", fontSize: 15, outline: "none", opacity: isSubmitting ? 0.6 : 1 }}
+              style={{
+                width: "100%",
+                background: C.ink2,
+                border: `1px solid ${inputFocused ? C.blue : C.line}`,
+                borderRadius: 9,
+                padding: "12px 14px",
+                color: C.cream,
+                fontFamily: "var(--font-space-mono), monospace",
+                fontSize: 15,
+                outline: "none",
+                opacity: isSubmitting ? 0.6 : 1,
+                boxShadow: inputFocused ? `0 0 0 3px ${C.blue}22` : "none",
+                transition: "border-color .15s ease, box-shadow .15s ease",
+              }}
             />
             {suggestions.length > 0 && (
-              <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 9, overflow: "hidden", zIndex: 10 }}>
+              <div style={{
+                position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
+                background: C.ink2, border: `1px solid ${C.line}`,
+                borderRadius: 9, overflow: "hidden", zIndex: 10,
+                animation: "dropIn .14s ease",
+                maxHeight: 220, overflowY: "auto",
+              }}>
                 {suggestions.map((s) => (
-                  <div key={s} onMouseDown={() => selectSuggestion(s)}
-                    style={{ padding: "9px 14px", fontSize: 13, color: C.cream, cursor: "pointer", borderBottom: `1px solid ${C.line}` }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = C.line}
-                    onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
-                  >{s}</div>
+                  <div key={s} className="px-suggestion" onMouseDown={() => selectSuggestion(s)}>{s}</div>
                 ))}
               </div>
             )}
@@ -877,8 +951,9 @@ export default function PicxleGame() {
             style={{ background: C.blue, color: "#fff", border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 20, cursor: isSubmitting ? "wait" : "pointer", width: "100%", opacity: isSubmitting ? 0.7 : 1 }}>
             {isSubmitting ? "…" : "GUESS"}
           </button>
+          {/* SKIP is a costly concession — visually subordinate to GUESS */}
           <button className="pxbtn" onClick={skip}
-            style={{ background: C.coral, color: "#fff", border: "none", borderRadius: 9, padding: "13px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 13, cursor: "pointer" }}>
+            style={{ background: "transparent", color: C.coral, border: `1px solid ${C.line}`, borderRadius: 9, padding: "10px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 12, letterSpacing: "1.5px", cursor: "pointer" }}>
             SKIP
           </button>
         </div>
@@ -895,7 +970,7 @@ export default function PicxleGame() {
                 ][guesses.length - 1]
               : { text: "Better luck tomorrow.", color: C.coral };
             return (
-              <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 24, margin: "0 0 4px", color }}>
+              <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 28, margin: "0 0 4px", color, letterSpacing: "-0.5px" }}>
                 {text}
               </p>
             );
@@ -915,11 +990,11 @@ export default function PicxleGame() {
               Play today&apos;s puzzle →
             </button>
           ) : (
-            <div style={{ marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-              <p style={{ fontSize: 11, color: C.creamDim, letterSpacing: "1px", margin: 0 }}>
+            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <p style={{ fontSize: 10, color: C.creamDim, letterSpacing: "2px", margin: 0 }}>
                 NEXT PICXLE IN
               </p>
-              <p style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: 22, fontWeight: 700, color: C.cream, margin: 0, letterSpacing: "2px" }}>
+              <p style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: 28, fontWeight: 700, color: C.cream, margin: 0, letterSpacing: "4px", lineHeight: 1 }}>
                 {countdown}
               </p>
             </div>
