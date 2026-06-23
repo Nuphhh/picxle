@@ -3,46 +3,35 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
-const DARK = {
-  ink:      "#17130d",
-  ink2:     "#221b12",
-  cream:    "#f4ead7",
-  creamDim: "#cdbfa6",
-  amber:    "#3b82f6",
-  green:    "#46c46a",
-  line:     "#3a3024",
-};
-
-const LIGHT = {
-  ink:      "#faf6ef",
-  ink2:     "#ede8de",
-  cream:    "#1c1208",
-  creamDim: "#7a6548",
-  amber:    "#3b82f6",
-  green:    "#16a34a",
-  line:     "#d4c4b0",
+// Theme colours are CSS custom properties (globals.css) driven by data-theme
+// on <html>. Every value here is a var() reference, so the markup is
+// theme-agnostic — the correct theme paints on the first frame, no flash.
+const C = {
+  ink:      "var(--ink)",
+  ink2:     "var(--ink2)",
+  cream:    "var(--cream)",
+  creamDim: "var(--creamDim)",
+  amber:    "var(--blue)",
+  green:    "var(--green)",
+  line:     "var(--line)",
 };
 
 const STEPS = ["8px", "12px", "19px", "29px", "✓"];
 
 export default function LandingPage() {
-  // Fixed default so server and first client render match (no hydration
-  // mismatch); the saved / system theme is applied right after mount.
+  // The pre-paint script in the root layout already applied the correct theme.
+  // We mirror that into state here only so the toggle button reflects it.
   const [isDark, setIsDark] = useState(false);
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("picxle-theme");
-      if (saved !== null) setIsDark(saved === "dark");
-      else setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    } catch {}
+    setIsDark(document.documentElement.dataset.theme === "dark");
   }, []);
-
-  const C = isDark ? DARK : LIGHT;
 
   const toggleTheme = () => {
     setIsDark((d) => {
-      try { localStorage.setItem("picxle-theme", d ? "light" : "dark"); } catch {}
-      return !d;
+      const next = !d;
+      try { localStorage.setItem("picxle-theme", next ? "dark" : "light"); } catch {}
+      document.documentElement.dataset.theme = next ? "dark" : "light";
+      return next;
     });
   };
 
@@ -139,12 +128,10 @@ export default function LandingPage() {
                 width: 46, height: 46,
                 borderRadius: 8,
                 background: isWin
-                  ? `rgba(${isDark ? "70,196,106" : "22,163,74"},.1)`
-                  : isDark
-                  ? `rgba(244,234,215,${0.03 + i * 0.038})`
-                  : `rgba(28,18,8,${0.03 + i * 0.038})`,
+                  ? `rgba(var(--green-rgb), .1)`
+                  : `rgba(var(--cream-rgb), ${0.03 + i * 0.038})`,
                 border: isWin
-                  ? `1px solid ${C.green}55`
+                  ? `1px solid rgba(var(--green-rgb), .33)`
                   : `1px solid ${C.line}`,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: isWin ? 17 : 9,

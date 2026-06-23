@@ -22,10 +22,11 @@ export const metadata = {
   description: "Guess the pixelated image. It sharpens as you miss.",
 };
 
-// Runs before React paints, so the page background is the right theme
-// from the very first frame — no white flash on cold load (notably inside
-// the Capacitor webview). Kept tiny and dependency-free on purpose.
-const themeScript = `(function(){try{var t=localStorage.getItem('picxle-theme');var d=t!==null?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.style.backgroundColor=d?'#17130d':'#faf6ef';}catch(e){}})();`;
+// Runs before React paints. Sets data-theme on <html> so every CSS theme
+// token resolves to the correct theme on the very first frame — no flash on
+// load, even before React hydrates (notably inside the Capacitor webview).
+// Also paints the background colour immediately. Tiny and dependency-free.
+const themeScript = `(function(){try{var t=localStorage.getItem('picxle-theme');var d=t!==null?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;var r=document.documentElement;r.dataset.theme=d?'dark':'light';r.style.backgroundColor=d?'#17130d':'#faf6ef';}catch(e){}})();`;
 
 export default function RootLayout({ children }) {
   return (

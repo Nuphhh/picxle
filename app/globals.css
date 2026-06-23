@@ -4,9 +4,50 @@
   padding: 0;
 }
 
+/* Theme tokens. A tiny script in the root layout sets data-theme on <html>
+   before the first paint, so these resolve to the right theme immediately —
+   no flash on load, even before React hydrates. :root is the light theme;
+   [data-theme="dark"] overrides it. RGB channel vars exist for the few spots
+   that compose a translucent colour with rgba(). */
+:root {
+  --ink: #faf6ef;
+  --ink2: #ede8de;
+  --cream: #1c1208;
+  --creamDim: #7a6548;
+  --coral: #c23b3b;
+  --green: #16a34a;
+  --blue: #3b82f6;
+  --line: #d4c4b0;
+
+  --green-rgb: 22, 163, 74;
+  --coral-rgb: 194, 59, 59;
+  --blue-rgb: 59, 130, 246;
+  --cream-rgb: 28, 18, 8;
+
+  --flash: rgba(250, 246, 239, 0.6);
+}
+
+[data-theme="dark"] {
+  --ink: #17130d;
+  --ink2: #221b12;
+  --cream: #f4ead7;
+  --creamDim: #cdbfa6;
+  --coral: #e05252;
+  --green: #46c46a;
+  --blue: #3b82f6;
+  --line: #3a3024;
+
+  --green-rgb: 70, 196, 106;
+  --coral-rgb: 224, 82, 82;
+  --blue-rgb: 59, 130, 246;
+  --cream-rgb: 244, 234, 215;
+
+  --flash: rgba(244, 234, 215, 0.22);
+}
+
 html,
 body {
-  background: #17130d;
+  background: var(--ink);
   overflow-x: hidden;
 }
 

@@ -4,26 +4,23 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { DICTIONARY, ARTIST_MAP, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
 import { apiUrl } from "@/lib/api";
 
-const DARK = {
-  ink:      "#17130d",
-  ink2:     "#221b12",
-  cream:    "#f4ead7",
-  creamDim: "#cdbfa6",
-  coral:    "#e05252",
-  green:    "#46c46a",
-  blue:     "#3b82f6",
-  line:     "#3a3024",
-};
-
-const LIGHT = {
-  ink:      "#faf6ef",
-  ink2:     "#ede8de",
-  cream:    "#1c1208",
-  creamDim: "#7a6548",
-  coral:    "#c23b3b",
-  green:    "#16a34a",
-  blue:     "#3b82f6",
-  line:     "#d4c4b0",
+// Colours are CSS custom properties (defined in globals.css) driven by the
+// data-theme attribute on <html>. Because every value below is a var()
+// reference, the rendered markup is identical regardless of theme — so the
+// correct theme paints on the very first frame with no flash and no
+// hydration mismatch. The -RGB entries compose translucent colours via rgba().
+const C = {
+  ink:      "var(--ink)",
+  ink2:     "var(--ink2)",
+  cream:    "var(--cream)",
+  creamDim: "var(--creamDim)",
+  coral:    "var(--coral)",
+  green:    "var(--green)",
+  blue:     "var(--blue)",
+  line:     "var(--line)",
+  greenRGB: "var(--green-rgb)",
+  coralRGB: "var(--coral-rgb)",
+  blueRGB:  "var(--blue-rgb)",
 };
 
 const norm = (s) =>
@@ -38,18 +35,14 @@ function getPlayerId() {
 }
 
 export default function PicxleGame() {
-  // Theme must render identically on the server and the first client paint,
-  // otherwise React throws a hydration mismatch. So we start from a fixed
-  // default and resolve the real (saved / system) theme right after mount.
+  // The pre-paint script in the root layout already applied the correct theme
+  // (data-theme on <html>), so colours never flash. We only mirror that choice
+  // into React state for the toggle button and a couple of JS-only needs
+  // (the canvas fallback and the difficulty pill read live values).
   const [isDark, setIsDark] = useState(false);
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("picxle-theme");
-      if (saved !== null) setIsDark(saved === "dark");
-      else setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
-    } catch {}
+    setIsDark(document.documentElement.dataset.theme === "dark");
   }, []);
-  const C = isDark ? DARK : LIGHT;
 
   const [puzzle, setPuzzle] = useState(null);
   const [puzzleError, setPuzzleError] = useState(false);
@@ -236,9 +229,11 @@ export default function PicxleGame() {
       const cv = canvasRef.current;
       if (!cv) return;
       const ctx = cv.getContext("2d");
-      ctx.fillStyle = C.ink2;
+      // Canvas needs concrete colours, so resolve the theme vars at draw time.
+      const cs = getComputedStyle(document.documentElement);
+      ctx.fillStyle = cs.getPropertyValue("--ink2").trim() || "#ede8de";
       ctx.fillRect(0, 0, cv.width, cv.height);
-      ctx.fillStyle = C.creamDim;
+      ctx.fillStyle = cs.getPropertyValue("--creamDim").trim() || "#7a6548";
       ctx.font = "13px monospace";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -478,9 +473,9 @@ export default function PicxleGame() {
 
   // Derive canvas glow based on game state
   const canvasGlow = status === "won"
-    ? `0 18px 40px -20px #000, 0 0 0 2px ${C.green}55`
+    ? `0 18px 40px -20px #000, 0 0 0 2px rgba(${C.greenRGB}, .33)`
     : status === "lost"
-    ? `0 18px 40px -20px #000, 0 0 0 2px ${C.coral}45`
+    ? `0 18px 40px -20px #000, 0 0 0 2px rgba(${C.coralRGB}, .27)`
     : "0 18px 40px -20px #000";
 
   return (
@@ -576,8 +571,10 @@ export default function PicxleGame() {
         {/* Theme toggle */}
         <button
           onClick={() => setIsDark((d) => {
-            try { localStorage.setItem("picxle-theme", d ? "light" : "dark"); } catch {}
-            return !d;
+            const next = !d;
+            try { localStorage.setItem("picxle-theme", next ? "dark" : "light"); } catch {}
+            document.documentElement.dataset.theme = next ? "dark" : "light";
+            return next;
           })}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
           style={{
@@ -853,7 +850,7 @@ export default function PicxleGame() {
             position: "absolute",
             inset: 8,
             borderRadius: 12,
-            background: isDark ? "rgba(244,234,215,0.22)" : "rgba(250,246,239,0.6)",
+            background: "var(--flash)",
             animation: "flashFade .42s ease forwards",
             pointerEvents: "none",
           }} />
@@ -980,7 +977,7 @@ export default function PicxleGame() {
                 fontSize: 15,
                 outline: "none",
                 opacity: isSubmitting ? 0.6 : 1,
-                boxShadow: inputFocused ? `0 0 0 3px ${C.blue}22` : "none",
+                boxShadow: inputFocused ? `0 0 0 3px rgba(${C.blueRGB}, .13)` : "none",
                 transition: "border-color .15s ease, box-shadow .15s ease",
               }}
             />
