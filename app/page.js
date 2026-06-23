@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const DARK = {
   ink:      "#17130d",
@@ -26,14 +26,16 @@ const LIGHT = {
 const STEPS = ["8px", "12px", "19px", "29px", "✓"];
 
 export default function LandingPage() {
-  const [isDark, setIsDark] = useState(() => {
+  // Fixed default so server and first client render match (no hydration
+  // mismatch); the saved / system theme is applied right after mount.
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("picxle-theme");
-      if (saved !== null) return saved === "dark";
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (saved !== null) setIsDark(saved === "dark");
+      else setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
     } catch {}
-    return true;
-  });
+  }, []);
 
   const C = isDark ? DARK : LIGHT;
 

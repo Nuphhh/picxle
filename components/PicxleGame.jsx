@@ -38,14 +38,17 @@ function getPlayerId() {
 }
 
 export default function PicxleGame() {
-  const [isDark, setIsDark] = useState(() => {
+  // Theme must render identically on the server and the first client paint,
+  // otherwise React throws a hydration mismatch. So we start from a fixed
+  // default and resolve the real (saved / system) theme right after mount.
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
     try {
       const saved = localStorage.getItem("picxle-theme");
-      if (saved !== null) return saved === "dark";
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (saved !== null) setIsDark(saved === "dark");
+      else setIsDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
     } catch {}
-    return false;
-  });
+  }, []);
   const C = isDark ? DARK : LIGHT;
 
   const [puzzle, setPuzzle] = useState(null);
@@ -528,6 +531,10 @@ export default function PicxleGame() {
           from { opacity: 0; transform: translateY(10px) }
           to   { opacity: 1; transform: translateY(0) }
         }
+        @keyframes sharpPulse {
+          0%,100% { opacity: 1; transform: scaleY(1) }
+          50%     { opacity: .6; transform: scaleY(1.14) }
+        }
         .pxbtn { transition: transform .12s ease, background .2s ease, color .2s ease, box-shadow .2s ease }
         .pxbtn:hover  { transform: translateY(-2px) }
         .pxbtn:active { transform: translateY(1px) }
@@ -851,6 +858,23 @@ export default function PicxleGame() {
             pointerEvents: "none",
           }} />
         )}
+
+        {/* Zoom affordance — signals the image is tappable to enlarge.
+            Essential on touch, where there is no hover cursor to hint it. */}
+        {imgReady && (
+          <div style={{
+            position: "absolute", bottom: 16, right: 16,
+            width: 28, height: 28, borderRadius: 7,
+            background: C.ink2, border: `1px solid ${C.line}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: C.creamDim, pointerEvents: "none",
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 3 21 3 21 9" /><polyline points="9 21 3 21 3 15" />
+              <line x1="21" y1="3" x2="14" y2="10" /><line x1="3" y1="21" x2="10" y2="14" />
+            </svg>
+          </div>
+        )}
       </div>
 
       {/* ── Fullscreen modal ── */}
@@ -863,13 +887,45 @@ export default function PicxleGame() {
         </div>
       )}
 
+      {/* ── Sharpness meter — visualizes the core mechanic: the image
+             resolves one step sharper with each miss. Ascending bars read
+             as increasing clarity; the active step breathes. ── */}
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 7, height: 24, marginTop: 16 }}>
+        <span style={{ alignSelf: "center", fontSize: 9, letterSpacing: "1.5px", color: C.creamDim, marginRight: 5 }}>
+          {status === "won" ? "SOLVED" : status === "lost" ? "REVEALED" : "SHARPNESS"}
+        </span>
+        {RES_STEPS.map((_, i) => {
+          const reached = revealed || i <= guessesMade;
+          const isActive = !revealed && i === guessesMade;
+          const fill = status === "won" ? C.green : status === "lost" ? C.coral : C.blue;
+          return (
+            <div
+              key={i}
+              style={{
+                width: 20,
+                height: 8 + i * 3, // 8,11,14,17,20 — ascending = sharper
+                borderRadius: 3,
+                background: reached ? fill : C.line,
+                opacity: reached ? (isActive ? 1 : revealed ? 1 : 0.5) : 0.5,
+                transformOrigin: "bottom",
+                animation: isActive ? "sharpPulse 1.9s ease-in-out infinite" : "none",
+                transition: "background .35s ease, opacity .35s ease",
+              }}
+            />
+          );
+        })}
+      </div>
+
       {/* ── Guess rows ── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 7, margin: "18px 0", width: 316 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 7, margin: "12px 0 18px", width: 316 }}>
         {rows.map((g, i) => {
-          const borderColor = g ? (g.correct ? C.green : g.skipped ? C.blue : C.coral) : C.line;
+          // The next empty row is where the current guess will land — give it
+          // a brighter outline so the eye connects the input to its slot.
+          const isNextRow = status === "playing" && !g && i === guessesMade;
+          const borderColor = g ? (g.correct ? C.green : g.skipped ? C.blue : C.coral) : isNextRow ? C.creamDim : C.line;
           const bg = g ? (g.correct ? "rgba(70,196,106,.12)" : g.skipped ? "rgba(59,130,246,.08)" : "rgba(220,80,80,.10)") : "transparent";
           const icon = g ? (g.correct ? "✓" : g.skipped ? "→" : "✗") : i + 1;
-          const iconColor = g ? (g.correct ? C.green : g.skipped ? C.blue : C.coral) : C.line;
+          const iconColor = g ? (g.correct ? C.green : g.skipped ? C.blue : C.coral) : isNextRow ? C.creamDim : C.line;
 
           // Only play entrance animation once per row (tracked in a ref Set)
           const isNewRow = g && !animatedRowIndices.current.has(i);
@@ -883,7 +939,7 @@ export default function PicxleGame() {
                 padding: "9px 12px", borderRadius: 9,
                 border: `1px solid ${borderColor}`,
                 background: bg,
-                opacity: g ? 1 : 0.45,
+                opacity: g ? 1 : isNextRow ? 0.85 : 0.4,
                 animation: isNewRow ? "pop .32s cubic-bezier(0.175,0.885,0.32,1.275) both" : "none",
                 transition: "border-color .2s ease, background .2s ease, opacity .2s ease",
               }}
