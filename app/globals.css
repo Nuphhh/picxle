@@ -45,6 +45,52 @@
   --flash: rgba(244, 234, 215, 0.22);
 }
 
+/* Responsive layout tokens for the game. Defaults are the roomy large-screen
+   values; the height media queries below tighten them so the whole game fits
+   on short phones without scrolling to reach the guess input. Keyed on
+   viewport HEIGHT because that's what determines the vertical fit. */
+:root {
+  --px-pad-top: 28px;
+  --px-pad-bottom: 40px;
+  --px-canvas: 300px;
+  --px-logo: 46px;
+  --px-head-mb: 18px;
+  --px-tagline: block;
+  --px-meter-mt: 16px;
+  --px-rows-gap: 7px;
+  --px-rows-m: 12px 0 18px;
+  --px-row-py: 9px;
+  --px-input-gap: 8px;
+  --px-input-py: 12px;
+  --px-btn-py: 14px;
+  --px-skip-py: 10px;
+}
+/* Phones (anything shorter than a tablet/desktop). The image scales fluidly
+   with viewport height so the header, image, guesses and input all fit on one
+   screen — no scrolling to reach the guess box. The offset in the canvas
+   calc() is the measured height of everything else, so total ≈ viewport; the
+   clamp keeps the image sensible (175–300px). Tall phones still get a near-
+   full image; short ones shrink it just enough to fit. */
+@media (max-height: 900px) {
+  :root {
+    --px-pad-top: 12px;
+    --px-pad-bottom: 14px;
+    --px-canvas: clamp(165px, calc(100vh - 476px), 300px);  /* fallback for old WebViews */
+    --px-canvas: clamp(165px, calc(100dvh - 476px), 300px); /* dvh excludes mobile URL bar */
+    --px-logo: 38px;
+    --px-head-mb: 10px;
+    --px-tagline: none;
+    --px-meter-mt: 10px;
+    --px-rows-gap: 5px;
+    --px-rows-m: 8px 0 10px;
+    --px-row-py: 6px;
+    --px-input-gap: 6px;
+    --px-input-py: 10px;
+    --px-btn-py: 12px;
+    --px-skip-py: 8px;
+  }
+}
+
 html,
 body {
   background: var(--ink);

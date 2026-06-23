@@ -486,7 +486,7 @@ export default function PicxleGame() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        padding: "28px 18px 40px",
+        padding: "var(--px-pad-top) 18px var(--px-pad-bottom)",
         fontFamily: "var(--font-space-mono), monospace",
         color: C.cream,
         animation: "pageIn .35s ease both",
@@ -540,7 +540,10 @@ export default function PicxleGame() {
       `}</style>
 
       {/* ── Header ── */}
-      <div style={{ textAlign: "center", marginBottom: 18, position: "relative" }}>
+      {/* Fixed width keeps the corner buttons pinned to the layout edges —
+          without it, hiding the tagline on short screens shrink-wraps the
+          header to the logo and the buttons collide with it. */}
+      <div style={{ textAlign: "center", marginBottom: "var(--px-head-mb)", position: "relative", width: "min(316px, 100%)" }}>
 
         {/* Profile button */}
         <button
@@ -590,10 +593,10 @@ export default function PicxleGame() {
           {isDark ? "☀" : "☾"}
         </button>
 
-        <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 46, letterSpacing: "-1.5px", margin: 0, lineHeight: 1, color: C.cream }}>
+        <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: "var(--px-logo)", letterSpacing: "-1.5px", margin: 0, lineHeight: 1, color: C.cream }}>
           PIC<span style={{ color: C.blue }}>X</span>LE
         </h1>
-        <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px" }}>
+        <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px", display: "var(--px-tagline)" }}>
           GUESS THE IMAGE · IT SHARPENS AS YOU MISS
         </p>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10 }}>
@@ -831,7 +834,7 @@ export default function PicxleGame() {
           transition: "box-shadow .4s ease",
         }}
       >
-        <canvas ref={canvasRef} width={300} height={300} style={{ width: 300, height: 300, borderRadius: 12, display: "block", imageRendering: "pixelated" }} />
+        <canvas ref={canvasRef} width={300} height={300} style={{ width: "var(--px-canvas)", height: "var(--px-canvas)", borderRadius: 12, display: "block", imageRendering: "pixelated" }} />
 
         {/* Resolution badge — theme-matched, sits in top-left of canvas */}
         <div style={{
@@ -887,7 +890,7 @@ export default function PicxleGame() {
       {/* ── Sharpness meter — visualizes the core mechanic: the image
              resolves one step sharper with each miss. Ascending bars read
              as increasing clarity; the active step breathes. ── */}
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 7, height: 24, marginTop: 16 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 7, height: 24, marginTop: "var(--px-meter-mt)" }}>
         <span style={{ alignSelf: "center", fontSize: 9, letterSpacing: "1.5px", color: C.creamDim, marginRight: 5 }}>
           {status === "won" ? "SOLVED" : status === "lost" ? "REVEALED" : "SHARPNESS"}
         </span>
@@ -914,7 +917,7 @@ export default function PicxleGame() {
       </div>
 
       {/* ── Guess rows ── */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 7, margin: "12px 0 18px", width: 316 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--px-rows-gap)", margin: "var(--px-rows-m)", width: 316 }}>
         {rows.map((g, i) => {
           // The next empty row is where the current guess will land — give it
           // a brighter outline so the eye connects the input to its slot.
@@ -933,7 +936,7 @@ export default function PicxleGame() {
               key={i}
               style={{
                 display: "flex", alignItems: "center", gap: 10,
-                padding: "9px 12px", borderRadius: 9,
+                padding: "var(--px-row-py) 12px", borderRadius: 9,
                 border: `1px solid ${borderColor}`,
                 background: bg,
                 opacity: g ? 1 : isNextRow ? 0.85 : 0.4,
@@ -952,7 +955,7 @@ export default function PicxleGame() {
 
       {/* ── Input or end-game ── */}
       {status === "playing" ? (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, width: 316 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--px-input-gap)", width: 316 }}>
           <div style={{ position: "relative" }}>
             <input
               value={input}
@@ -971,7 +974,7 @@ export default function PicxleGame() {
                 background: C.ink2,
                 border: `1px solid ${inputFocused ? C.blue : C.line}`,
                 borderRadius: 9,
-                padding: "12px 14px",
+                padding: "var(--px-input-py) 14px",
                 color: C.cream,
                 fontFamily: "var(--font-space-mono), monospace",
                 fontSize: 15,
@@ -1001,12 +1004,12 @@ export default function PicxleGame() {
             </p>
           )}
           <button className="pxbtn" onClick={submit} disabled={isSubmitting}
-            style={{ background: C.blue, color: "#fff", border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 20, cursor: isSubmitting ? "wait" : "pointer", width: "100%", opacity: isSubmitting ? 0.7 : 1 }}>
+            style={{ background: C.blue, color: "#fff", border: "none", borderRadius: 9, padding: "var(--px-btn-py) 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 20, cursor: isSubmitting ? "wait" : "pointer", width: "100%", opacity: isSubmitting ? 0.7 : 1 }}>
             {isSubmitting ? "…" : "GUESS"}
           </button>
           {/* SKIP is a costly concession — visually subordinate to GUESS */}
           <button className="pxbtn" onClick={skip}
-            style={{ background: "transparent", color: C.coral, border: `1px solid ${C.line}`, borderRadius: 9, padding: "10px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 12, letterSpacing: "1.5px", cursor: "pointer" }}>
+            style={{ background: "transparent", color: C.coral, border: `1px solid ${C.line}`, borderRadius: 9, padding: "var(--px-skip-py) 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 12, letterSpacing: "1.5px", cursor: "pointer" }}>
             SKIP
           </button>
         </div>
