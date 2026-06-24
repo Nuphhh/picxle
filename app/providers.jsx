@@ -7,7 +7,7 @@ import { useEffect, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { PostHogProvider } from "posthog-js/react";
-import { getPlayerId } from "@/lib/analytics";
+import { getPlayerId, getPlatform } from "@/lib/analytics";
 
 const KEY = process.env.NEXT_PUBLIC_POSTHOG_KEY;
 // EU cloud by default (keeps data in the EU). Override per env if you use US.
@@ -30,6 +30,9 @@ if (typeof window !== "undefined" && KEY && !posthog.__loaded) {
     persistence: "localStorage",
     respect_dnt: true,
   });
+  // Tag every event with where it ran (android-app / ios-app / web) so funnels
+  // and retention can be filtered to real app users vs the website.
+  posthog.register({ platform: getPlatform() });
   const pid = getPlayerId();
   if (pid) posthog.identify(pid); // tie the PostHog person to our anonymous id
   try {
