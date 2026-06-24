@@ -21,9 +21,6 @@ const spaceMono = Space_Mono({
 export const metadata = {
   title: "Picxle",
   description: "Guess the pixelated image. It sharpens as you miss.",
-  // Temporary build probe: surfaces whether the PostHog env var is visible to the
-  // build, without exposing the key. Renders <meta name="px-analytics" content="…">.
-  other: { "px-analytics": process.env.NEXT_PUBLIC_POSTHOG_KEY ? "configured" : "missing" },
 };
 
 // Runs before React paints. Sets data-theme on <html> so every CSS theme

@@ -37,13 +37,6 @@ if (typeof window !== "undefined" && KEY && !posthog.__loaded) {
   } catch {}
 }
 
-// TEMP diagnostic (non-secret): lets us confirm from the browser whether the key
-// was inlined into the client bundle and which host is in use. Remove later.
-if (typeof window !== "undefined") {
-  window.__pxa = { hasKey: !!KEY, host: HOST, keyPrefix: KEY ? String(KEY).slice(0, 8) : null };
-  window.__ph = posthog;
-}
-
 // App Router doesn't auto-fire pageviews, so do it on every route change.
 function PageViews() {
   const pathname = usePathname();
