@@ -101,8 +101,8 @@ export default function PrivacyPolicy() {
       </h2>
       <p>
         Questions about this policy can be sent to{" "}
-        <a href="mailto:nathancowell011001@gmail.com" style={{ color: blue }}>
-          nathancowell011001@gmail.com
+        <a href="mailto:picxlebypenrose@gmail.com" style={{ color: blue }}>
+          picxlebypenrose@gmail.com
         </a>
       </p>
     </div>
