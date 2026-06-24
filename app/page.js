@@ -181,6 +181,21 @@ export default function LandingPage() {
         Play today&apos;s puzzle
       </Link>
 
+      {/* Footer links — required reachable pages (credits for image licences,
+          privacy for the store listing). Kept quiet so they don't compete. */}
+      <nav style={{
+        display: "flex",
+        gap: 18,
+        marginTop: 36,
+        fontSize: 12,
+        letterSpacing: "0.5px",
+        animation: "fadeUp .35s .62s ease both",
+      }}>
+        <Link href="/credits" style={{ color: C.creamDim, textDecoration: "none" }}>Credits</Link>
+        <span style={{ color: C.line }}>·</span>
+        <Link href="/privacy" style={{ color: C.creamDim, textDecoration: "none" }}>Privacy</Link>
+      </nav>
+
     </div>
   );
 }
