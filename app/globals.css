@@ -76,7 +76,9 @@
     --px-pad-top: 12px;
     --px-pad-bottom: 14px;
     --px-canvas: clamp(165px, calc(100vh - 476px), 300px);  /* fallback for old WebViews */
-    --px-canvas: clamp(165px, calc(100dvh - 476px), 300px); /* dvh excludes mobile URL bar */
+    --px-canvas: clamp(165px, calc(100svh - 476px), 300px); /* svh = SMALL (stable) viewport.
+        Must NOT use dvh here: dvh changes as the mobile URL bar slides in/out while you scroll,
+        which makes the image visibly resize ("pop-in") on tall phones like the S22 Ultra. */
     --px-logo: 38px;
     --px-head-mb: 10px;
     --px-tagline: none;
@@ -97,9 +99,11 @@ body {
   overflow-x: hidden;
 }
 
-/* 100vh includes Safari's address bar; 100dvh excludes it.
-   Browsers that don't understand dvh fall back to the vh line. */
+/* Size the page to the SMALL viewport (svh) so its height is stable: the content
+   fits even while the URL bar is showing, so nothing overflows, so there's no
+   scroll that would slide the bar and resize things. svh is constant during
+   scroll (unlike dvh). Old browsers fall back to the vh line. */
 .page-root {
   min-height: 100vh;
-  min-height: 100dvh;
+  min-height: 100svh;
 }
