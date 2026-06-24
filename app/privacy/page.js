@@ -1,10 +1,27 @@
 "use client";
 
-const cream = "#f4ead7";
-const dim = "#cdbfa6";
-const blue = "#3b82f6";
+import { useState, useEffect } from "react";
+import { isAnalyticsOptedOut, setAnalyticsOptOut } from "@/lib/analytics";
+
+// Theme-aware via globals.css: resolve to the right colour in light and dark.
+const cream = "var(--cream)";
+const dim = "var(--creamDim)";
+const blue = "var(--blue)";
+const line = "var(--line)";
 
 export default function PrivacyPolicy() {
+  // Read the saved opt-out state after mount (localStorage isn't available during
+  // SSR). First render matches the server (opted-in) to avoid a hydration mismatch.
+  const [optedOut, setOptedOut] = useState(false);
+  useEffect(() => {
+    setOptedOut(isAnalyticsOptedOut());
+  }, []);
+  const toggleAnalytics = () => {
+    const next = !optedOut;
+    setAnalyticsOptOut(next);
+    setOptedOut(next);
+  };
+
   return (
     <div style={{
       maxWidth: 680,
@@ -69,6 +86,40 @@ export default function PrivacyPolicy() {
         unfair so we can make it better. None of this is ever used for
         advertising, and it is never sold. We honour your browser&apos;s
         &ldquo;Do Not Track&rdquo; setting.
+      </p>
+
+      <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
+        Your choices
+      </h2>
+      <p>
+        You can turn anonymous analytics on or off on this device whenever you
+        like. This never affects your gameplay, streak or stats.
+      </p>
+      <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 16 }}>
+        <button
+          onClick={toggleAnalytics}
+          role="switch"
+          aria-checked={!optedOut}
+          aria-label="Analytics on or off"
+          style={{
+            position: "relative", width: 52, height: 30, flexShrink: 0,
+            borderRadius: 999, border: "none", cursor: "pointer", padding: 0,
+            background: optedOut ? line : blue, transition: "background .2s ease",
+          }}
+        >
+          <span style={{
+            position: "absolute", top: 3, left: optedOut ? 3 : 25,
+            width: 24, height: 24, borderRadius: "50%", background: "#fff",
+            transition: "left .2s ease", boxShadow: "0 1px 3px rgba(0,0,0,.3)",
+          }} />
+        </button>
+        <span style={{ fontFamily: "sans-serif", fontWeight: 600, fontSize: 16, color: cream }}>
+          Analytics {optedOut ? "off" : "on"}
+        </span>
+      </div>
+      <p style={{ fontSize: 13, color: dim, marginTop: 8 }}>
+        Saved on this device only. We also honour your browser&apos;s
+        &ldquo;Do Not Track&rdquo; setting automatically.
       </p>
 
       <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
