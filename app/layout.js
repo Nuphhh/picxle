@@ -1,5 +1,6 @@
 import { Bricolage_Grotesque, Space_Mono } from "next/font/google";
 import "./globals.css";
+import Providers from "./providers";
 
 // Next.js loads these fonts at build time and serves them from your own domain —
 // no Google tracking, no layout shift, faster than a <link> tag in the HTML.
@@ -33,7 +34,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${bricolage.variable} ${spaceMono.variable}`} suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

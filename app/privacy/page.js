@@ -52,15 +52,23 @@ export default function PrivacyPolicy() {
         Your in-progress guesses and theme preference are stored locally on your
         device only and are never sent anywhere.
       </p>
+      <p style={{ marginTop: 16 }}>
+        We also collect anonymous usage analytics to understand how the game is
+        played — for example which puzzles are viewed, the guesses made in a
+        puzzle, and when a result is shared. These events are linked only to your
+        random anonymous ID and never include your name, email, or location.
+      </p>
 
       <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
         How we use it
       </h2>
       <p>
-        The anonymous completion data is used solely to show you your personal
-        streak, win percentage, and guess distribution — and to show all players
-        a difficulty rating for each puzzle. It is never used for advertising,
-        profiling, or sold to any third party.
+        Your completion data powers your personal streak, win percentage and
+        guess distribution, plus a difficulty rating shown to all players. The
+        anonymous usage analytics help us see where the game is confusing or
+        unfair so we can make it better. None of this is ever used for
+        advertising, and it is never sold. We honour your browser&apos;s
+        &ldquo;Do Not Track&rdquo; setting.
       </p>
 
       <h2 style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 20, margin: "40px 0 8px", color: cream }}>
@@ -73,10 +81,17 @@ export default function PrivacyPolicy() {
           records. Data may be stored in the EU or US.{" "}
           <a href="https://supabase.com/privacy" style={{ color: blue }}>Supabase Privacy Policy</a>
         </li>
-        <li>
+        <li style={{ marginBottom: 8 }}>
           <strong>Vercel</strong> — hosts the app and handles web requests.
           Standard server access logs may be retained briefly by Vercel.{" "}
           <a href="https://vercel.com/legal/privacy-policy" style={{ color: blue }}>Vercel Privacy Policy</a>
+        </li>
+        <li>
+          <strong>PostHog</strong> — privacy-focused product analytics, hosted in
+          the EU. Receives the anonymous usage events described above, tied only
+          to your random anonymous ID. We do not use session recording or
+          advertising features.{" "}
+          <a href="https://posthog.com/privacy" style={{ color: blue }}>PostHog Privacy Policy</a>
         </li>
       </ul>
 

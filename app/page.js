@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { track } from "@/lib/analytics";
 
 // Theme colours are CSS custom properties (globals.css) driven by data-theme
 // on <html>. Every value here is a var() reference, so the markup is
@@ -162,7 +163,7 @@ export default function LandingPage() {
       </p>
 
       {/* CTA */}
-      <Link href="/play" className="cta-link" style={{
+      <Link href="/play" className="cta-link" onClick={() => track("play_clicked")} style={{
         display: "block",
         textAlign: "center",
         padding: "17px 0",

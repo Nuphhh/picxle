@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { DICTIONARY, ARTIST_MAP, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
 import { apiUrl } from "@/lib/api";
+import { track } from "@/lib/analytics";
 
 // Colours are CSS custom properties (defined in globals.css) driven by the
 // data-theme attribute on <html>. Because every value below is a var()
@@ -179,6 +180,7 @@ export default function PicxleGame() {
     const recordedKey = `picxle-recorded-${puzzle.id}`;
     if (!localStorage.getItem(recordedKey)) {
       const guessesTaken = status === "won" ? guesses.length : 6;
+      track("puzzle_completed", { result: status, guesses: guesses.length, category: puzzle.category, puzzle_date: puzzle.puzzle_date });
       fetch(apiUrl("/api/stats/record"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -195,6 +197,15 @@ export default function PicxleGame() {
       fetchStreak();
     }
   }, [status, puzzle]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fire once per puzzle when it's first shown — the denominator for "viewed
+  // but didn't finish" (abandonment), and the entry point of the play funnel.
+  const viewedRef = useRef(null);
+  useEffect(() => {
+    if (!puzzle || viewedRef.current === puzzle.id) return;
+    viewedRef.current = puzzle.id;
+    track("puzzle_viewed", { puzzle_date: puzzle.puzzle_date, category: puzzle.category });
+  }, [puzzle]);
 
   useEffect(() => {
     if (!puzzle) return;
@@ -382,6 +393,9 @@ export default function PicxleGame() {
     setIsSubmitting(false);
     const next = [...guesses, { text: input.trim(), correct, skipped: false }];
     setGuesses(next);
+    // guess (a dictionary subject, not free text/PII) lets us spot where people
+    // stall and which wrong answers are common per puzzle.
+    track("guess_submitted", { guess_number: next.length, correct, guess: g });
     setInput("");
     setSuggestions([]);
     if (correct) {
@@ -399,10 +413,12 @@ export default function PicxleGame() {
     setSuggestions([]);
     const next = [...guesses, { text: null, correct: false, skipped: true }];
     setGuesses(next);
+    track("guess_skipped", { guess_number: next.length });
     if (next.length >= MAX_GUESSES) setStatus("lost");
   };
 
   const shareGrid = () => {
+    track("result_shared", { result: status, guesses: guesses.length });
     const n = guesses.length;
     const won = status === "won";
     const score = won ? `${n}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;
