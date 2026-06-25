@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { track } from "@/lib/analytics";
+import DailyReminder from "@/components/DailyReminder";
 
 // Theme colours are CSS custom properties (globals.css) driven by data-theme
 // on <html>. Every value here is a var() reference, so the markup is
@@ -181,6 +182,10 @@ export default function LandingPage() {
       }}>
         Play today&apos;s puzzle
       </Link>
+
+      {/* Daily reminder — renders only inside the installed app (native plugin
+          present); invisible on the website and on builds before the plugin. */}
+      <DailyReminder />
 
       {/* Footer links — required reachable pages (credits for image licences,
           privacy for the store listing). Kept quiet so they don't compete. */}
