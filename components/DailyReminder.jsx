@@ -30,7 +30,11 @@ export default function DailyReminder() {
   useEffect(() => {
     try {
       const cap = window.Capacitor;
-      const ok = !!(cap && cap.isPluginAvailable && cap.isPluginAvailable("LocalNotifications"));
+      // Must be the installed NATIVE app — not the website. isPluginAvailable
+      // alone is true on web too (the plugin ships a web implementation), which
+      // is why the toggle wrongly appeared on the site.
+      const native = !!(cap && cap.isNativePlatform && cap.isNativePlatform());
+      const ok = native && !!(cap.isPluginAvailable && cap.isPluginAvailable("LocalNotifications"));
       setAvailable(ok);
       if (ok) {
         const t = localStorage.getItem(KEY_TIME);
