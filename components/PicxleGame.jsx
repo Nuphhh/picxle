@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { DICTIONARY, ARTIST_MAP, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
 import { apiUrl } from "@/lib/api";
 import { track } from "@/lib/analytics";
+import Link from "next/link";
 
 // Colours are CSS custom properties (defined in globals.css) driven by the
 // data-theme attribute on <html>. Because every value below is a var()
@@ -610,7 +611,9 @@ export default function PicxleGame() {
         </button>
 
         <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: "var(--px-logo)", letterSpacing: "-1.5px", margin: 0, lineHeight: 1, color: C.cream }}>
-          PIC<span style={{ color: C.blue }}>X</span>LE
+          <Link href="/" aria-label="Back to Picxle home" style={{ color: "inherit", textDecoration: "none", display: "inline-block" }}>
+            PIC<span style={{ color: C.blue }}>X</span>LE
+          </Link>
         </h1>
         <p style={{ margin: "6px 0 0", fontSize: 12, color: C.creamDim, letterSpacing: "1px", display: "var(--px-tagline)" }}>
           GUESS THE IMAGE · IT SHARPENS AS YOU MISS
