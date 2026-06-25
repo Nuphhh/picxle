@@ -11,10 +11,12 @@ export const metadata = {
 // Re-fetch occasionally rather than on every request.
 export const revalidate = 3600;
 
-const cream = "#f4ead7";
-const dim = "#cdbfa6";
-const blue = "#3b82f6";
-const line = "#3a3024";
+// Theme-aware via globals.css: resolve to the right colour in light and dark
+// (matches the privacy page). Hardcoded values were light-on-light in light mode.
+const cream = "var(--cream)";
+const dim = "var(--creamDim)";
+const blue = "var(--blue)";
+const line = "var(--line)";
 
 // Turn a Wikimedia upload URL into its human-readable Commons file page,
 // which shows the full author + licence details (the canonical attribution).
