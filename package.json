@@ -8,7 +8,8 @@
     "start": "next start",
     "seed": "node scripts/seed-puzzles.mjs",
     "cap:sync": "npx cap sync android",
-    "cap:open": "npx cap open android"
+    "cap:open": "npx cap open android",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@capacitor-community/in-app-review": "^8.0.0",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "cross-env": "^10.1.0",
-    "dotenv": "^17.4.2"
+    "dotenv": "^17.4.2",
+    "patch-package": "^8.0.1"
   }
 }
