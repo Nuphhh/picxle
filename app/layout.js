@@ -28,7 +28,7 @@ export const metadata = {
   openGraph: {
     title: "Picxle",
     description: "Guess the daily pixelated image before it comes into focus.",
-    images: ["/api/og"],
+    images: [{ url: "/api/og", width: 1200, height: 1200 }],
     type: "website",
   },
   twitter: {
