@@ -70,6 +70,7 @@ export default function PicxleGame() {
   const [playerStreak, setPlayerStreak] = useState(null);
   const [statsOpen, setStatsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [dictError, setDictError] = useState(false);
   const [showMissedPrompt, setShowMissedPrompt] = useState(false);
   const [yesterdayPuzzle, setYesterdayPuzzle] = useState(null);
@@ -428,7 +429,7 @@ export default function PicxleGame() {
     if (next.length >= MAX_GUESSES) setStatus("lost");
   };
 
-  const shareGrid = () => {
+  const shareGrid = async () => {
     track("result_shared", { result: status, guesses: guesses.length });
     const n = guesses.length;
     const won = status === "won";
@@ -441,7 +442,19 @@ export default function PicxleGame() {
       else if (g) row += "🟥";
       else row += "⬛";
     }
-    navigator.clipboard?.writeText(`Picxle ${score}\n${row}\nhttps://picxle.vercel.app`);
+    const text = `Picxle ${score}\n${row}\nhttps://picxle.vercel.app`;
+    // Prefer the native OS share sheet (share straight to WhatsApp / X / etc.);
+    // fall back to copying to the clipboard where Web Share isn't available.
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Picxle", text });
+        return;
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // user dismissed the share sheet
+      // any other error: fall through to clipboard
+    }
+    try { await navigator.clipboard?.writeText(text); } catch {}
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
   };
@@ -596,6 +609,24 @@ export default function PicxleGame() {
             <circle cx="12" cy="7" r="5"/>
             <path d="M3 21c0-5 4-8 9-8s9 3 9 8"/>
           </svg>
+        </button>
+
+        {/* How to play */}
+        <button
+          onClick={() => setHelpOpen(true)}
+          title="How to play"
+          aria-label="How to play"
+          style={{
+            position: "absolute", top: 0, left: 42,
+            background: "transparent", border: `1px solid ${C.line}`,
+            borderRadius: 20, padding: "4px 10px", fontSize: 13, fontWeight: 700,
+            cursor: "pointer", color: C.creamDim, lineHeight: 1,
+            transition: "border-color .15s, color .15s",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
+          onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.creamDim; }}
+        >
+          ?
         </button>
 
         {/* Theme toggle */}
@@ -772,6 +803,27 @@ export default function PicxleGame() {
       )}
 
       {/* ── Profile modal ── */}
+      {helpOpen && (
+        <div onClick={() => setHelpOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, animation: "overlayIn .15s ease", padding: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", maxHeight: "90vh", overflowY: "auto", position: "relative", animation: "modalIn .22s cubic-bezier(0.175,0.885,0.32,1.275) both" }}>
+            <button onClick={() => setHelpOpen(false)} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, width: 28, height: 28, borderRadius: "50%", background: C.line, border: "none", color: C.cream, fontSize: 18, lineHeight: 1, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}>×</button>
+            <div style={{ padding: "24px 22px 22px" }}>
+              <h2 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 22, color: C.cream, margin: "0 0 6px", letterSpacing: "-0.5px" }}>How to play</h2>
+              <p style={{ fontSize: 13, color: C.creamDim, margin: "0 0 18px", lineHeight: 1.6 }}>Guess the daily image before it comes into focus.</p>
+              <ol style={{ margin: 0, paddingLeft: 20, color: C.cream, fontSize: 14, lineHeight: 1.7 }}>
+                <li style={{ marginBottom: 8 }}>A new <strong>pixelated image</strong> appears each day — blocky and hard to make out.</li>
+                <li style={{ marginBottom: 8 }}>Type your guess and <strong>pick from the suggestions</strong>.</li>
+                <li style={{ marginBottom: 8 }}>Every <strong>wrong guess sharpens</strong> the picture one step.</li>
+                <li style={{ marginBottom: 8 }}>You get <strong>5 guesses</strong> — solve it before it&apos;s fully revealed.</li>
+                <li><strong>Share</strong> your emoji result and keep your streak going.</li>
+              </ol>
+              <p style={{ fontSize: 12, color: C.creamDim, textAlign: "center", margin: "18px 0 0", letterSpacing: "0.3px" }}>🟩 correct &nbsp;·&nbsp; 🟥 wrong &nbsp;·&nbsp; ⬜ skipped</p>
+              <button onClick={() => setHelpOpen(false)} className="pxbtn" style={{ marginTop: 20, width: "100%", background: C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 15, cursor: "pointer" }}>Got it</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {profileOpen && (
         <div onClick={() => setProfileOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, animation: "overlayIn .15s ease" }}>
           <div onClick={(e) => e.stopPropagation()} style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, width: "min(90vw, 380px)", maxHeight: "90vh", overflowY: "auto", position: "relative", animation: "modalIn .22s cubic-bezier(0.175,0.885,0.32,1.275) both" }}>
