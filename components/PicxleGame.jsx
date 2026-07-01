@@ -5,6 +5,7 @@ import { DICTIONARY, ARTIST_MAP, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINT
 import { apiUrl } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import Link from "next/link";
+import { getThemeMode, nextThemeMode, applyThemeMode, themeGlyph, themeLabel } from "@/lib/theme";
 
 // Colours are CSS custom properties (defined in globals.css) driven by the
 // data-theme attribute on <html>. Because every value below is a var()
@@ -41,9 +42,12 @@ export default function PicxleGame() {
   // (data-theme on <html>), so colours never flash. We only mirror that choice
   // into React state for the toggle button and a couple of JS-only needs
   // (the canvas fallback and the difficulty pill read live values).
-  const [isDark, setIsDark] = useState(false);
+  const [themeMode, setThemeMode] = useState("system");
   useEffect(() => {
-    setIsDark(document.documentElement.dataset.theme === "dark");
+    setThemeMode(getThemeMode());
+    const onChange = () => setThemeMode(getThemeMode());
+    window.addEventListener("picxle-themechange", onChange);
+    return () => window.removeEventListener("picxle-themechange", onChange);
   }, []);
 
   const [puzzle, setPuzzle] = useState(null);
@@ -590,13 +594,9 @@ export default function PicxleGame() {
 
         {/* Theme toggle */}
         <button
-          onClick={() => setIsDark((d) => {
-            const next = !d;
-            try { localStorage.setItem("picxle-theme", next ? "dark" : "light"); } catch {}
-            document.documentElement.dataset.theme = next ? "dark" : "light";
-            return next;
-          })}
-          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+          onClick={() => { const next = nextThemeMode(themeMode); applyThemeMode(next); setThemeMode(next); }}
+          title={`Theme: ${themeLabel(themeMode)} — tap to change`}
+          aria-label={`Theme: ${themeLabel(themeMode)}. Tap to change.`}
           style={{
             position: "absolute", top: 0, right: 0,
             background: "transparent", border: `1px solid ${C.line}`,
@@ -607,7 +607,7 @@ export default function PicxleGame() {
           onMouseEnter={(e) => { e.currentTarget.style.borderColor = C.creamDim; e.currentTarget.style.color = C.cream; }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.creamDim; }}
         >
-          {isDark ? "☀" : "☾"}
+          {themeGlyph(themeMode)}
         </button>
 
         <h1 style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: "var(--px-logo)", letterSpacing: "-1.5px", margin: 0, lineHeight: 1, color: C.cream }}>

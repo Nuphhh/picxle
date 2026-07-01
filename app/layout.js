@@ -1,6 +1,7 @@
 import { Bricolage_Grotesque, Space_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
+import ThemeSync from "@/components/ThemeSync";
 
 // Next.js loads these fonts at build time and serves them from your own domain —
 // no Google tracking, no layout shift, faster than a <link> tag in the HTML.
@@ -27,13 +28,16 @@ export const metadata = {
 // token resolves to the correct theme on the very first frame — no flash on
 // load, even before React hydrates (notably inside the Capacitor webview).
 // Also paints the background colour immediately. Tiny and dependency-free.
-const themeScript = `(function(){try{var t=localStorage.getItem('picxle-theme');var d=t!==null?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;var r=document.documentElement;r.dataset.theme=d?'dark':'light';r.style.backgroundColor=d?'#17130d':'#faf6ef';}catch(e){}})();`;
+// t is "light" | "dark" | "system" (or absent = system). "system"/absent follow
+// the OS via prefers-color-scheme. Runs before paint so there's no flash.
+const themeScript = `(function(){try{var t=localStorage.getItem('picxle-theme');var d=t==='dark'?true:t==='light'?false:window.matchMedia('(prefers-color-scheme: dark)').matches;var r=document.documentElement;r.dataset.theme=d?'dark':'light';r.style.backgroundColor=d?'#17130d':'#faf6ef';}catch(e){}})();`;
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${bricolage.variable} ${spaceMono.variable}`} suppressHydrationWarning>
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <ThemeSync />
         <Providers>{children}</Providers>
       </body>
     </html>

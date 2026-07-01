@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { track } from "@/lib/analytics";
 import DailyReminder from "@/components/DailyReminder";
+import { getThemeMode, nextThemeMode, applyThemeMode, themeGlyph, themeLabel } from "@/lib/theme";
 
 // Theme colours are CSS custom properties (globals.css) driven by data-theme
 // on <html>. Every value here is a var() reference, so the markup is
@@ -23,18 +24,18 @@ const STEPS = ["8px", "12px", "19px", "29px", "✓"];
 export default function LandingPage() {
   // The pre-paint script in the root layout already applied the correct theme.
   // We mirror that into state here only so the toggle button reflects it.
-  const [isDark, setIsDark] = useState(false);
+  const [themeMode, setThemeMode] = useState("system");
   useEffect(() => {
-    setIsDark(document.documentElement.dataset.theme === "dark");
+    setThemeMode(getThemeMode());
+    const onChange = () => setThemeMode(getThemeMode());
+    window.addEventListener("picxle-themechange", onChange);
+    return () => window.removeEventListener("picxle-themechange", onChange);
   }, []);
 
-  const toggleTheme = () => {
-    setIsDark((d) => {
-      const next = !d;
-      try { localStorage.setItem("picxle-theme", next ? "dark" : "light"); } catch {}
-      document.documentElement.dataset.theme = next ? "dark" : "light";
-      return next;
-    });
+  const cycleTheme = () => {
+    const next = nextThemeMode(themeMode);
+    applyThemeMode(next);
+    setThemeMode(next);
   };
 
   return (
@@ -77,8 +78,9 @@ export default function LandingPage() {
 
       {/* Theme toggle — tucked top-right, out of the content flow */}
       <button
-        onClick={toggleTheme}
-        title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        onClick={cycleTheme}
+        title={`Theme: ${themeLabel(themeMode)} — tap to change`}
+        aria-label={`Theme: ${themeLabel(themeMode)}. Tap to change.`}
         className="lp-theme-btn"
         style={{
           position: "absolute", top: 20, right: 20,
@@ -89,7 +91,7 @@ export default function LandingPage() {
           color: C.creamDim, lineHeight: 1,
         }}
       >
-        {isDark ? "☀" : "☾"}
+        {themeGlyph(themeMode)}
       </button>
 
       {/* Logo */}
@@ -191,8 +193,11 @@ export default function LandingPage() {
           privacy for the store listing). Kept quiet so they don't compete. */}
       <nav style={{
         display: "flex",
-        gap: 18,
+        flexWrap: "wrap",
+        justifyContent: "center",
+        gap: 14,
         marginTop: 36,
+        maxWidth: 300,
         fontSize: 12,
         letterSpacing: "0.5px",
         animation: "fadeUp .35s .62s ease both",
@@ -200,6 +205,15 @@ export default function LandingPage() {
         <Link href="/credits" style={{ color: C.creamDim, textDecoration: "none" }}>Credits</Link>
         <span style={{ color: C.line }}>·</span>
         <Link href="/privacy" style={{ color: C.creamDim, textDecoration: "none" }}>Privacy</Link>
+        <span style={{ color: C.line }}>·</span>
+        <a href="https://play.google.com/store/apps/details?id=com.penrose.picxle"
+           target="_blank" rel="noopener noreferrer"
+           onClick={() => track("rate_clicked")}
+           style={{ color: C.creamDim, textDecoration: "none" }}>Rate</a>
+        <span style={{ color: C.line }}>·</span>
+        <a href="mailto:picxlebypenrose@gmail.com?subject=Picxle%20feedback"
+           onClick={() => track("feedback_clicked")}
+           style={{ color: C.creamDim, textDecoration: "none" }}>Feedback</a>
       </nav>
 
     </div>
