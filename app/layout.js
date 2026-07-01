@@ -20,8 +20,23 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL("https://picxle.vercel.app"),
   title: "Picxle",
   description: "Guess the pixelated image. It sharpens as you miss.",
+  // Default link preview = today's puzzle teaser (the /api/og card). Individual
+  // shared results override this with their own puzzle via /s/[date].
+  openGraph: {
+    title: "Picxle",
+    description: "Guess the daily pixelated image before it comes into focus.",
+    images: ["/api/og"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Picxle",
+    description: "Guess the daily pixelated image before it comes into focus.",
+    images: ["/api/og"],
+  },
 };
 
 // Runs before React paints. Sets data-theme on <html> so every CSS theme

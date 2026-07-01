@@ -442,7 +442,7 @@ export default function PicxleGame() {
       else if (g) row += "🟥";
       else row += "⬛";
     }
-    const text = `Picxle ${score}\n${row}\nhttps://picxle.vercel.app`;
+    const text = `Picxle ${score}\n${row}\nhttps://picxle.vercel.app/s/${puzzle.puzzle_date}`;
     // Prefer the native OS share sheet (share straight to WhatsApp / X / etc.);
     // fall back to copying to the clipboard where Web Share isn't available.
     try {
