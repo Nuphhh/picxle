@@ -6,6 +6,7 @@ import { apiUrl } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { getThemeMode, nextThemeMode, applyThemeMode, themeGlyph, themeLabel } from "@/lib/theme";
+import { recordWin, maybeRequestReview } from "@/lib/review";
 
 // Colours are CSS custom properties (defined in globals.css) driven by the
 // data-theme attribute on <html>. Because every value below is a var()
@@ -186,6 +187,11 @@ export default function PicxleGame() {
     if (!localStorage.getItem(recordedKey)) {
       const guessesTaken = status === "won" ? guesses.length : 6;
       track("puzzle_completed", { result: status, guesses: guesses.length, category: puzzle.category, puzzle_date: puzzle.puzzle_date });
+      if (status === "won") {
+        recordWin();
+        // after the reveal settles, maybe ask for a Play review (gated inside)
+        setTimeout(() => maybeRequestReview(), 2500);
+      }
       fetch(apiUrl("/api/stats/record"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
