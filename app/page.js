@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { track } from "@/lib/analytics";
+import { track, getPlatform } from "@/lib/analytics";
 import DailyReminder from "@/components/DailyReminder";
 import { getThemeMode, nextThemeMode, applyThemeMode, themeGlyph, themeLabel } from "@/lib/theme";
+
+const PLAY_URL = "https://play.google.com/store/apps/details?id=com.penrose.picxle";
 
 // Theme colours are CSS custom properties (globals.css) driven by data-theme
 // on <html>. Every value here is a var() reference, so the markup is
@@ -31,6 +33,12 @@ export default function LandingPage() {
     window.addEventListener("picxle-themechange", onChange);
     return () => window.removeEventListener("picxle-themechange", onChange);
   }, []);
+
+  // The Android app IS this site in a native shell, so a "get it on Google Play"
+  // prompt would be telling people to install what they are already using. Show
+  // it on the web only. Resolved after mount because getPlatform() reads window.
+  const [isWeb, setIsWeb] = useState(false);
+  useEffect(() => setIsWeb(getPlatform() === "web"), []);
 
   const cycleTheme = () => {
     const next = nextThemeMode(themeMode);
@@ -184,6 +192,48 @@ export default function LandingPage() {
       }}>
         Play today&apos;s puzzle
       </Link>
+
+      {/* Google Play — secondary to the CTA above: the point of the page is still
+          to get people playing, and the app is the same game. Web only. */}
+      {isWeb && (
+        <a
+          href={PLAY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="cta-link"
+          onClick={() => track("play_store_clicked", { from: "landing" })}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 9,
+            marginTop: 12,
+            padding: "13px 0",
+            borderRadius: 10,
+            background: "transparent",
+            border: `1px solid ${C.line}`,
+            color: C.creamDim,
+            fontFamily: "var(--font-bricolage), sans-serif",
+            fontWeight: 700,
+            fontSize: 14,
+            textDecoration: "none",
+            width: "100%",
+            maxWidth: 300,
+            letterSpacing: "-0.2px",
+            animation: "fadeUp .35s .58s ease both",
+          }}
+        >
+          {/* Play's four-way triangle, drawn inline so there's no external asset
+              and no misuse of the official badge artwork. */}
+          <svg width="15" height="16" viewBox="0 0 24 26" aria-hidden="true" focusable="false">
+            <path d="M1.6.7 14.3 13 1.6 25.3A2.4 2.4 0 0 1 .8 23.5V2.5C.8 1.8 1.1 1.1 1.6.7Z" fill="var(--blue)" />
+            <path d="M18.9 8.6 15.9 11.6 3.6 0 18.9 8.6Z" fill="var(--green)" />
+            <path d="M18.9 17.4 3.6 26l12.3-11.6 3 3Z" fill="var(--coral, #dc5050)" />
+            <path d="M22.9 11.4c1 .6 1 2 0 2.6l-3.4 1.9-3.3-3.3 3.3-3.3 3.4 2.1Z" fill="var(--creamDim)" />
+          </svg>
+          Get it on Google Play
+        </a>
+      )}
 
       {/* Daily reminder — renders only inside the installed app (native plugin
           present); invisible on the website and on builds before the plugin. */}
