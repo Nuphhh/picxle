@@ -5,8 +5,13 @@
 // One canonical form per subject — no aliases or shortened variants.
 // Substring autocomplete handles partial matches (typing "wall" shows
 // "great wall of china"; typing "starry" shows "the starry night").
+//
+// The category comments below are for organising this list only — the exported
+// dictionary is flat. A subject can honestly sit in two categories ("space
+// shuttle" is both Space and a Vehicle), so the list is de-duplicated on export:
+// a word listed twice would otherwise appear twice in the guess autocomplete.
 
-export const DICTIONARY = [
+const RAW_DICTIONARY = [
 
   // ── Paintings ──
   "mona lisa",
@@ -593,7 +598,6 @@ export const DICTIONARY = [
   "alligator",
   "saltwater crocodile",
   "emperor penguin",
-  "bottlenose dolphin",
   "great white pelican",
 
   // ── Instruments ──
@@ -925,7 +929,11 @@ export const DICTIONARY = [
   "magnets",
   "quill",
 
-].sort();
+];
+
+// Dedupe, then sort. new Set() keeps only the first occurrence of each word, so a
+// subject listed under two categories still shows up exactly once when guessing.
+export const DICTIONARY = [...new Set(RAW_DICTIONARY)].sort();
 
 // Maps normalised artist names (and common aliases) to their works in DICTIONARY.
 // Keys are lowercase with no punctuation to match the norm() function output.
