@@ -74,6 +74,8 @@ export default function PicxleGame() {
   const [dictError, setDictError] = useState(false);
   const [showMissedPrompt, setShowMissedPrompt] = useState(false);
   const [yesterdayPuzzle, setYesterdayPuzzle] = useState(null);
+  // Guesses already made on yesterday's puzzle, so the prompt can offer to resume.
+  const [yesterdayGuesses, setYesterdayGuesses] = useState(0);
 
   // Design state
   const [flashing, setFlashing] = useState(false);   // canvas sharpen flash
@@ -98,6 +100,23 @@ export default function PicxleGame() {
 
   const isYesterdaysPuzzle = puzzle &&
     puzzle.puzzle_date !== new Date().toISOString().slice(0, 10);
+
+  // Read a puzzle's saved progress ({ guesses, status }), or null if never opened.
+  const readProgress = (id) => {
+    if (!id) return null;
+    try { return JSON.parse(localStorage.getItem(`picxle-${id}`)); } catch { return null; }
+  };
+
+  // "No thanks" is the only thing (besides finishing) that stops us offering
+  // yesterday's puzzle, so remember it against that specific puzzle.
+  const declineYesterday = () => {
+    if (yesterdayPuzzle) {
+      localStorage.setItem(`picxle-declined-${yesterdayPuzzle.id}`, "1");
+      track("yesterday_declined", { guesses_made: yesterdayGuesses });
+    }
+    setShowMissedPrompt(false);
+    activatePuzzle(pendingTodayRef.current);
+  };
 
   const activatePuzzle = (data) => {
     setPuzzle(data);
@@ -139,12 +158,21 @@ export default function PicxleGame() {
     ])
       .then(([todayData, yesterdayData]) => {
         if (todayData.error) { setPuzzleError(true); return; }
-        const missedYesterday =
-          yesterdayData &&
-          !yesterdayData.error &&
-          !localStorage.getItem(`picxle-${yesterdayData.id}`);
-        if (missedYesterday) {
+        // Keep offering yesterday's puzzle until it is actually FINISHED (won/lost)
+        // or the player has explicitly said no. Checking only "is there a saved
+        // entry" would hide the offer forever, because the autosave effect writes
+        // an entry the moment the puzzle is opened — so someone who tapped in and
+        // closed the app mid-puzzle could never get back to it.
+        const saved = readProgress(yesterdayData?.id);
+        const finished = saved ? saved.status !== "playing" : false;
+        const declined = yesterdayData?.id
+          ? !!localStorage.getItem(`picxle-declined-${yesterdayData.id}`)
+          : false;
+        const offerYesterday =
+          yesterdayData && !yesterdayData.error && !finished && !declined;
+        if (offerYesterday) {
           setYesterdayPuzzle(yesterdayData);
+          setYesterdayGuesses(saved?.guesses?.length ?? 0);
           pendingTodayRef.current = todayData;
           setShowMissedPrompt(true);
         } else {
@@ -483,21 +511,30 @@ export default function PicxleGame() {
         </h1>
         <div style={{ background: C.ink2, border: `1px solid ${C.line}`, borderRadius: 16, padding: "28px 24px", width: "100%", maxWidth: 340, textAlign: "center" }}>
           <p style={{ fontFamily: "var(--font-bricolage), sans-serif", fontWeight: 800, fontSize: 20, color: C.cream, margin: "0 0 10px", letterSpacing: "-0.5px" }}>
-            You missed yesterday&apos;s puzzle.
+            {yesterdayGuesses > 0
+              ? "You didn't finish yesterday's puzzle."
+              : "You missed yesterday's puzzle."}
           </p>
           <p style={{ fontSize: 13, color: C.creamDim, lineHeight: 1.7, margin: "0 0 28px" }}>
-            Want to play it now before today&apos;s?
+            {yesterdayGuesses > 0
+              ? `Your ${yesterdayGuesses} ${yesterdayGuesses === 1 ? "guess is" : "guesses are"} saved — pick up where you left off.`
+              : "Want to play it now before today's?"}
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <button className="pxbtn" onClick={() => { setShowMissedPrompt(false); activatePuzzle(yesterdayPuzzle); }}
+            <button className="pxbtn" onClick={() => { setShowMissedPrompt(false); track("yesterday_opened", { resumed: yesterdayGuesses > 0, guesses_made: yesterdayGuesses }); activatePuzzle(yesterdayPuzzle); }}
               style={{ background: C.cream, color: C.ink, border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 800, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer", width: "100%" }}>
-              Play yesterday&apos;s
+              {yesterdayGuesses > 0
+                ? `Resume yesterday's (${yesterdayGuesses}/${MAX_GUESSES})`
+                : "Play yesterday's"}
             </button>
-            <button className="pxbtn" onClick={() => { setShowMissedPrompt(false); activatePuzzle(pendingTodayRef.current); }}
+            <button className="pxbtn" onClick={declineYesterday}
               style={{ background: "transparent", color: C.creamDim, border: `1px solid ${C.line}`, borderRadius: 9, padding: "14px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 14, cursor: "pointer", width: "100%" }}>
-              Skip to today&apos;s
+              No thanks — play today&apos;s
             </button>
           </div>
+          <p style={{ fontSize: 11, color: C.creamDim, lineHeight: 1.6, margin: "16px 0 0", opacity: 0.75 }}>
+            We&apos;ll keep offering it until you finish it or say no.
+          </p>
         </div>
       </div>
     );
