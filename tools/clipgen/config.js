@@ -6,6 +6,23 @@ export const VIDEO = {
   fps: 30,
 };
 
+// The GIF is a SEPARATE RENDER, not a transcode of the vertical video.
+//
+// Two reasons, both of which the vertical clip gets wrong as a GIF:
+//   1. YOU CANNOT PAUSE A GIF. It autoplays, loops, and has no controls on most
+//      surfaces, so a "PAUSE IF YOU KNOW IT" beat instructs the viewer to do
+//      something they physically cannot do. That beat is dropped entirely; the loop
+//      is the second look.
+//   2. GIFs live on DESKTOP surfaces — X, Reddit, Discord, a README, a press kit —
+//      where a 9:16 frame is a tall skinny sliver with the puzzle tiny in the
+//      middle. Square uses the space.
+export const GIF = {
+  width: 1080,
+  height: 1080,
+  fps: 15,
+  scale: 600,      // final GIF is 600x600 — bigger balloons the file size
+};
+
 // Brand palette — the app's DEFAULT (light) theme, straight from app/globals.css.
 //
 // The variable names read backwards: --ink is the light BACKGROUND and --cream is
@@ -106,6 +123,31 @@ export const LAYOUT = {
   barsBaseline: 1470, // SHARPNESS bars sit on this line and grow upward
   counterY: 1495,     // label under the bars
   footerY: 1560,      // brand line — see COPY.footer
+};
+
+// Square layout for the GIF. Same furniture, tighter — there is no 9:16 dead space
+// to fill, so the image dominates and the text hugs it.
+export const GIF_LAYOUT = {
+  imageSize: 720,
+  imageTop: 190,
+  cornerRadius: 24,
+  scrimOpacity: 0.55,
+  titleY: 70,
+  categoryY: 140,
+  barsBaseline: 985,
+  counterY: 1005,
+  footerY: 1042,
+};
+
+// GIF beats: no pause (you cannot pause a GIF — the LOOP is the second look), and
+// a longer hold on the reveal so the payoff lands before it cycles back.
+export const GIF_BEATS = {
+  hook: 2.4,
+  stages: [1.4, 1.3, 1.2, 1.1],
+  reveal: 2.6,
+  endCard: 1.8,
+  flash: 0.09,
+  revealFlash: 0.2,
 };
 
 // The game's SHARPNESS row, scaled up for video: five bars of ascending height that
