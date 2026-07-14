@@ -1,9 +1,7 @@
 import { supabaseFetch } from "@/lib/supabase";
+import { normaliseGuess as norm } from "@/lib/normalise";
 
 export const dynamic = "force-dynamic";
-
-const norm = (s) =>
-  s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
 
 export async function POST(request) {
   const { puzzleId, guess } = await request.json();

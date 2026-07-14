@@ -7,6 +7,7 @@ import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { getThemeMode, nextThemeMode, applyThemeMode, themeGlyph, themeLabel } from "@/lib/theme";
 import { shouldUseShareSheet } from "@/lib/share";
+import { normaliseGuess } from "@/lib/normalise";
 import { recordWin, maybeRequestReview } from "@/lib/review";
 
 // Colours are CSS custom properties (defined in globals.css) driven by the
@@ -28,8 +29,10 @@ const C = {
   blueRGB:  "var(--blue-rgb)",
 };
 
-const norm = (s) =>
-  s.trim().toLowerCase().replace(/[^a-z ]/g, "").replace(/\s+/g, " ").trim();
+// Shared with the guess API — the client blocks anything not in the dictionary,
+// so if the two normalised differently a player could type a word the server
+// would happily accept and be told it isn't a word.
+const norm = normaliseGuess;
 
 function getPlayerId() {
   try {
