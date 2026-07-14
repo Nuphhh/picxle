@@ -151,6 +151,36 @@ export default function PicxleGame() {
     }
   };
 
+  // Re-read yesterday's progress on every render rather than trusting the value
+  // captured at page load — the player may have just finished it in this session,
+  // in which case the results screen must stop offering it.
+  const yesterdaySaved = yesterdayPuzzle ? readProgress(yesterdayPuzzle.id) : null;
+  const yesterdayUnfinished =
+    !!yesterdayPuzzle && (!yesterdaySaved || yesterdaySaved.status === "playing");
+  const yesterdaySoFar = yesterdaySaved?.guesses?.length ?? 0;
+
+  // Jump to yesterday's puzzle from the results screen. Same reset as
+  // switchToToday; activatePuzzle then restores any saved guesses, so a
+  // part-played puzzle picks up where it left off rather than restarting.
+  const switchToYesterday = () => {
+    if (!yesterdayPuzzle) return;
+    track("yesterday_opened", {
+      from: "after_today",
+      resumed: yesterdayGuesses > 0,
+      guesses_made: yesterdayGuesses,
+    });
+    setGuesses([]);
+    setStatus("playing");
+    setRevealedAnswer(null);
+    setStats(null);
+    setPlayerStreak(null);
+    setStatsOpen(false);
+    animatedRowIndices.current.clear();
+    prevResRef.current = null;
+    alreadyFinishedOnMount.current = false;
+    activatePuzzle(yesterdayPuzzle);
+  };
+
   useEffect(() => {
     Promise.all([
       fetch(apiUrl("/api/puzzle/today")).then((r) => r.json()),
@@ -168,16 +198,20 @@ export default function PicxleGame() {
         const declined = yesterdayData?.id
           ? !!localStorage.getItem(`picxle-declined-${yesterdayData.id}`)
           : false;
-        const offerYesterday =
-          yesterdayData && !yesterdayData.error && !finished && !declined;
-        if (offerYesterday) {
+
+        // Hold on to yesterday's puzzle whenever it is unfinished — even if the
+        // player declined the prompt. Declining means "not before today's", not
+        // "never": players finish today's, want to keep going, and expect to find
+        // yesterday's waiting. It is offered again on the results screen.
+        const unfinished = yesterdayData && !yesterdayData.error && !finished;
+        if (unfinished) {
           setYesterdayPuzzle(yesterdayData);
           setYesterdayGuesses(saved?.guesses?.length ?? 0);
-          pendingTodayRef.current = todayData;
-          setShowMissedPrompt(true);
-        } else {
-          activatePuzzle(todayData);
         }
+        pendingTodayRef.current = todayData;
+
+        if (unfinished && !declined) setShowMissedPrompt(true);
+        else activatePuzzle(todayData);
       })
       .catch(() => setPuzzleError(true));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1160,14 +1194,28 @@ export default function PicxleGame() {
               Play today&apos;s puzzle →
             </button>
           ) : (
-            <div style={{ marginTop: 24, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
-              <p style={{ fontSize: 10, color: C.creamDim, letterSpacing: "2px", margin: 0 }}>
-                NEXT PICXLE IN
-              </p>
-              <p style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: 28, fontWeight: 700, color: C.cream, margin: 0, letterSpacing: "4px", lineHeight: 1 }}>
-                {countdown}
-              </p>
-            </div>
+            <>
+              {/* Finished today's and yesterday's is still going spare — let them
+                  keep playing. Offered here even if they declined it before
+                  today's game: "not now" is not "never", and the moment people
+                  actually want more is right after a win. */}
+              {yesterdayUnfinished && (
+                <button className="pxbtn" onClick={switchToYesterday}
+                  style={{ marginTop: 20, background: C.cream, color: C.ink, border: "none", borderRadius: 9, padding: "14px 0", fontWeight: 800, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer", width: "100%" }}>
+                  {yesterdaySoFar > 0
+                    ? `Resume yesterday's (${yesterdaySoFar}/${MAX_GUESSES}) →`
+                    : "Play yesterday's puzzle →"}
+                </button>
+              )}
+              <div style={{ marginTop: 24, display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <p style={{ fontSize: 10, color: C.creamDim, letterSpacing: "2px", margin: 0 }}>
+                  NEXT PICXLE IN
+                </p>
+                <p style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: 28, fontWeight: 700, color: C.cream, margin: 0, letterSpacing: "4px", lineHeight: 1 }}>
+                  {countdown}
+                </p>
+              </div>
+            </>
           )}
 
           {stats && (
