@@ -15,7 +15,7 @@ import { execFileSync } from "node:child_process";
 import sharp from "sharp";
 import ffmpeg from "ffmpeg-static";
 import opentype from "opentype.js";
-import { VIDEO, COLOUR, FONT, COPY, BEATS, LAYOUT } from "./config.js";
+import { VIDEO, COLOUR, FONT, COPY, BEATS, LAYOUT, BARS } from "./config.js";
 import { exactStages } from "./exact.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -65,7 +65,25 @@ async function sharpImage(srcBuf, size) {
 const roundedMask = (size, r) =>
   Buffer.from(`<svg width="${size}" height="${size}"><rect width="${size}" height="${size}" rx="${r}" ry="${r}" fill="#fff"/></svg>`);
 
-async function frame(imageBuf, file) {
+// The game's SHARPNESS row: five ascending bars that fill as the picture resolves.
+// Drawn straight into the frame (rects only — librsvg is reliable with those).
+function sharpnessBars(filledUpTo, done = false) {
+  const { width } = VIDEO;
+  const { barsBaseline } = LAYOUT;
+  const { width: bw, gap, heights } = BARS;
+  const total = heights.length * bw + (heights.length - 1) * gap;
+  let x = (width - total) / 2;
+  const rects = heights.map((h, i) => {
+    const on = done || i <= filledUpTo;
+    const fill = done ? COLOUR.green : on ? COLOUR.blue : COLOUR.line;
+    const r = `<rect x="${Math.round(x)}" y="${barsBaseline - h}" width="${bw}" height="${h}" rx="4" fill="${fill}"/>`;
+    x += bw + gap;
+    return r;
+  });
+  return rects.join("");
+}
+
+async function frame(imageBuf, file, { stage = null, done = false } = {}) {
   const { width, height } = VIDEO;
   const { imageSize, imageTop, cornerRadius } = LAYOUT;
   const panel = await sharp(imageBuf)
@@ -73,8 +91,15 @@ async function frame(imageBuf, file) {
     .png()
     .toBuffer();
 
+  const bars = Buffer.from(
+    `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">${sharpnessBars(stage ?? -1, done)}</svg>`
+  );
+
   await sharp({ create: { width, height, channels: 4, background: COLOUR.bg } })
-    .composite([{ input: panel, left: Math.round((width - imageSize) / 2), top: imageTop }])
+    .composite([
+      { input: panel, left: Math.round((width - imageSize) / 2), top: imageTop },
+      { input: bars, left: 0, top: 0 },
+    ])
     .png()
     .toFile(file);
 }
@@ -247,43 +272,47 @@ async function main() {
   const frames = [];
   for (let i = 0; i < stageBufs.length; i++) {
     const f = path.join(TMP, `stage-${i}.png`);
-    await frame(stageBufs[i], f);
+    await frame(stageBufs[i], f, { stage: i }); // bars fill as it sharpens
     frames.push(f);
   }
   const revealFile = path.join(TMP, "reveal.png");
-  await frame(await sharpImage(src, imageSize), revealFile);
+  await frame(await sharpImage(src, imageSize), revealFile, { done: true }); // all bars green
   const endFile = path.join(TMP, "end.png");
   await endCardFrame(endFile);
 
   // ── beats: [file, seconds, overlay filters] ──
-  const { hook, stage, pause, reveal, endCard } = BEATS;
+  const { hook, stages, pause, reveal, endCard } = BEATS;
   const { titleY: TITLE_Y, categoryY: SUB_Y, counterY: COUNTER_Y } = LAYOUT;
   const footer = footerText(); // on every puzzle beat, not just the end card
   const counter = (n) => drawtext({ text: COPY.guessLabel(n, RES_STEPS.length), font: FONT.mono, size: 38, colour: COLOUR.textDim, y: String(COUNTER_Y) });
   const title = (text, size = 78, colour = COLOUR.text, scrim = false) =>
     drawtext({ text, font: FONT.display, size, colour, y: String(TITLE_Y), scrim });
 
+  // flash: only where the picture actually SHARPENS. The pause beat holds the same
+  // image as stage 5, so a flash there would announce a change that never happened.
   const beats = [
-    { file: frames[0], dur: hook, texts: [
+    { file: frames[0], dur: hook, flash: BEATS.flash, texts: [
       title(COPY.hook),
       ...(category ? [drawtext({ text: `${COPY.categoryPrefix}: ${category.toUpperCase()}`, font: FONT.mono, size: 34, colour: COLOUR.blue, y: String(SUB_Y) })] : []),
       counter(1), ...footer,
     ] },
+    // Holds tighten as it sharpens — the clip gathers pace instead of ticking.
     ...frames.slice(1).map((f, i) => ({
-      file: f, dur: stage, texts: [title(COPY.hook), counter(i + 2), ...footer],
+      file: f, dur: stages[i] ?? stages[stages.length - 1], flash: BEATS.flash,
+      texts: [title(COPY.hook), counter(i + 2), ...footer],
     })),
-    // held on the final pixelated stage — the last chance to guess
-    { file: frames[frames.length - 1], dur: pause, texts: [
+    // held on the final pixelated stage — the last chance to guess. No flash.
+    { file: frames[frames.length - 1], dur: pause, flash: 0, texts: [
       title(COPY.pause, 66, COLOUR.blue, true),
       counter(RES_STEPS.length), ...footer,
     ] },
-    // the payoff. Sharp image, NO answer text.
-    { file: revealFile, dur: reveal, texts: [
+    // the payoff. Sharp image, NO answer text. Biggest flash.
+    { file: revealFile, dur: reveal, flash: BEATS.revealFlash, texts: [
       title("Did you get it?", 72),
       drawtext({ text: COPY.revealKicker, font: FONT.mono, size: 38, colour: COLOUR.green, y: String(SUB_Y) }),
       ...footer,
     ] },
-    { file: endFile, dur: endCard, texts: endCardText() },
+    { file: endFile, dur: endCard, flash: BEATS.flash, texts: endCardText() },
   ];
 
   // ── assemble ──
@@ -291,9 +320,16 @@ async function main() {
   const filters = [];
   beats.forEach((b, i) => {
     inputs.push("-loop", "1", "-t", String(b.dur), "-framerate", String(VIDEO.fps), "-i", path.relative(HERE, b.file).replace(/\\/g, "/"));
-    // The end card has no overlays, so build the chain from a list — an empty
-    // texts array would otherwise leave a leading comma and break the filter.
-    const chain = [...b.texts, "format=yuv420p", "setsar=1"].join(",");
+    // Sharpen flash: fade IN from the brand cream, so the beat opens on a blink and
+    // resolves to the picture — the same cue the game gives when the image sharpens.
+    // A cross-dissolve would blend the pixel blocks together; a flash never touches
+    // them. ffmpeg wants 0xRRGGBB here, not #rrggbb.
+    const flash = b.flash
+      ? [`fade=t=in:st=0:d=${b.flash}:color=0x${COLOUR.bg.replace("#", "").toUpperCase()}`]
+      : [];
+    // Build the chain from a list — an empty texts array would otherwise leave a
+    // leading comma and break the filter.
+    const chain = [...b.texts, ...flash, "format=yuv420p", "setsar=1"].join(",");
     filters.push(`[${i}:v]${chain}[v${i}]`);
   });
   const concat = beats.map((_, i) => `[v${i}]`).join("") + `concat=n=${beats.length}:v=1:a=0[out]`;

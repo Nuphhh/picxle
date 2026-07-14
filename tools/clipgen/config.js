@@ -44,13 +44,25 @@ export const COPY = {
   footerSep: "·", // brand line on the puzzle beats: PICXLE · picxle.vercel.app
 };
 
-// Beat timings in seconds. Total should land ~13-15s.
+// Beat timings in seconds.
+//
+// The holds ACCELERATE. Every stage previously held for the same 1.6s, which beat
+// like a metronome and was the real reason the clip felt flat — not a shortage of
+// effects. A long dwell on stage 1 gives people time to actually look and commit to
+// a guess; each stage after that is shorter, so the clip gathers pace and pulls
+// into the reveal.
 export const BEATS = {
-  hook: 2.0,      // stage 1, most pixelated, with the hook
-  stage: 1.6,     // each of stages 2..5
-  pause: 1.3,     // "pause if you know it", held on the last pixelated stage
-  reveal: 2.6,    // fully sharp image, no answer text
+  hook: 2.8,                       // stage 1 — longest hold: this is where they decide to stay
+  stages: [1.7, 1.5, 1.35, 1.2],   // stages 2..5, tightening
+  pause: 1.5,                      // "pause if you know it", on the last pixelated stage
+  reveal: 2.8,                     // fully sharp, no answer text
   endCard: 2.0,
+
+  // Each beat opens with a quick flash, mirroring the game's own canvas flash on
+  // sharpen. A cross-dissolve would blend the pixel blocks into mush, and the hard
+  // blocks ARE the brand — so the punch comes from a flash, never a blend.
+  flash: 0.10,
+  revealFlash: 0.22,               // the payoff gets a bigger one
 };
 
 // Layout of the 1080x1920 frame.
@@ -71,6 +83,16 @@ export const LAYOUT = {
 
   titleY: 190,        // hook headline (drawtext y = top of the text box)
   categoryY: 300,
-  counterY: 1420,     // just under the image
-  footerY: 1500,      // brand line — see COPY.footer
+  barsBaseline: 1470, // SHARPNESS bars sit on this line and grow upward
+  counterY: 1495,     // label under the bars
+  footerY: 1560,      // brand line — see COPY.footer
+};
+
+// The game's SHARPNESS row, scaled up for video: five bars of ascending height that
+// fill as the picture resolves. Lifted from PicxleGame.jsx (width 20, heights
+// 8,11,14,17,20) so the clip shows the same progress cue as the real thing.
+export const BARS = {
+  width: 34,
+  gap: 14,
+  heights: [22, 30, 38, 46, 54],
 };
