@@ -103,6 +103,32 @@ const loadFont = (rel) => opentype.parse(fs.readFileSync(path.join(HERE, rel)).b
 const MARK_SIZE = 150;
 const MARK_Y = 880; // baseline of the wordmark
 
+// Brand line along the bottom of every PUZZLE beat.
+//
+// Most people never reach the end card — they scroll away mid-reveal — so the only
+// branding they would ever see is on the frames they actually watch. This fills the
+// dead space under the image with the one thing that earns its place there.
+//
+// Space Mono is MONOSPACED, so the blue X can be placed by counting characters
+// rather than measuring glyphs: every cell is exactly one advance wide.
+function footerText() {
+  const { width } = VIDEO;
+  const mono = loadFont(FONT.mono);
+  const size = 30;
+  const cell = mono.getAdvanceWidth("M", size); // monospace: every glyph is this wide
+  const tail = ` ${COPY.footerSep} ${COPY.ctaUrl}`;
+  const cells = 6 + tail.length; // PICXLE + tail
+  const x0 = (width - cells * cell) / 2;
+  const at = (n) => String(Math.round(x0 + n * cell));
+  const y = String(LAYOUT.footerY);
+  return [
+    drawtext({ text: "PIC", font: FONT.mono, size, colour: COLOUR.textDim, y, x: at(0) }),
+    drawtext({ text: "X", font: FONT.mono, size, colour: COLOUR.blue, y, x: at(3) }),
+    drawtext({ text: "LE", font: FONT.mono, size, colour: COLOUR.textDim, y, x: at(4) }),
+    drawtext({ text: tail.trimStart(), font: FONT.mono, size, colour: COLOUR.textDim, y, x: at(7) }),
+  ];
+}
+
 function endCardText() {
   const { width } = VIDEO;
   const display = loadFont(FONT.display);
@@ -231,28 +257,31 @@ async function main() {
 
   // ── beats: [file, seconds, overlay filters] ──
   const { hook, stage, pause, reveal, endCard } = BEATS;
-  const TITLE_Y = 250, SUB_Y = 360, COUNTER_Y = 1520;
+  const { titleY: TITLE_Y, categoryY: SUB_Y, counterY: COUNTER_Y } = LAYOUT;
+  const footer = footerText(); // on every puzzle beat, not just the end card
+  const counter = (n) => drawtext({ text: COPY.guessLabel(n, RES_STEPS.length), font: FONT.mono, size: 38, colour: COLOUR.textDim, y: String(COUNTER_Y) });
+  const title = (text, size = 78, colour = COLOUR.text, scrim = false) =>
+    drawtext({ text, font: FONT.display, size, colour, y: String(TITLE_Y), scrim });
+
   const beats = [
     { file: frames[0], dur: hook, texts: [
-      drawtext({ text: COPY.hook, font: FONT.display, size: 78, colour: COLOUR.text, y: TITLE_Y }),
-      ...(category ? [drawtext({ text: `${COPY.categoryPrefix}: ${category.toUpperCase()}`, font: FONT.mono, size: 34, colour: COLOUR.blue, y: SUB_Y })] : []),
-      drawtext({ text: COPY.guessLabel(1, RES_STEPS.length), font: FONT.mono, size: 38, colour: COLOUR.textDim, y: COUNTER_Y }),
+      title(COPY.hook),
+      ...(category ? [drawtext({ text: `${COPY.categoryPrefix}: ${category.toUpperCase()}`, font: FONT.mono, size: 34, colour: COLOUR.blue, y: String(SUB_Y) })] : []),
+      counter(1), ...footer,
     ] },
     ...frames.slice(1).map((f, i) => ({
-      file: f, dur: stage, texts: [
-        drawtext({ text: COPY.hook, font: FONT.display, size: 78, colour: COLOUR.text, y: TITLE_Y }),
-        drawtext({ text: COPY.guessLabel(i + 2, RES_STEPS.length), font: FONT.mono, size: 38, colour: COLOUR.textDim, y: COUNTER_Y }),
-      ],
+      file: f, dur: stage, texts: [title(COPY.hook), counter(i + 2), ...footer],
     })),
     // held on the final pixelated stage — the last chance to guess
     { file: frames[frames.length - 1], dur: pause, texts: [
-      drawtext({ text: COPY.pause, font: FONT.display, size: 66, colour: COLOUR.blue, y: TITLE_Y, scrim: true }),
-      drawtext({ text: COPY.guessLabel(RES_STEPS.length, RES_STEPS.length), font: FONT.mono, size: 38, colour: COLOUR.textDim, y: COUNTER_Y }),
+      title(COPY.pause, 66, COLOUR.blue, true),
+      counter(RES_STEPS.length), ...footer,
     ] },
     // the payoff. Sharp image, NO answer text.
     { file: revealFile, dur: reveal, texts: [
-      drawtext({ text: COPY.revealKicker, font: FONT.mono, size: 38, colour: COLOUR.green, y: SUB_Y }),
-      drawtext({ text: "Did you get it?", font: FONT.display, size: 72, colour: COLOUR.text, y: TITLE_Y }),
+      title("Did you get it?", 72),
+      drawtext({ text: COPY.revealKicker, font: FONT.mono, size: 38, colour: COLOUR.green, y: String(SUB_Y) }),
+      ...footer,
     ] },
     { file: endFile, dur: endCard, texts: endCardText() },
   ];

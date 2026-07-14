@@ -39,6 +39,7 @@ export const COPY = {
   // comment their guess. The answer goes in the caption instead.
   ctaTitle: "Play today's puzzle",
   ctaUrl: "picxle.vercel.app",
+  footerSep: "·", // brand line on the puzzle beats: PICXLE · picxle.vercel.app
 };
 
 // Beat timings in seconds. Total should land ~13-15s.
@@ -51,9 +52,23 @@ export const BEATS = {
 };
 
 // Layout of the 1080x1920 frame.
+//
+// Everything is composed inside the SAFE AREA, not the raw frame: TikTok and Reels
+// paint their own UI over roughly the top 130px and the bottom 320px (caption,
+// buttons), so anything down there is sat on by the interface. The block is
+// centred within 130..1600, which is why it does not look centred if you measure
+// against the full 1920.
 export const LAYOUT = {
-  imageSize: 980,     // the puzzle is a centred square
-  imageTop: 470,      // leaves room for hook above, counter below
+  safeTop: 130,
+  safeBottom: 1600,
+
+  imageSize: 1000,    // the puzzle is the point — near edge to edge
+  imageTop: 380,
   cornerRadius: 28,
   scrimOpacity: 0.55, // behind text, so it reads on both light and dark images
+
+  titleY: 190,        // hook headline (drawtext y = top of the text box)
+  categoryY: 300,
+  counterY: 1420,     // just under the image
+  footerY: 1500,      // brand line — see COPY.footer
 };
