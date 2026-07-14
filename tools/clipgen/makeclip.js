@@ -230,14 +230,58 @@ async function loadImage(src) {
   return fs.readFileSync(src);
 }
 
+// Pull a day's puzzle straight from the database, so the daily post is one command
+// and the ATTRIBUTION cannot be forgotten — 68 of the puzzles are CC-BY, where
+// crediting the photographer is a licence condition, not a nicety.
+async function fetchPuzzle(date) {
+  const envPath = path.join(HERE, "..", "..", ".env.local");
+  if (!fs.existsSync(envPath)) throw new Error("no .env.local — pass --image/--answer by hand");
+  const env = {};
+  for (const line of fs.readFileSync(envPath, "utf8").split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+    if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, "");
+  }
+  const url = `${env.SUPABASE_URL}/rest/v1/puzzles?select=puzzle_date,answer,category,image_src,license,attribution&puzzle_date=eq.${date}`;
+  const rows = await fetch(url, {
+    headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` },
+  }).then((r) => r.json());
+  if (!rows?.length) throw new Error(`no puzzle for ${date}`);
+  return rows[0];
+}
+
+// Default: yesterday. The clip always shows a puzzle that is already finished, so
+// it can never spoil the live one.
+const yesterday = () => {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
+
 async function main() {
-  const image = arg("image");
-  const answer = arg("answer");
-  const category = arg("category", "");
-  const credit = arg("credit", ""); // CC-BY images MUST be attributed when posted
-  const date = arg("date", new Date().toISOString().slice(0, 10));
+  // Two ways in:
+  //   node makeclip.js                      -> yesterday's puzzle, straight from the DB
+  //   node makeclip.js --puzzle 2026-07-14  -> that day's puzzle
+  //   node makeclip.js --image ... --answer ...  -> anything, by hand
+  let image = arg("image");
+  let answer = arg("answer");
+  let category = arg("category", "");
+  let credit = arg("credit", ""); // CC-BY images MUST be attributed when posted
+  let date = arg("date");
+
+  if (!image) {
+    const day = arg("puzzle", yesterday());
+    const p = await fetchPuzzle(day);
+    image = p.image_src;
+    answer = answer || p.answer;
+    category = category || p.category || "";
+    credit = credit || (p.license === "CC0" || p.license === "PD" ? "" : `${p.attribution}`);
+    date = date || p.puzzle_date;
+    console.log(`puzzle  ${p.puzzle_date}  ${p.answer} (${p.category}, ${p.license})`);
+  }
+  date = date || new Date().toISOString().slice(0, 10);
+
   if (!image || !answer) {
-    console.error("usage: node makeclip.js --image <path|url> --answer \"The Colosseum\" [--category Landmarks] [--credit \"...\"] [--date YYYY-MM-DD]");
+    console.error("usage: node makeclip.js [--puzzle YYYY-MM-DD] | --image <path|url> --answer \"...\" [--category ...] [--credit ...]");
     process.exit(1);
   }
 
@@ -350,8 +394,10 @@ async function main() {
   // ── caption ──
   const total = beats.reduce((s, b) => s + b.dur, 0);
   const captionFile = outFile.replace(/\.mp4$/, ".txt");
+  // Answers are stored lowercase for guess-matching; capitalise for the caption.
+  const pretty = answer.replace(/\b[a-z]/g, (c) => c.toUpperCase());
   const caption = [
-    `${COPY.hook} Yesterday's Picxle was: ${answer}.`,
+    `${COPY.hook} Yesterday's Picxle was: ${pretty}.`,
     ``,
     `Did you get it? Play today's puzzle at ${COPY.ctaUrl}`,
     ``,
