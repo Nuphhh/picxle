@@ -45,3 +45,8 @@ android/.idea/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# clipgen
+tools/clipgen/node_modules/
+tools/clipgen/out/
+tools/clipgen/tmp/

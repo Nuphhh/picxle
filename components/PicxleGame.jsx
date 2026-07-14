@@ -875,7 +875,9 @@ export default function PicxleGame() {
 
                 <button className="pxbtn" onClick={shareGrid}
                   style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
-                  {copied ? "COPIED ✓" : useShareSheet ? "SHARE RESULT" : "COPY RESULT"}
+                  {/* Always "share" — that's the intent. Copying is just how it's done on a
+    desktop, and the COPIED confirmation says so after the fact. */}
+{copied ? "COPIED ✓" : "SHARE RESULT"}
                 </button>
               </div>
             </div>
@@ -1196,7 +1198,9 @@ export default function PicxleGame() {
           </p>
           <button className="pxbtn" onClick={shareGrid}
             style={{ background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
-            {copied ? "COPIED ✓" : useShareSheet ? "SHARE RESULT" : "COPY RESULT"}
+            {/* Always "share" — that's the intent. Copying is just how it's done on a
+    desktop, and the COPIED confirmation says so after the fact. */}
+{copied ? "COPIED ✓" : "SHARE RESULT"}
           </button>
           {isYesterdaysPuzzle ? (
             <button className="pxbtn" onClick={switchToToday}
