@@ -44,6 +44,26 @@ export const COPY = {
   footerSep: "·", // brand line on the puzzle beats: PICXLE · picxle.vercel.app
 };
 
+// --promo: an evergreen advert, not a daily post.
+//
+// The daily clip is tied to a specific day ("YESTERDAY'S PICXLE"), which is
+// meaningless in an ad that runs for weeks. This version sells the mechanic
+// instead: one image, five guesses, it sharpens every time you miss.
+export const PROMO = {
+  hook: "Can you name it?",
+  revealKicker: "A NEW PUZZLE EVERY DAY",
+  pause: "PAUSE IF YOU KNOW IT",
+  ctaTitle: "Play the daily puzzle",
+  caption: (answer, category) => [
+    `One image. Five guesses. It sharpens every time you miss.`,
+    ``,
+    `Could you have got ${answer}? A new picture every day.`,
+    ``,
+    `Play free at picxle.vercel.app`,
+    category ? `` : null,
+  ].filter((l) => l !== null),
+};
+
 // Beat timings in seconds.
 //
 // The holds ACCELERATE. Every stage previously held for the same 1.6s, which beat

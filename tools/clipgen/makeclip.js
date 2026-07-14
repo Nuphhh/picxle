@@ -15,7 +15,12 @@ import { execFileSync } from "node:child_process";
 import sharp from "sharp";
 import ffmpeg from "ffmpeg-static";
 import opentype from "opentype.js";
-import { VIDEO, COLOUR, FONT, COPY, BEATS, LAYOUT, BARS } from "./config.js";
+import { VIDEO, COLOUR, FONT, COPY as BASE_COPY, PROMO, BEATS, LAYOUT, BARS } from "./config.js";
+
+// --promo swaps the day-specific copy for evergreen advert copy: an ad that runs
+// for weeks cannot say "YESTERDAY'S PICXLE".
+const PROMO_MODE = process.argv.includes("--promo");
+const COPY = PROMO_MODE ? { ...BASE_COPY, ...PROMO } : BASE_COPY;
 import { exactStages } from "./exact.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -391,20 +396,40 @@ async function main() {
   ];
   execFileSync(ffmpeg, args, { cwd: HERE, stdio: ["ignore", "ignore", "pipe"] });
 
+  // ── GIF (optional) ──
+  // Half size and 15fps, or the file is enormous. A two-pass palette is what keeps
+  // the flat brand colours from banding — a default 256-colour quantise wrecks them.
+  if (process.argv.includes("--gif")) {
+    const gifFile = outFile.replace(/\.mp4$/, ".gif");
+    execFileSync(ffmpeg, [
+      "-y", "-i", path.relative(HERE, outFile).replace(/\\/g, "/"),
+      "-filter_complex",
+      "fps=15,scale=540:960:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3",
+      path.relative(HERE, gifFile).replace(/\\/g, "/"),
+    ], { cwd: HERE, stdio: ["ignore", "ignore", "pipe"] });
+    const mb = (fs.statSync(gifFile).size / 1024 / 1024).toFixed(1);
+    console.log(`gif     ${gifFile}  (${mb} MB, 540x960, 15fps)`);
+  }
+
   // ── caption ──
   const total = beats.reduce((s, b) => s + b.dur, 0);
   const captionFile = outFile.replace(/\.mp4$/, ".txt");
   // Answers are stored lowercase for guess-matching; capitalise for the caption.
   const pretty = answer.replace(/\b[a-z]/g, (c) => c.toUpperCase());
-  const caption = [
+  const daily = [
     `${COPY.hook} Yesterday's Picxle was: ${pretty}.`,
     ``,
     `Did you get it? Play today's puzzle at ${COPY.ctaUrl}`,
     ``,
     category ? `Category: ${category}` : ``,
+  ];
+  const caption = [
+    ...(PROMO_MODE ? PROMO.caption(pretty, category) : daily),
     credit ? `Image: ${credit}` : ``,
     ``,
-    `#picxle #dailypuzzle #guessthepicture #${slug(category || "puzzle").replace(/-/g, "")} #puzzlegame`,
+    PROMO_MODE
+      ? `#picxle #puzzlegame #dailypuzzle #guessthepicture #brainteaser`
+      : `#picxle #dailypuzzle #guessthepicture #${slug(category || "puzzle").replace(/-/g, "")} #puzzlegame`,
   ].filter((l) => l !== null).join("\n");
   fs.writeFileSync(captionFile, caption);
 
