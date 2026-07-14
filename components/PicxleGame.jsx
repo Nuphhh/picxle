@@ -6,6 +6,7 @@ import { apiUrl } from "@/lib/api";
 import { track } from "@/lib/analytics";
 import Link from "next/link";
 import { getThemeMode, nextThemeMode, applyThemeMode, themeGlyph, themeLabel } from "@/lib/theme";
+import { shouldUseShareSheet } from "@/lib/share";
 import { recordWin, maybeRequestReview } from "@/lib/review";
 
 // Colours are CSS custom properties (defined in globals.css) driven by the
@@ -60,6 +61,10 @@ export default function PicxleGame() {
   const [status, setStatus] = useState("playing");
   const [shake, setShake] = useState(false);
   const [copied, setCopied] = useState(false);
+  // Whether sharing should open the OS sheet (phone) or just copy (desktop).
+  // Resolved after mount because the check reads navigator/window.
+  const [useShareSheet, setUseShareSheet] = useState(false);
+  useEffect(() => setUseShareSheet(shouldUseShareSheet()), []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imgReady, setImgReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -505,16 +510,18 @@ export default function PicxleGame() {
       else row += "⬛";
     }
     const text = `Picxle ${score}\n${row}\nhttps://picxle.vercel.app/s/${puzzle.puzzle_date}`;
-    // Prefer the native OS share sheet (share straight to WhatsApp / X / etc.);
-    // fall back to copying to the clipboard where Web Share isn't available.
-    try {
-      if (navigator.share) {
+    // On a phone the OS share sheet is the right thing — one tap into WhatsApp.
+    // On a desktop it is not: Windows Chrome implements navigator.share, so it
+    // used to pop the OS dialog and make you pick an app just to pass along a
+    // line of emoji. Desktop just copies. See useShareSheet().
+    if (useShareSheet) {
+      try {
         await navigator.share({ title: "Picxle", text });
         return;
+      } catch (e) {
+        if (e && e.name === "AbortError") return; // user dismissed the sheet
+        // anything else (e.g. share not permitted): fall through to clipboard
       }
-    } catch (e) {
-      if (e && e.name === "AbortError") return; // user dismissed the share sheet
-      // any other error: fall through to clipboard
     }
     try { await navigator.clipboard?.writeText(text); } catch {}
     setCopied(true);
@@ -865,7 +872,7 @@ export default function PicxleGame() {
 
                 <button className="pxbtn" onClick={shareGrid}
                   style={{ marginTop: 16, width: "100%", background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 0", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
-                  {copied ? "COPIED ✓" : "SHARE RESULT"}
+                  {copied ? "COPIED ✓" : useShareSheet ? "SHARE RESULT" : "COPY RESULT"}
                 </button>
               </div>
             </div>
@@ -1186,7 +1193,7 @@ export default function PicxleGame() {
           </p>
           <button className="pxbtn" onClick={shareGrid}
             style={{ background: copied ? C.green : C.blue, color: C.ink, border: "none", borderRadius: 9, padding: "12px 26px", fontWeight: 700, fontFamily: "var(--font-bricolage), sans-serif", fontSize: 16, cursor: "pointer" }}>
-            {copied ? "COPIED ✓" : "SHARE RESULT"}
+            {copied ? "COPIED ✓" : useShareSheet ? "SHARE RESULT" : "COPY RESULT"}
           </button>
           {isYesterdaysPuzzle ? (
             <button className="pxbtn" onClick={switchToToday}
