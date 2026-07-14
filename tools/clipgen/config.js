@@ -71,14 +71,21 @@ export const PROMO = {
   revealKicker: "A NEW PUZZLE EVERY DAY",
   pause: "PAUSE IF YOU KNOW IT",
   ctaTitle: "Play the daily puzzle",
-  caption: (answer, category) => [
+
+  // NOTE the caption does NOT name the answer, unlike the daily post.
+  //
+  // The caption sits directly under the video and is read BEFORE people watch. On a
+  // daily post naming the answer is fine — it is yesterday's puzzle, already public,
+  // and it drives the "did you get it?" reply. In an ADVERT, whose whole job is to
+  // make someone try to guess, printing the answer beside the video defeats the
+  // hook entirely.
+  caption: () => [
     `One image. Five guesses. It sharpens every time you miss.`,
     ``,
-    `Could you have got ${answer}? A new picture every day.`,
+    `Did you get it before the last guess? A new picture every day.`,
     ``,
     `Play free at picxle.vercel.app`,
-    category ? `` : null,
-  ].filter((l) => l !== null),
+  ],
 };
 
 // Beat timings in seconds.
