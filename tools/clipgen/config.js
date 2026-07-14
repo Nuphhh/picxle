@@ -6,18 +6,20 @@ export const VIDEO = {
   fps: 30,
 };
 
-// Brand palette — lifted from app/globals.css. NOTE the app's variable names read
-// inverted (--ink is the light background, --cream is the dark text) because the
-// light theme is the default; these are the ACTUAL colours.
+// Brand palette — the app's DEFAULT (light) theme, straight from app/globals.css.
+//
+// The variable names read backwards: --ink is the light BACKGROUND and --cream is
+// the dark TEXT, because the light theme is the default. Taking them at face value
+// gives you an inverted, off-brand card.
 export const COLOUR = {
-  bg: "#17130d",        // dark backdrop — video reads better dark on every feed
-  panel: "#231c13",     // image panel surround
-  text: "#faf6ef",      // cream
-  textDim: "#a08a68",
-  blue: "#3b82f6",      // the X in the wordmark, and the accent
-  green: "#16a34a",
-  coral: "#c23b3b",
-  line: "#3a2f22",
+  bg: "#faf6ef",        // --ink   : the page background
+  panel: "#ede8de",     // --ink2  : raised surface behind the image
+  text: "#1c1208",      // --cream : body/headline text
+  textDim: "#7a6548",   // --creamDim
+  blue: "#3b82f6",      // --blue  : the X in the wordmark, and the accent
+  green: "#16a34a",     // --green
+  coral: "#c23b3b",     // --coral
+  line: "#d4c4b0",      // --line
 };
 
 export const FONT = {
