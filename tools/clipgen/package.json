@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Turns one puzzle image into a ready-to-post vertical reveal clip.",
-  "bin": { "makeclip": "./makeclip.js" },
+  "bin": {
+    "makeclip": "./makeclip.js"
+  },
   "dependencies": {
-    "ffmpeg-static": "^5.2.0"
+    "ffmpeg-static": "^5.2.0",
+    "opentype.js": "^2.0.0"
   }
 }

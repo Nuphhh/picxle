@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import sharp from "sharp";
 import ffmpeg from "ffmpeg-static";
+import opentype from "opentype.js";
 import { VIDEO, COLOUR, FONT, COPY, BEATS, LAYOUT } from "./config.js";
 import { exactStages } from "./exact.js";
 
@@ -78,11 +79,65 @@ async function frame(imageBuf, file) {
     .toFile(file);
 }
 
+// The end card is drawn as VECTOR PATHS, not text.
+//
+// ffmpeg's drawtext colours a whole string or nothing, so it cannot give the
+// wordmark its blue X — and sharp's SVG renderer won't reliably pick up a bundled
+// font by name. Converting glyphs to paths with opentype sidesteps both: exact
+// per-letter colour, and no font resolution at render time.
+// TEXT IS DRAWN BY FFMPEG, NOT BY SVG.
+//
+// The wordmark needs a blue X, and drawtext colours a whole string or nothing — so
+// the obvious move was to render glyphs as SVG paths. That was a rabbit hole:
+// librsvg (sharp's SVG renderer) mangles opentype's output in a different way at
+// every turn (an unclosed apostrophe made it abandon the rest of the line; a "p"
+// counter filled into a blob; then a "u" vanished outright).
+//
+// ffmpeg's drawtext uses FreeType and renders every other beat perfectly. So the
+// SVG now draws only RECTANGLES (which librsvg handles fine), and the wordmark is
+// three separate drawtext calls positioned by opentype's ADVANCE WIDTHS — metrics,
+// not rendering. With GPOS dropped from the font there is no kerning, so segment
+// advances are exact and the three pieces butt up seamlessly.
+const loadFont = (rel) => opentype.parse(fs.readFileSync(path.join(HERE, rel)).buffer);
+
+const MARK_SIZE = 150;
+const MARK_Y = 880; // baseline of the wordmark
+
+function endCardText() {
+  const { width } = VIDEO;
+  const display = loadFont(FONT.display);
+  const wPic = display.getAdvanceWidth("PIC", MARK_SIZE);
+  const wX = display.getAdvanceWidth("X", MARK_SIZE);
+  const wLe = display.getAdvanceWidth("LE", MARK_SIZE);
+  const x0 = (width - (wPic + wX + wLe)) / 2;
+
+  // drawtext's y is the TOP of the text box, not the baseline — nudge up by the
+  // cap height so the mark sits where the layout expects.
+  const top = Math.round(MARK_Y - MARK_SIZE * 0.78);
+  const seg = (text, x, colour) =>
+    drawtext({ text, font: FONT.display, size: MARK_SIZE, colour, y: top, x: String(Math.round(x)) });
+
+  return [
+    seg("PIC", x0, COLOUR.text),
+    seg("X", x0 + wPic, COLOUR.blue), // the brand blue X
+    seg("LE", x0 + wPic + wX, COLOUR.text),
+    drawtext({ text: COPY.ctaTitle, font: FONT.display, size: 60, colour: COLOUR.text, y: MARK_Y + 110 }),
+    drawtext({ text: COPY.ctaUrl, font: FONT.mono, size: 42, colour: COLOUR.blue, y: MARK_Y + 200 }),
+  ];
+}
+
 async function endCardFrame(file) {
   const { width, height } = VIDEO;
-  // Wordmark drawn as SVG so the X can carry the brand blue, exactly as on the site.
-  const svg = `<svg width="${width}" height="${height}">
-    <rect width="${width}" height="${height}" fill="${COLOUR.bg}"/>
+  // Rectangles and a gradient only — no text, no glyph paths.
+  const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="g" cx="50%" cy="46%" r="60%">
+        <stop offset="0%" stop-color="${COLOUR.panel}"/>
+        <stop offset="100%" stop-color="${COLOUR.bg}"/>
+      </radialGradient>
+    </defs>
+    <rect width="${width}" height="${height}" fill="url(#g)"/>
+    <rect x="${(width - 180) / 2}" y="${MARK_Y + 40}" width="180" height="3" rx="1.5" fill="${COLOUR.blue}" opacity="0.55"/>
   </svg>`;
   await sharp(Buffer.from(svg)).png().toFile(file);
 }
@@ -199,11 +254,7 @@ async function main() {
       drawtext({ text: COPY.revealKicker, font: FONT.mono, size: 38, colour: COLOUR.green, y: SUB_Y }),
       drawtext({ text: "Did you get it?", font: FONT.display, size: 72, colour: COLOUR.text, y: TITLE_Y }),
     ] },
-    { file: endFile, dur: endCard, texts: [
-      drawtext({ text: "PICXLE", font: FONT.display, size: 132, colour: COLOUR.text, y: 760 }),
-      drawtext({ text: COPY.ctaTitle, font: FONT.display, size: 62, colour: COLOUR.text, y: 960 }),
-      drawtext({ text: COPY.ctaUrl, font: FONT.mono, size: 44, colour: COLOUR.blue, y: 1060 }),
-    ] },
+    { file: endFile, dur: endCard, texts: endCardText() },
   ];
 
   // ── assemble ──
@@ -211,7 +262,10 @@ async function main() {
   const filters = [];
   beats.forEach((b, i) => {
     inputs.push("-loop", "1", "-t", String(b.dur), "-framerate", String(VIDEO.fps), "-i", path.relative(HERE, b.file).replace(/\\/g, "/"));
-    filters.push(`[${i}:v]${b.texts.join(",")},format=yuv420p,setsar=1[v${i}]`);
+    // The end card has no overlays, so build the chain from a list — an empty
+    // texts array would otherwise leave a leading comma and break the filter.
+    const chain = [...b.texts, "format=yuv420p", "setsar=1"].join(",");
+    filters.push(`[${i}:v]${chain}[v${i}]`);
   });
   const concat = beats.map((_, i) => `[v${i}]`).join("") + `concat=n=${beats.length}:v=1:a=0[out]`;
 
