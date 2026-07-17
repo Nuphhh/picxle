@@ -393,10 +393,16 @@ async function main() {
   }
 
   // ── caption ──
-  const pretty = answer.replace(/\b[a-z]/g, (c) => c.toUpperCase()); // answers are stored lowercase
+  // The caption does NOT name the answer — not in the daily post either, now. The
+  // caption sits directly under the video and is read before people watch, so
+  // printing the answer kills the guess. Withholding it makes people comment their
+  // guess, which is the strongest engagement signal there is. Put the answer in a
+  // PINNED COMMENT instead. (answers are stored lowercase; pretty is kept only if
+  // ever needed again.)
+  const pretty = answer.replace(/\b[a-z]/g, (c) => c.toUpperCase()); // eslint-disable-line no-unused-vars
   const daily = [
-    `${COPY.hook} Yesterday's Picxle was: ${pretty}.`, ``,
-    `Did you get it? Play today's puzzle at ${COPY.ctaUrl}`, ``,
+    `Did you get it before the last guess? Name it in the comments 👇`, ``,
+    `A new Picxle every day — play today's at ${COPY.ctaUrl}`, ``,
     category ? `Category: ${category}` : ``,
   ];
   // Music credit is separate from image credit and often REQUIRED (Kevin MacLeod

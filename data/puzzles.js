@@ -1228,6 +1228,11 @@ const RAW_DICTIONARY = [
   "kiwi fruit",
   "egg timer",
   "koala bear",
+  // ── Accepted answers (aliases and regional names) ──
+  // Every string any puzzle accepts must appear here, or the guess box rejects
+  // it before the server ever sees it. "aubergine" was a correct answer the
+  // game refused to let anyone type. Kept in sync by scripts/sync-accepts-to-dictionary.mjs.
+  "niagara",
 ];
 
 // Dedupe, then sort. new Set() keeps only the first occurrence of each word, so a
