@@ -17,7 +17,7 @@ import ffmpeg from "ffmpeg-static";
 import opentype from "opentype.js";
 import {
   VIDEO, GIF, COLOUR, FONT, COPY as BASE_COPY, PROMO,
-  BEATS, GIF_BEATS, LAYOUT, GIF_LAYOUT, BARS,
+  BEATS, GIF_BEATS, LAYOUT, GIF_LAYOUT, BARS, MUSIC,
 } from "./config.js";
 import { exactStages } from "./exact.js";
 
@@ -161,7 +161,7 @@ async function endCardFrame(V, file) {
 }
 
 // ── render one variant (vertical video, or square GIF) ───────────────────────
-async function renderVariant({ V, L, B, stageBufs, revealBuf, outFile, gif, category, tag }) {
+async function renderVariant({ V, L, B, stageBufs, revealBuf, outFile, gif, category, tag, music = null }) {
   const dir = path.join(TMP, tag);
   fs.mkdirSync(dir, { recursive: true });
 
@@ -218,10 +218,27 @@ async function renderVariant({ V, L, B, stageBufs, revealBuf, outFile, gif, cate
   });
   const concat = beats.map((_, i) => `[v${i}]`).join("") + `concat=n=${beats.length}:v=1:a=0[out]`;
   const rel = (f) => path.relative(HERE, f).replace(/\\/g, "/");
+  const total = beats.reduce((s, b) => s + b.dur, 0);
 
   if (!gif) {
+    // --music. Looped (-stream_loop) so a short track still covers the clip, trimmed
+    // to length, and faded out under the end card. GIFs have no audio track at all,
+    // so this is video-only.
+    const audio = [];
+    let audioFilter = "", audioMap = [];
+    if (music) {
+      inputs.push("-stream_loop", "-1", "-i", rel(music));
+      const idx = beats.length; // music is the input after every image
+      const fadeAt = Math.max(0, total - MUSIC.fadeOut).toFixed(2);
+      audioFilter =
+        `;[${idx}:a]atrim=0:${total.toFixed(2)},asetpts=PTS-STARTPTS,` +
+        `afade=t=in:st=0:d=${MUSIC.fadeIn},afade=t=out:st=${fadeAt}:d=${MUSIC.fadeOut},` +
+        `volume=${MUSIC.volume}[a]`;
+      audioMap = ["-map", "[a]", "-c:a", "aac", "-b:a", "160k", "-shortest"];
+    }
     execFileSync(ffmpeg, [
-      "-y", ...inputs, "-filter_complex", `${filters.join(";")};${concat}`, "-map", "[out]",
+      "-y", ...inputs, "-filter_complex", `${filters.join(";")};${concat}${audioFilter}`, "-map", "[out]",
+      ...audioMap,
       "-c:v", "libx264", "-preset", "medium", "-crf", "20", "-pix_fmt", "yuv420p",
       "-r", String(VIDEO.fps), "-movflags", "+faststart", // first frame is the blockiest stage, so the default cover cannot spoil it
       rel(outFile),
@@ -235,7 +252,7 @@ async function renderVariant({ V, L, B, stageBufs, revealBuf, outFile, gif, cate
       "-map", "[g]", "-loop", "0", rel(outFile),
     ], { cwd: HERE, stdio: ["ignore", "ignore", "pipe"] });
   }
-  return beats.reduce((s, b) => s + b.dur, 0);
+  return total;
 }
 
 // ── input ───────────────────────────────────────────────────────────────────
@@ -322,15 +339,26 @@ async function main() {
   const revealFull = await sharpImage(src, renderSize);
   const fit = (buf, size) => sharp(buf).resize(size, size, { kernel: "nearest" }).png().toBuffer();
 
+  // --music: a bare name resolves inside music/, or give a full path.
+  let music = arg("music");
+  if (music) {
+    const candidates = [music, path.join(HERE, "music", music), path.join(HERE, music)];
+    music = candidates.find((c) => fs.existsSync(c));
+    if (!music) {
+      console.error(`no such music file: ${arg("music")}\n  looked in ${path.join(HERE, "music")}\n  see music/README.md for where to get tracks you can legally use`);
+      process.exit(1);
+    }
+  }
+
   const base = `${date}-${slug(answer)}${PROMO_MODE ? "-promo" : ""}`;
   const outFile = path.join(OUT, `${base}.mp4`);
   const total = await renderVariant({
-    V: VIDEO, L: LAYOUT, B: BEATS, tag: "v", category, outFile, gif: false,
+    V: VIDEO, L: LAYOUT, B: BEATS, tag: "v", category, outFile, gif: false, music,
     stageBufs: await Promise.all(stages.map((b) => fit(b, LAYOUT.imageSize))),
     revealBuf: await fit(revealFull, LAYOUT.imageSize),
   });
   console.log(`video   ${outFile}`);
-  console.log(`length  ${total.toFixed(1)}s  ${VIDEO.width}x${VIDEO.height}  silent`);
+  console.log(`length  ${total.toFixed(1)}s  ${VIDEO.width}x${VIDEO.height}  ${music ? `music: ${path.basename(music)}` : "silent"}`);
 
   if (wantGif) {
     const gifFile = path.join(OUT, `${base}.gif`);
@@ -351,9 +379,15 @@ async function main() {
     `Did you get it? Play today's puzzle at ${COPY.ctaUrl}`, ``,
     category ? `Category: ${category}` : ``,
   ];
+  // Music credit is separate from image credit and often REQUIRED (Kevin MacLeod
+  // and most "free" libraries are CC-BY). Pass --music-credit "..." and it lands in
+  // the caption. The generator will not guess it: terms differ per track, and a
+  // wrong guess is worse than an obvious blank.
+  const musicCredit = arg("music-credit", "");
   const caption = [
     ...(PROMO_MODE ? PROMO.caption(pretty, category) : daily),
     credit ? `Image: ${credit}` : ``,
+    musicCredit ? `Music: ${musicCredit}` : ``,
     ``,
     PROMO_MODE
       ? `#picxle #puzzlegame #dailypuzzle #guessthepicture #brainteaser`

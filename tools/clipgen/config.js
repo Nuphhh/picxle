@@ -157,6 +157,17 @@ export const GIF_BEATS = {
   revealFlash: 0.2,
 };
 
+// --music. Drop a track in tools/clipgen/music/ and pass --music <file>.
+//
+// See music/README.md before you use anything: "copyright free" almost never means
+// no conditions. The track is looped if it is shorter than the clip, trimmed to
+// length, and faded out under the end card.
+export const MUSIC = {
+  volume: 0.8,   // 0..1 — there is no voiceover to duck under, so it can sit up
+  fadeOut: 1.6,  // seconds, ending on the last frame
+  fadeIn: 0.3,
+};
+
 // The game's SHARPNESS row, scaled up for video: five bars of ascending height that
 // fill as the picture resolves. Lifted from PicxleGame.jsx (width 20, heights
 // 8,11,14,17,20) so the clip shows the same progress cue as the real thing.

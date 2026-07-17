@@ -25,6 +25,8 @@ Writes `out/<date>-<slug>.mp4` (1080x1920, H.264, silent, ~14s) and a matching
 | `--category` | shown on the hook frame, e.g. `Landmarks` |
 | `--credit` | attribution line for the caption — **required for CC-BY images** |
 | `--date` | defaults to today; used for the output filename |
+| `--music <file>` | mix a track from `music/` into the mp4 (looped, trimmed, faded). See `music/README.md` |
+| `--music-credit "..."` | attribution line for the caption — **required for CC-BY tracks** (most "free" music) |
 | `--fast` | skip the browser and pixelate with sharp (see below) |
 
 ## Pixelation is the game's, exactly
