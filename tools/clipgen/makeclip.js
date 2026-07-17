@@ -224,14 +224,17 @@ async function renderVariant({ V, L, B, stageBufs, revealBuf, outFile, gif, cate
     // --music. Looped (-stream_loop) so a short track still covers the clip, trimmed
     // to length, and faded out under the end card. GIFs have no audio track at all,
     // so this is video-only.
-    const audio = [];
     let audioFilter = "", audioMap = [];
     if (music) {
-      inputs.push("-stream_loop", "-1", "-i", rel(music));
+      inputs.push("-stream_loop", "-1", "-i", rel(music.path));
       const idx = beats.length; // music is the input after every image
+      // --music-start skips into the track. Some tracks (Reawakening) open with a
+      // near-silent ambient build that leaves a 15s clip inaudible; start later where
+      // the track has presence.
+      const start = music.startAt || 0;
       const fadeAt = Math.max(0, total - MUSIC.fadeOut).toFixed(2);
       audioFilter =
-        `;[${idx}:a]atrim=0:${total.toFixed(2)},asetpts=PTS-STARTPTS,` +
+        `;[${idx}:a]atrim=${start.toFixed(2)}:${(start + total).toFixed(2)},asetpts=PTS-STARTPTS,` +
         `afade=t=in:st=0:d=${MUSIC.fadeIn},afade=t=out:st=${fadeAt}:d=${MUSIC.fadeOut},` +
         `volume=${MUSIC.volume}[a]`;
       audioMap = ["-map", "[a]", "-c:a", "aac", "-b:a", "160k", "-shortest"];
@@ -315,8 +318,23 @@ async function main() {
   fs.mkdirSync(TMP, { recursive: true });
   fs.mkdirSync(OUT, { recursive: true });
 
-  const src = await loadImage(image);
+  let src = await loadImage(image);
   const isFlag = category.toLowerCase() === "flag"; // the game letterboxes flags
+
+  // Cap the working resolution. Some puzzles use museum-scan originals — the
+  // Niagara Falls painting is an 80 MB, ~80-megapixel file — and the exact step
+  // feeds the source into headless Chrome as a base64 data URL, which hangs on
+  // anything that size. There is no visible cost to downscaling: the reveal shows
+  // at ~1000px and the pixelation feeds a 440px master. NOTE this means the exact
+  // pixelation is no longer byte-identical to the live game FOR oversized sources
+  // (the game downsamples from full res); for normal-sized images nothing changes.
+  const meta = await sharp(src, { limitInputPixels: false }).metadata();
+  if (Math.max(meta.width || 0, meta.height || 0) > 2400) {
+    src = await sharp(src, { limitInputPixels: false })
+      .resize(2400, 2400, { fit: "inside", withoutEnlargement: true })
+      .jpeg({ quality: 92 }).toBuffer();
+    console.log(`  capped source: ${meta.width}x${meta.height} -> fits 2400px`);
+  }
   const wantGif = process.argv.includes("--gif");
   const wantFast = process.argv.includes("--fast");
 
@@ -340,14 +358,16 @@ async function main() {
   const fit = (buf, size) => sharp(buf).resize(size, size, { kernel: "nearest" }).png().toBuffer();
 
   // --music: a bare name resolves inside music/, or give a full path.
+  // --music-start skips into the track (seconds) for tracks with a quiet intro.
   let music = arg("music");
   if (music) {
     const candidates = [music, path.join(HERE, "music", music), path.join(HERE, music)];
-    music = candidates.find((c) => fs.existsSync(c));
-    if (!music) {
-      console.error(`no such music file: ${arg("music")}\n  looked in ${path.join(HERE, "music")}\n  see music/README.md for where to get tracks you can legally use`);
+    const found = candidates.find((c) => fs.existsSync(c));
+    if (!found) {
+      console.error(`no such music file: ${music}\n  looked in ${path.join(HERE, "music")}\n  see music/README.md for where to get tracks you can legally use`);
       process.exit(1);
     }
+    music = { path: found, startAt: parseFloat(arg("music-start", "0")) || 0 };
   }
 
   const base = `${date}-${slug(answer)}${PROMO_MODE ? "-promo" : ""}`;
@@ -358,7 +378,7 @@ async function main() {
     revealBuf: await fit(revealFull, LAYOUT.imageSize),
   });
   console.log(`video   ${outFile}`);
-  console.log(`length  ${total.toFixed(1)}s  ${VIDEO.width}x${VIDEO.height}  ${music ? `music: ${path.basename(music)}` : "silent"}`);
+  console.log(`length  ${total.toFixed(1)}s  ${VIDEO.width}x${VIDEO.height}  ${music ? `music: ${path.basename(music.path)}${music.startAt ? ` @${music.startAt}s` : ""}` : "silent"}`);
 
   if (wantGif) {
     const gifFile = path.join(OUT, `${base}.gif`);
