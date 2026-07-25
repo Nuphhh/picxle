@@ -395,7 +395,10 @@ async function main() {
 
   const native = variant === "native";
   const mode = { reveal: wantReveal, native, gif: false };
-  const base = `${date}-${slug(answer)}${PROMO_MODE ? "-promo" : ""}-${variant}`;
+  // --suffix lets two renders of the same puzzle coexist (e.g. a silent TikTok cut
+  // and a music-baked YT/IG/FB cut) instead of overwriting each other.
+  const suffix = arg("suffix", "");
+  const base = `${date}-${slug(answer)}${PROMO_MODE ? "-promo" : ""}-${variant}${suffix ? `-${slug(suffix)}` : ""}`;
   const outFile = path.join(OUT, `${base}.mp4`);
   const vStages = await Promise.all(stages.map((b) => fit(b, LAYOUT.imageSize)));
   const total = await renderVariant({

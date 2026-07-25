@@ -30,6 +30,7 @@ matching `.txt` caption. Every render is checked before it's accepted (see below
 | `--music-credit "..."` | caption attribution — **required for CC-BY tracks** (most "free" music) |
 | `--music-start <sec>` | skip into a track with a quiet intro |
 | `--silent` | force no audio even if `--music` is given |
+| `--suffix <tag>` | append `-<tag>` to the filename so two cuts of one puzzle coexist — e.g. a silent TikTok cut and a `--suffix music` cut for YT/IG/FB — instead of overwriting |
 | `--gif` | also emit a square looping GIF (full reveal — the loop is the second look) |
 | `--fast` | skip the browser and pixelate with sharp (see below) |
 
