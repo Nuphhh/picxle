@@ -52,6 +52,10 @@ export const COPY = {
   guessLabel: (n, total) => `GUESS ${n}/${total}`,
   pause: "PAUSE IF YOU KNOW IT",
   revealKicker: "YESTERDAY'S PICXLE",
+  // The default (no-reveal) ending. No emoji in the video text — the bundled fonts
+  // have no 👇 glyph, so a downward chevron is drawn as vector instead; the caption
+  // keeps the emoji.
+  commentCTA: "Answer in the comments",
   // End card. Answer text is deliberately NOT drawn on the reveal frame: platforms
   // often lift a late frame as the grid thumbnail, which would spoil the puzzle in
   // the feed before anyone taps — and leaving it unsaid is what makes people
@@ -90,24 +94,42 @@ export const PROMO = {
 
 // Beat timings in seconds.
 //
-// The holds ACCELERATE. Every stage previously held for the same 1.6s, which beat
-// like a metronome and was the real reason the clip felt flat — not a shortage of
-// effects. A long dwell on stage 1 gives people time to actually look and commit to
-// a guess; each stage after that is shorter, so the clip gathers pace and pulls
-// into the reveal.
+// The holds ACCELERATE — a long dwell on the first stage, tightening after — so the
+// clip gathers pace instead of ticking like a metronome.
+//
+// TikTok target (the DEFAULT) does NOT reveal the answer: it plays the first stages
+// and holds on the last pixelated one with a "comment your guess" prompt. Stopping
+// short is what pushes people into the comments and keeps completion-rate high — a
+// full reveal + logo card is dead air at the exact point TikTok measures whether
+// they watched to the end. --reveal restores the full pause + reveal + end card.
 export const BEATS = {
-  hook: 2.8,                       // stage 1 — longest hold: this is where they decide to stay
-  stages: [1.7, 1.5, 1.35, 1.2],   // stages 2..5, tightening
-  pause: 1.5,                      // "pause if you know it", on the last pixelated stage
-  reveal: 2.8,                     // fully sharp, no answer text
-  endCard: 2.0,
+  hook: 3.0,                       // first (blockiest) stage — longest hold; frame 0 is already full
+  stages: [1.9, 1.7, 1.5, 1.3],    // sharpen transitions, tightening
+  finalHold: 3.0,                  // DEFAULT ending: held on the last pixelated stage with the comment CTA
+  pause: 1.5,                      // --reveal only: "pause if you know it"
+  reveal: 2.8,                     // --reveal only: fully sharp, no answer text
+  endCard: 2.0,                    // --reveal only
 
-  // Each beat opens with a quick flash, mirroring the game's own canvas flash on
-  // sharpen. A cross-dissolve would blend the pixel blocks into mush, and the hard
-  // blocks ARE the brand — so the punch comes from a flash, never a blend.
-  flash: 0.10,
-  revealFlash: 0.22,               // the payoff gets a bigger one
+  // Each sharpen opens with a quick flash, mirroring the game's own canvas flash. A
+  // cross-dissolve would blend the pixel blocks into mush, and the hard blocks ARE
+  // the brand — so the punch is a flash, never a blend. The HOOK beat gets flash 0:
+  // frame 0 must already contain the puzzle, or TikTok shows a blank opening and
+  // kills the hook.
+  flash: 0.09,
+  revealFlash: 0.2,
 };
+
+// H.264 export tuned for platform upload. Bitrate-based (not CRF) so the source
+// TikTok re-encodes from is high quality; high profile / level 4.0 for broad
+// compatibility. Prefer H.264 over HEVC — some upload paths choke on HEVC.
+export const ENCODE = {
+  bitrate: "10M", maxrate: "12M", bufsize: "16M",
+  profile: "high", level: "4.0",
+};
+
+// loudnorm target when audio is baked in (platform norm ≈ -14 LUFS). Most posts go
+// out SILENT so sound can be added natively in TikTok; this only applies to --music.
+export const LOUDNORM = "loudnorm=I=-14:LRA=11:TP=-1.0";
 
 // Layout of the 1080x1920 frame.
 //
