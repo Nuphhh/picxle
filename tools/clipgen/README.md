@@ -34,6 +34,33 @@ matching `.txt` caption. Every render is checked before it's accepted (see below
 | `--gif` | also emit a square looping GIF (full reveal — the loop is the second look) |
 | `--fast` | skip the browser and pixelate with sharp (see below) |
 
+## Posting to Buffer (YouTube + Instagram + Facebook)
+
+`queue-to-buffer.mjs` schedules the **music cuts** (`*-standard-music.mp4`) to Buffer,
+one day behind the puzzle date. It uploads each mp4 to a public Supabase Storage bucket
+(Buffer pulls video by URL), books a post on each connected channel, and attaches the
+**answer as the first comment on Instagram + Facebook** automatically. YouTube has no
+comment API, so the script prints the exact comment text for you to paste + **pin** by
+hand. TikTok is not handled here — it stays manual so a trending in-app sound can be added.
+
+```bash
+node queue-to-buffer.mjs                 # dry run — prints the plan, writes nothing
+node queue-to-buffer.mjs --commit        # upload + schedule for real
+node queue-to-buffer.mjs --commit --glob '2026-07-25-*-standard-music.mp4'   # one clip
+```
+
+| flag | |
+|---|---|
+| `--commit` | actually upload + schedule (default is a dry run) |
+| `--time HH:MM` | post time in **UTC** (default 17:00) |
+| `--glob <pat>` | which clips to queue (default `*-standard-music.mp4`) |
+| `--force` | re-book even if the ledger says it's already scheduled |
+
+Needs `BUFFER_ACCESS_TOKEN` + the Supabase keys in `../../.env.local`. A ledger at
+`out/.buffer-queued.json` records what's booked so re-runs never double-post. The first
+`--commit` is the real test of the `createPost` call — **book one clip first**, check it
+in Buffer's calendar (video, caption, first comment, date), then queue the rest.
+
 ## Acceptance checks (automatic, every render)
 
 The render is rejected unless: **1080x1920 h264 ~30fps**; duration **10–20s**; frame 0
