@@ -71,6 +71,9 @@ const has = (f) => argv.includes(f);
 const opt = (f, d = null) => { const i = argv.indexOf(f); return i > -1 && argv[i + 1] ? argv[i + 1] : d; };
 const COMMIT = has("--commit");
 const FORCE = has("--force");
+// Buffer's API only attaches a first comment on a PAID plan. On the free plan we
+// schedule without it and print the answer for manual posting. Flip on once upgraded.
+const AUTO_COMMENT = has("--auto-comment");
 const TIME = opt("--time", POST_TIME_UTC_DEFAULT);
 const GLOB = opt("--glob", "*-standard-music.mp4");
 
@@ -136,11 +139,13 @@ async function uploadClip(localPath, objectName) {
 }
 
 // Build the per-channel metadata block (only the network the channel belongs to).
-function metadataFor(service, { text, commentText, category }) {
+// firstComment is only sent when --auto-comment is on (it needs a paid Buffer plan).
+function metadataFor(service, { commentText, category }) {
+  const fc = AUTO_COMMENT ? `, firstComment: ${gqlEsc(commentText)}` : "";
   if (service === "instagram")
-    return `instagram: { type: ${CHANNELS.instagram.type}, shouldShareToFeed: true, firstComment: ${gqlEsc(commentText)} }`;
+    return `instagram: { type: ${CHANNELS.instagram.type}, shouldShareToFeed: true${fc} }`;
   if (service === "facebook")
-    return `facebook: { type: ${CHANNELS.facebook.type}, firstComment: ${gqlEsc(commentText)} }`;
+    return `facebook: { type: ${CHANNELS.facebook.type}${fc} }`;
   if (service === "youtube")
     return `youtube: { title: ${gqlEsc(ytTitle(category))}, categoryId: ${gqlEsc(YT_CATEGORY_ID)}, madeForKids: false }`;
   return "";
@@ -192,7 +197,8 @@ async function main() {
 
   const ledger = readLedger();
   const now = Date.now();
-  const ytPins = [];
+  const manualComments = [];
+  const failures = [];
   let booked = 0;
 
   for (const file of files) {
@@ -224,28 +230,38 @@ async function main() {
       const key = `${puzzleDate}|${service}`;
       if (ledger[key] && !FORCE) { console.log(`   ${service.padEnd(9)} already booked (ledger) — skip`); continue; }
 
-      if (!COMMIT) {
-        console.log(`   ${service.padEnd(9)} would schedule ${service === "youtube" ? "(comment: manual pin)" : "+ auto-comment"}`);
-        continue;
+      const commentNote = AUTO_COMMENT && service !== "youtube" ? "+ auto-comment" : "(comment: manual)";
+      if (!COMMIT) { console.log(`   ${service.padEnd(9)} would schedule ${commentNote}`); continue; }
+
+      // upload once per clip, lazily; one channel's failure must not abort the batch
+      try {
+        if (!videoUrl) videoUrl = await uploadClip(path.join(OUT, file), file);
+        const post = await schedulePost({
+          service, channelId: byService[service].id, text, videoUrl, dueAtISO, commentText, category: puz.category,
+        });
+        ledger[key] = { postId: post.id, dueAt: post.dueAt, at: new Date().toISOString() };
+        fs.writeFileSync(LEDGER, JSON.stringify(ledger, null, 2));
+        console.log(`   ${service.padEnd(9)} ✓ scheduled  (post ${post.id})`);
+        booked++;
+      } catch (e) {
+        failures.push(`${postDate} ${service}: ${e.message}`);
+        console.log(`   ${service.padEnd(9)} ✗ ${e.message}`);
       }
-      // upload once per clip, lazily
-      if (!videoUrl) videoUrl = await uploadClip(path.join(OUT, file), file);
-      const post = await schedulePost({
-        service, channelId: byService[service].id, text, videoUrl, dueAtISO, commentText, category: puz.category,
-      });
-      ledger[key] = { postId: post.id, dueAt: post.dueAt, at: new Date().toISOString() };
-      fs.writeFileSync(LEDGER, JSON.stringify(ledger, null, 2));
-      console.log(`   ${service.padEnd(9)} ✓ scheduled  (post ${post.id})`);
-      booked++;
     }
-    // YouTube can't auto-comment — collect the text to pin by hand
-    if (targets.includes("youtube")) ytPins.push({ postDate, answerPretty, commentText });
+    // Comments that must be posted by hand: YouTube always; IG/FB too unless auto-comment.
+    const manual = AUTO_COMMENT ? ["youtube"] : [...targets];
+    if (manual.length) manualComments.push({ postDate, platforms: manual, commentText });
     console.log("");
   }
 
-  if (ytPins.length) {
-    console.log("── YouTube: paste + PIN this comment when each Short is live ──");
-    for (const p of ytPins) console.log(`  ${p.postDate}  →  ${p.commentText}`);
+  if (manualComments.length) {
+    console.log("── Post these comments by hand when live (YouTube: also PIN it) ──");
+    for (const p of manualComments) console.log(`  ${p.postDate}  [${p.platforms.join("/")}]  ${p.commentText}`);
+    console.log("");
+  }
+  if (failures.length) {
+    console.log("── FAILURES (not booked; safe to re-run) ──");
+    for (const f of failures) console.log(`  ✗ ${f}`);
     console.log("");
   }
   console.log(COMMIT ? `Done. ${booked} post(s) scheduled.` : "Dry run complete — re-run with --commit to schedule.");
