@@ -40,7 +40,12 @@ const LICENSE_LINKS = {
 
 async function getCredits() {
   try {
-    const res = await supabaseFetch("puzzles?select=image_src,license,attribution");
+    // Only puzzles whose day is OVER. Source links are image addresses, and those
+    // usually name the answer ("Axolotl.jpg") — listing today's or upcoming
+    // puzzles here handed out answers in advance. Today's image is credited on the
+    // results screen instead, and appears here from tomorrow.
+    const today = new Date().toISOString().slice(0, 10);
+    const res = await supabaseFetch(`puzzles?puzzle_date=lt.${today}&select=image_src,license,attribution`);
     if (!res.ok) return [];
     const rows = await res.json();
     // de-dupe by image so a repeated source is credited once
@@ -103,6 +108,10 @@ export default async function Credits() {
         Public-domain and CC0 images carry no conditions; CC&nbsp;BY images are used
         with credit to their authors below. Each “source” link opens the original
         file, where the full licence and author details live.
+      </p>
+      <p style={{ fontSize: 14, color: dim }}>
+        So nothing gets spoiled, puzzles are listed here once their day is over.
+        Today&apos;s image is credited on the results screen when you finish.
       </p>
       <p style={{ fontSize: 14, color: dim }}>
         Licences:{" "}

@@ -17,14 +17,14 @@ export async function GET(request) {
     return Response.json({ error: "Missing or invalid puzzleId." }, { status: 400 });
   }
 
-  const res = await supabaseFetch(`puzzles?id=eq.${puzzleId}&select=answer,puzzle_date`);
+  const res = await supabaseFetch(`puzzles?id=eq.${puzzleId}&select=answer,puzzle_date,license,attribution`);
   const rows = await res.json();
 
   if (!Array.isArray(rows) || rows.length === 0) {
     return Response.json({ error: "Not found." }, { status: 404 });
   }
 
-  const { answer, puzzle_date } = rows[0];
+  const { answer, puzzle_date, license, attribution } = rows[0];
   const dayIsOver = puzzle_date < todayUtc(); // "YYYY-MM-DD" strings compare correctly
 
   if (!dayIsOver) {
@@ -34,5 +34,8 @@ export async function GET(request) {
     }
   }
 
-  return Response.json({ answer });
+  // The image credit travels with the answer: a few attributions name the
+  // subject, and CC-BY needs the credit shown where the image is shown — the
+  // results screen. (The credits page only lists puzzles whose day is over.)
+  return Response.json({ answer, license, attribution });
 }

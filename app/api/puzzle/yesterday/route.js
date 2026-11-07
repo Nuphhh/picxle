@@ -8,8 +8,9 @@ export async function GET() {
   d.setUTCDate(d.getUTCDate() - 1);
   const yesterday = d.toISOString().slice(0, 10);
 
+  // No image_src / attribution — same reason as today/route.js.
   const res = await supabaseFetch(
-    `puzzles?puzzle_date=eq.${yesterday}&select=id,puzzle_date,image_src,category,license,attribution`
+    `puzzles?puzzle_date=eq.${yesterday}&select=id,puzzle_date,category,license`
   );
   const rows = await res.json();
 

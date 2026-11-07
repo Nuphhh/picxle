@@ -34,6 +34,10 @@ const C = {
 // would happily accept and be told it isn't a word.
 const norm = normaliseGuess;
 
+// Images load through our own server, by puzzle ID only. The real file address
+// usually contains the answer ("Axolotl.jpg"), so it never reaches the browser.
+const puzzleImageUrl = (p) => apiUrl(`/api/puzzle/image?puzzleId=${p.id}`);
+
 // The guess API needs an ID to count guesses against. If storage is blocked
 // (private mode etc.) fall back to one that lasts for this page load.
 let sessionPlayerId = null;
@@ -79,6 +83,8 @@ export default function PicxleGame() {
   const [countdown, setCountdown] = useState("");
   const [hintOpen, setHintOpen] = useState(false);
   const [revealedAnswer, setRevealedAnswer] = useState(null);
+  // Image credit ("Rossysphotos, CC BY 4.0"), sent with the answer once finished.
+  const [imageCredit, setImageCredit] = useState(null);
   const [stats, setStats] = useState(null);
   const [playerStreak, setPlayerStreak] = useState(null);
   const [statsOpen, setStatsOpen] = useState(false);
@@ -149,6 +155,7 @@ export default function PicxleGame() {
     setGuesses([]);
     setStatus("playing");
     setRevealedAnswer(null);
+    setImageCredit(null);
     setStats(null);
     setPlayerStreak(null);
     animatedRowIndices.current.clear();
@@ -185,6 +192,7 @@ export default function PicxleGame() {
     setGuesses([]);
     setStatus("playing");
     setRevealedAnswer(null);
+    setImageCredit(null);
     setStats(null);
     setPlayerStreak(null);
     setStatsOpen(false);
@@ -238,7 +246,10 @@ export default function PicxleGame() {
     if (status === "playing" || !puzzle) return;
     fetch(apiUrl(`/api/puzzle/reveal?puzzleId=${puzzle.id}&playerId=${getPlayerId()}`))
       .then((r) => r.json())
-      .then((data) => setRevealedAnswer(data.answer ?? null))
+      .then((data) => {
+        setRevealedAnswer(data.answer ?? null);
+        setImageCredit(data.attribution ?? null);
+      })
       .catch(() => {});
   }, [status, puzzle]);
 
@@ -300,7 +311,7 @@ export default function PicxleGame() {
     srcRef.current = null;
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src = puzzle.image_src;
+    img.src = puzzleImageUrl(puzzle);
     img.onload = () => {
       const s = document.createElement("canvas");
       s.width = 440; s.height = 440;
@@ -812,7 +823,7 @@ export default function PicxleGame() {
 
             <div style={{ maxHeight: "90vh", overflowY: "auto" }}>
               <div style={{ width: "100%", height: "min(55vw, 220px)", overflow: "hidden" }}>
-                <img src={puzzle.image_src} alt="today's puzzle" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <img src={puzzleImageUrl(puzzle)} alt="today's puzzle" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
 
               {revealedAnswer && (
@@ -821,6 +832,15 @@ export default function PicxleGame() {
                   <span style={{ color: C.cream, fontWeight: 700, textTransform: "uppercase", letterSpacing: "1px" }}>
                     {revealedAnswer}
                   </span>
+                </p>
+              )}
+
+              {/* CC-BY needs a credit where the image is shown. The credits page
+                  only lists a puzzle once its day is over, so today's lives here. */}
+              {imageCredit && (
+                <p style={{ textAlign: "center", margin: "4px 20px 0", fontSize: 11, color: C.creamDim }}>
+                  Image: {imageCredit} ·{" "}
+                  <a href="/credits" style={{ color: C.creamDim }}>credits</a>
                 </p>
               )}
 
