@@ -43,6 +43,12 @@ one day behind the puzzle date. It uploads each mp4 to a public Supabase Storage
 comment API, so the script prints the exact comment text for you to paste + **pin** by
 hand. TikTok is not handled here — it stays manual so a trending in-app sound can be added.
 
+Each post gets a **YouTube title** (set via the API) and **description hashtags** (from the
+caption). Buffer's API has **no field for YouTube's Studio Tags box**, so the script prints a
+paste-ready tag list per video — including the *answer* keyword, which is safe because the
+Tags box is hidden from viewers (the caption can't carry it without spoiling the puzzle).
+Drop it into Studio → Settings → Tags after each Short publishes.
+
 ```bash
 node queue-to-buffer.mjs                 # dry run — prints the plan, writes nothing
 node queue-to-buffer.mjs --commit        # upload + schedule for real
@@ -52,7 +58,7 @@ node queue-to-buffer.mjs --commit --glob '2026-07-25-*-standard-music.mp4'   # o
 | flag | |
 |---|---|
 | `--commit` | actually upload + schedule (default is a dry run) |
-| `--time HH:MM` | post time in **UTC** (default 17:00) |
+| `--time HH:MM` | post time in the **account timezone** (Europe/London; default 11:00 = the daily slot) |
 | `--glob <pat>` | which clips to queue (default `*-standard-music.mp4`) |
 | `--force` | re-book even if the ledger says it's already scheduled |
 

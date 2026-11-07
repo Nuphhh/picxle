@@ -45,6 +45,20 @@ mechanic is **the image resolving as you fail.**
 - **Phase 4 — Mobile app** via Capacitor.
 
 ## Critical design constraints
+- **LIGHT MODE ONLY for anything you create.** Every Picxle asset — promo
+  videos, social clips, screenshots, store listings, mockups, and the
+  backgrounds they sit on — uses the light cream theme. Never build in dark
+  mode, and never switch to dark to "improve contrast".
+  - The token names read **backwards** and this is the trap: `--ink #faf6ef`
+    is the light BACKGROUND and `--cream #1c1208` is the dark TEXT. Taking
+    `--cream` at face value as a background colour produces a dark build.
+  - The theme default is `"system"` (see `lib/theme.js`), which follows the
+    OS. When capturing the live app, force it: set
+    `localStorage["picxle-theme"] = "light"` before app code runs and emulate
+    `prefers-color-scheme: light`. Leaving it to the default produces a dark
+    capture on a dark-mode machine.
+  - `tools/clipgen/config.js` already does this correctly — copy its palette
+    rather than re-deriving one.
 - **Never ship the plaintext answer to the browser.** Check guesses
   server-side, or send only a hashed answer. (Deferred until Phase 2; fine
   to use a local file in Phase 1.)

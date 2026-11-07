@@ -55,7 +55,15 @@ export const COPY = {
   // The default (no-reveal) ending. No emoji in the video text — the bundled fonts
   // have no 👇 glyph, so a downward chevron is drawn as vector instead; the caption
   // keeps the emoji.
-  commentCTA: "Answer in the comments",
+  // THE ASK MUST ASK THEM TO WRITE — IT MUST NEVER PROMISE A REPLY.
+  // This used to read "Answer in the comments", which a viewer reads as "the answer is
+  // already down there". It is not: Buffer's firstComment is a PAID feature on this
+  // account, so nothing posts it unattended and the post reads as abandoned. The
+  // Sept 2026 timing test ran the asking form on all nine clips and took 13 comments
+  // across 9 posts against 3 across 10 in August. Do not "tidy" this back to one line.
+  // Two lines because the full phrase overflows 1080px at display ExtraBold 60.
+  commentCTA: "Leave your answer",
+  commentCTA2: "in the comments",
   // End card. Answer text is deliberately NOT drawn on the reveal frame: platforms
   // often lift a late frame as the grid thumbnail, which would spoil the puzzle in
   // the feed before anyone taps — and leaving it unsaid is what makes people
@@ -103,7 +111,13 @@ export const PROMO = {
 // full reveal + logo card is dead air at the exact point TikTok measures whether
 // they watched to the end. --reveal restores the full pause + reveal + end card.
 export const BEATS = {
-  hook: 3.0,                       // first (blockiest) stage — longest hold; frame 0 is already full
+  // First (blockiest) stage — still the longest hold, but only just. A viewer decides
+  // whether to keep watching at roughly 1.7s, and at 3.0s NOTHING MOVED until well
+  // after that: the first sharpen landed outside the window that decides watch time.
+  // 2.0 puts the first flash+sharpen just inside it. Do not go below ~1.9 — the hold
+  // has to stay longer than stages[0] or the clip opens tighter than it continues,
+  // which reads as a stutter rather than as gathering pace.
+  hook: 2.0,                       // frame 0 is already full — see the flash note below
   stages: [1.9, 1.7, 1.5, 1.3],    // sharpen transitions, tightening
   finalHold: 3.0,                  // DEFAULT ending: held on the last pixelated stage with the comment CTA
   pause: 1.5,                      // --reveal only: "pause if you know it"
@@ -117,6 +131,31 @@ export const BEATS = {
   // kills the hook.
   flash: 0.09,
   revealFlash: 0.2,
+};
+
+// Multi-subject "gauntlet" clips: the SPEED ROUND (five mixed subjects) and the
+// CATEGORY RUN (five from one category).
+//
+// This is a genuinely different format from the daily, not a re-cut of it. The daily
+// teases ONE subject across five sharpens and deliberately never resolves it. A gauntlet
+// fires through FIVE subjects and answers each one on the spot.
+//
+// The per-subject reveal is the whole point. Withholding the answer works once, at the
+// end of a slow clip, where it converts into a comment. Withholding it five times in
+// eighteen seconds just reads as a cheat, and there is nowhere to put five answers that
+// a viewer could match back to five images. Resolving each one immediately also gives
+// the clip its rhythm: guess, snap, guess, snap.
+export const GAUNTLET = {
+  subjects: 5,
+  resIndex: [0, 2],   // into RES_STEPS: 8x8, then 19x19 — one sharpen per subject, not four
+  blocky: 1.15,       // hold on the 8x8 — the guess window
+  mid: 1.15,          // hold on the 19x19 — the "oh, it's…" window
+  answer: 0.95,       // sharp image + the name. Short: the payoff reads instantly
+  endCard: 1.8,
+  flash: 0.09,
+  revealFlash: 0.2,
+  // 5 x (1.15 + 1.15 + 0.95) + 1.8 = 18.05s. Deliberately under 20s — Reels and Shorts
+  // both measure completion, and five subjects is already the most a viewer will track.
 };
 
 // H.264 export tuned for platform upload. Bitrate-based (not CRF) so the source

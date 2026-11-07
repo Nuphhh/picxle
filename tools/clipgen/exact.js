@@ -80,7 +80,11 @@ export async function exactStages(srcBuf, resSteps, { isFlag = false } = {}) {
 
     await send("Runtime.enable");
 
-    const dataUrl = `data:image/jpeg;base64,${srcBuf.toString("base64")}`;
+    // Chrome sniffs past a wrong label between raster formats, but it will not decode SVG
+    // labelled as JPEG, and flags are SVG. Mislabelled, they drop to the sharp fallback,
+    // which crops the flag instead of letterboxing it the way the game does.
+    const isSvg = /<svg[\s>]/.test(srcBuf.subarray(0, 1024).toString("latin1"));
+    const dataUrl = `data:${isSvg ? "image/svg+xml" : "image/jpeg"};base64,${srcBuf.toString("base64")}`;
 
     // This is the game's pipeline verbatim (components/PicxleGame.jsx):
     //   source -> 440px master (centre-crop; letterbox for flags), smoothing high

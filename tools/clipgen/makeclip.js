@@ -26,17 +26,20 @@ import {
 } from "./config.js";
 import { exactStages } from "./exact.js";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const TMP = path.join(HERE, "tmp");
-const OUT = path.join(HERE, "out");
-const rel = (f) => path.relative(HERE, f).replace(/\\/g, "/");
-const ff = (args) => { const r = spawnSync(ffmpeg, args, { cwd: HERE }); return (r.stderr?.toString() || "") + (r.stdout?.toString() || ""); };
+// Exported (below) so sibling generators — makegauntlet.js — compose frames with the
+// EXACT same primitives. A second copy of the frame/footer/end-card code would drift,
+// and two clip formats that don't look like the same brand is worse than the coupling.
+export const HERE = path.dirname(fileURLToPath(import.meta.url));
+export const TMP = path.join(HERE, "tmp");
+export const OUT = path.join(HERE, "out");
+export const rel = (f) => path.relative(HERE, f).replace(/\\/g, "/");
+export const ff = (args) => { const r = spawnSync(ffmpeg, args, { cwd: HERE }); return (r.stderr?.toString() || "") + (r.stdout?.toString() || ""); };
 
 const PROMO_MODE = process.argv.includes("--promo");
 const COPY = PROMO_MODE ? { ...BASE_COPY, ...PROMO } : BASE_COPY;
 
 // ── the game's pixelation ────────────────────────────────────────────────────
-const RES_STEPS = [8, 12, 19, 29, 45];
+export const RES_STEPS = [8, 12, 19, 29, 45];
 const MASTER = 440;
 
 async function stageImage(srcBuf, res, size) {
@@ -46,19 +49,19 @@ async function stageImage(srcBuf, res, size) {
   const small = await sharp(master).resize(res, res, { fit: "fill" }).toBuffer();
   return sharp(small).resize(size, size, { kernel: "nearest" }).png().toBuffer();
 }
-async function exactStageImages(srcBuf, size, isFlag) {
+export async function exactStageImages(srcBuf, size, isFlag) {
   const stages = await exactStages(srcBuf, RES_STEPS, { isFlag });
   return Promise.all(stages.map(({ res, rgb }) =>
     sharp(rgb, { raw: { width: res, height: res, channels: 3 } })
       .resize(size, size, { kernel: "nearest" }).png().toBuffer()));
 }
-const sharpImage = (srcBuf, size) =>
+export const sharpImage = (srcBuf, size) =>
   sharp(srcBuf, { limitInputPixels: false })
     .resize(size, size, { fit: "cover", position: "centre" }).png().toBuffer();
 
 // ── text (ffmpeg drawtext — see endCardText for why NOT SVG glyph paths) ─────
-const esc = (s) => String(s).replace(/'/g, "’").replace(/([:\\%])/g, "\\$1");
-function drawtext({ text, font, size, colour, y, x = "(w-text_w)/2", scrim = false }) {
+export const esc = (s) => String(s).replace(/'/g, "’").replace(/([:\\%])/g, "\\$1");
+export function drawtext({ text, font, size, colour, y, x = "(w-text_w)/2", scrim = false }) {
   const parts = [
     `text='${esc(text)}'`, `fontfile=${font}`, `fontsize=${size}`,
     `fontcolor=${colour}`, `x=${x}`, `y=${y}`,
@@ -66,13 +69,13 @@ function drawtext({ text, font, size, colour, y, x = "(w-text_w)/2", scrim = fal
   if (scrim) parts.push(`box=1`, `boxcolor=${COLOUR.bg}@${LAYOUT.scrimOpacity}`, `boxborderw=26`);
   return `drawtext=${parts.join(":")}`;
 }
-const loadFont = (r) => opentype.parse(fs.readFileSync(path.join(HERE, r)).buffer);
+export const loadFont = (r) => opentype.parse(fs.readFileSync(path.join(HERE, r)).buffer);
 
 // ── frame composition ───────────────────────────────────────────────────────
-const roundedMask = (size, r) =>
+export const roundedMask = (size, r) =>
   Buffer.from(`<svg width="${size}" height="${size}"><rect width="${size}" height="${size}" rx="${r}" ry="${r}" fill="#fff"/></svg>`);
 
-function sharpnessBars(V, L, filledUpTo, done) {
+export function sharpnessBars(V, L, filledUpTo, done) {
   const { width: bw, gap, heights } = BARS;
   const total = heights.length * bw + (heights.length - 1) * gap;
   let x = (V.width - total) / 2;
@@ -85,7 +88,7 @@ function sharpnessBars(V, L, filledUpTo, done) {
   }).join("");
 }
 
-async function frame(V, L, imageBuf, file, { stage = null, done = false, cta = false } = {}) {
+export async function frame(V, L, imageBuf, file, { stage = null, done = false, cta = false } = {}) {
   const panel = await sharp(imageBuf)
     .composite([{ input: roundedMask(L.imageSize, L.cornerRadius), blend: "dest-in" }])
     .png().toBuffer();
@@ -106,7 +109,7 @@ async function frame(V, L, imageBuf, file, { stage = null, done = false, cta = f
     .png().toFile(file);
 }
 
-function footerText(V, L) {
+export function footerText(V, L) {
   const mono = loadFont(FONT.mono);
   const size = V.height > 1500 ? 30 : 26;
   const cell = mono.getAdvanceWidth("M", size);
@@ -124,8 +127,8 @@ function footerText(V, L) {
 
 // End card — wordmark as three positioned drawtext calls (opentype for metrics only;
 // SVG glyph paths mangle under librsvg). --reveal / GIF only.
-function endCardGeometry(V) { return { markSize: V.height > 1500 ? 150 : 118, markY: Math.round(V.height * 0.46) }; }
-function endCardText(V) {
+export function endCardGeometry(V) { return { markSize: V.height > 1500 ? 150 : 118, markY: Math.round(V.height * 0.46) }; }
+export function endCardText(V) {
   const { markSize, markY } = endCardGeometry(V);
   const d = loadFont(FONT.display);
   const wPic = d.getAdvanceWidth("PIC", markSize), wX = d.getAdvanceWidth("X", markSize), wLe = d.getAdvanceWidth("LE", markSize);
@@ -138,7 +141,7 @@ function endCardText(V) {
     drawtext({ text: COPY.ctaUrl, font: FONT.mono, size: markSize * 0.28, colour: COLOUR.blue, y: String(markY + markSize * 1.33) }),
   ];
 }
-async function endCardFrame(V, file) {
+export async function endCardFrame(V, file) {
   const { markSize, markY } = endCardGeometry(V);
   const svg = `<svg width="${V.width}" height="${V.height}" xmlns="http://www.w3.org/2000/svg">
     <defs><radialGradient id="g" cx="50%" cy="46%" r="60%">
@@ -161,6 +164,26 @@ function buildBeats({ frames, revealFile, endFile, ctaFile, B, L, V, category, m
   const catLabel = native || !category ? null
     : drawtext({ text: `${COPY.categoryPrefix}: ${category.toUpperCase()}`, font: FONT.mono, size: big ? 34 : 26, colour: COLOUR.blue, y: String(L.categoryY) });
   const kicker = (text, colour) => native ? null : drawtext({ text, font: FONT.mono, size: big ? 38 : 28, colour, y: String(L.categoryY) });
+  // The comment CTA is TWO lines — "Leave your answer / in the comments" does not fit on one
+  // at display ExtraBold 60 (see COPY.commentCTA).
+  //
+  // THE BLOCK IS LIFTED BY HALF A LINE, and that is the whole trick. frame() draws the blue
+  // chevron at a FIXED y (categoryY + 4 = 304) because it used to sit under a single line at
+  // titleY. Left alone, line 2 lands at 261 with a ~72px box and the chevron is drawn straight
+  // through the word "comments". Raising the pair by 0.55 of a line puts the two of them in the
+  // same optical band the one line occupied, so the chevron clears the descenders with ~10px
+  // to spare and nothing in frame() has to know the CTA got longer.
+  //
+  // 1.18 leading is measured off the rendered glyph box, not the nominal point size; at 1.0 the
+  // descenders of line 1 touch the caps of line 2.
+  const ctaLines = (size) => {
+    if (native) return [];
+    const px = big ? size : Math.round(size * 0.72);
+    const lead = Math.round(px * 1.18);
+    const top = L.titleY - Math.round(lead * 0.55);
+    return [COPY.commentCTA, COPY.commentCTA2].map((text, i) =>
+      drawtext({ text, font: FONT.display, size: px, colour: COLOUR.text, y: String(top + i * lead) }));
+  };
   const T = (...items) => items.filter(Boolean).concat(footer);
 
   // HOOK: flash 0 so frame 0 already contains the puzzle + prompt + category. A
@@ -191,7 +214,7 @@ function buildBeats({ frames, revealFile, endFile, ctaFile, B, L, V, category, m
     hook, ...stageBeats(3),
     {
       file: native ? frames[4] : ctaFile, dur: B.finalHold, flash: B.flash,
-      texts: native ? [] : T(title(COPY.commentCTA, 60)),
+      texts: native ? [] : T(...ctaLines(60)),
     },
   ];
 }
@@ -263,7 +286,7 @@ async function renderVariant({ V, L, B, stageBufs, revealBuf, outFile, category,
 }
 
 // ── acceptance checks (run on every rendered mp4) ────────────────────────────
-async function frameStddev(outFile, seek) {
+export async function frameStddev(outFile, seek) {
   const tmp = path.join(TMP, `probe-${Date.now()}.png`);
   ff([...seek, "-i", rel(outFile), "-frames:v", "1", "-y", rel(tmp)]);
   if (!fs.existsSync(tmp)) return 0;
@@ -310,13 +333,27 @@ function arg(name, fallback = null) {
 }
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-async function loadImage(src) {
-  if (/^https?:/.test(src)) {
-    const res = await fetch(src, { headers: { "User-Agent": "PicxleClipgen/1.0" } });
-    if (!res.ok) throw new Error(`could not fetch image: HTTP ${res.status}`);
-    return Buffer.from(await res.arrayBuffer());
+// Wikimedia enforces its User-Agent policy: a generic agent hammering originals gets
+// 429ed, and a whole week's batch is ~16 fetches back to back. Two things keep it happy
+// — a UA naming the tool WITH a contact address, and backing off when asked rather than
+// retrying immediately. Without this a batch fails on scattered days for no visible
+// reason, which looks like a render bug and is not one.
+const UA = "PicxleBot/1.0 (clip generator; picxlebypenrose@gmail.com)";
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+export async function loadImage(src) {
+  if (!/^https?:/.test(src)) return fs.readFileSync(src);
+  let wait = 1000;
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    const res = await fetch(src, { headers: { "User-Agent": UA } });
+    if (res.ok) return Buffer.from(await res.arrayBuffer());
+    if (res.status !== 429 && res.status !== 503) throw new Error(`could not fetch image: HTTP ${res.status}`);
+    const retryAfter = Number(res.headers.get("retry-after")) * 1000;
+    console.log(`  HTTP ${res.status} from the image host — retrying in ${Math.round((retryAfter > 0 ? retryAfter : wait) / 1000)}s (${attempt}/5)`);
+    await sleep(retryAfter > 0 ? retryAfter : wait);
+    wait *= 2;
   }
-  return fs.readFileSync(src);
+  throw new Error("could not fetch image: HTTP 429 after 5 attempts");
 }
 async function fetchPuzzle(date) {
   const envPath = path.join(HERE, "..", "..", ".env.local");
@@ -393,6 +430,21 @@ async function main() {
     music = { path: found, startAt: parseFloat(arg("music-start", "0")) || 0 };
   } else music = null;
 
+  // Baking in a track WITHOUT crediting it is a licence breach, not a cosmetic slip: every
+  // track in music/ is Kevin MacLeod / Incompetech and every one is CC-BY, which makes the
+  // credit a CONDITION of use. --music-credit is easy to forget, and forgetting it failed
+  // SILENTLY — the Music line just vanished from the caption and the clip shipped anyway.
+  // Checked here, before rendering, so a mistake costs a second rather than a full render
+  // (and never leaves an mp4 on disk with no caption beside it). --no-music-credit is the
+  // deliberate opt-out for a track that genuinely requires none.
+  const musicCredit = arg("music-credit", "");
+  if (music && !musicCredit && !process.argv.includes("--no-music-credit")) {
+    console.error(`--music ${path.basename(music.path)} needs --music-credit "<track> by <artist>, <licence>".`);
+    console.error(`  Every track in music/ is CC-BY: the credit is a licence condition, not a nicety.`);
+    console.error(`  See music/README.md. Use --no-music-credit only if the track truly requires none.`);
+    process.exit(1);
+  }
+
   const native = variant === "native";
   const mode = { reveal: wantReveal, native, gif: false };
   // --suffix lets two renders of the same puzzle coexist (e.g. a silent TikTok cut
@@ -420,14 +472,28 @@ async function main() {
     console.log(`gif     ${gifFile}  (${gt.toFixed(1)}s, ${GIF.scale}x${GIF.scale}, ${(fs.statSync(gifFile).size / 1048576).toFixed(1)}MB)`);
   }
 
-  // ── caption (answer never named — goes in a pinned comment) ──
+  // ── caption (the answer is never named anywhere in the post) ──
   const pretty = answer.replace(/\b[a-z]/g, (c) => c.toUpperCase());
+  // Line 1 asks for a SEND, not a comment. Sends (DM shares) are the strongest signal
+  // for reaching NON-followers — comments barely move distribution — and only the first
+  // ~125 chars survive before Instagram truncates to "... more", so the reach ask has to
+  // win that slot. The comment ask still earns its place on line 2: it converts the
+  // people who stayed.
+  //
+  // Line 2 must NOT promise a pinned answer. Buffer's free plan has no firstComment API,
+  // so pinning is manual on every post across three channels and in practice does not
+  // happen — a caption that promises one is just a lie the viewer catches. "No Googling"
+  // does the same job honestly: it gives the comment a reason to exist and leaves the
+  // answer where it belongs, in today's puzzle.
+  //
+  // The URL looks dead weight on Instagram, where caption links are not tappable. Keep
+  // it: the same caption is posted to YouTube and Facebook, where it IS a live link.
   const daily = [
-    `Did you get it before the last guess? Name it in the comments 👇`, ``,
+    `Send this to someone who'll get it faster than you 👀`, ``,
+    `Name it in the comments — no Googling 👇`, ``,
     `A new Picxle every day — play today's at ${COPY.ctaUrl}`, ``,
     category ? `Category: ${category}` : ``,
   ];
-  const musicCredit = arg("music-credit", "");
   const caption = [
     ...(PROMO_MODE ? PROMO.caption(pretty, category) : daily),
     credit ? `Image: ${credit}` : ``,
@@ -443,4 +509,9 @@ async function main() {
   if (!credit && !PROMO_MODE) console.log(`\nnote: no image credit (CC0/PD ok; CC-BY MUST be credited).`);
 }
 
-main().catch((e) => { console.error(e.message); process.exit(1); });
+// Only run when invoked directly. Importing this file for its helpers must NOT render
+// anything — without the guard, `import` alone kicks off a full render of yesterday's
+// puzzle and overwrites out/ files as a side effect of asking for a function.
+const invokedDirectly = process.argv[1]
+  && fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+if (invokedDirectly) main().catch((e) => { console.error(e.message); process.exit(1); });

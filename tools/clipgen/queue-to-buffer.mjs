@@ -26,7 +26,7 @@
 // USAGE
 //   node queue-to-buffer.mjs                 # dry run — show the plan
 //   node queue-to-buffer.mjs --commit        # really upload + schedule
-//   node queue-to-buffer.mjs --time 18:30    # post time in UTC (default 17:00)
+//   node queue-to-buffer.mjs --time 09:30    # post time in the account tz (default 11:00 UK)
 //   node queue-to-buffer.mjs --glob '2026-07-2*-standard-music.mp4'   # subset
 //   node queue-to-buffer.mjs --commit --force   # re-book even if in the ledger
 //
@@ -35,6 +35,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
+import ffmpeg from "ffmpeg-static";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, "out");
@@ -50,7 +52,13 @@ const CHANNELS = {
   instagram: { type: "reel" },
   facebook:  { type: "reel" },
 };
-const POST_TIME_UTC_DEFAULT = "17:00";   // 17:00 UTC = 18:00 UK summer / early evening
+// 12:15 is the slot the September 2026 timing test picked. Nine clips, one a day, a Latin
+// square rotating 07:30 / 12:15 / 19:45: 12:15 took 970 mean views, 19:45 896, 07:30 900 once
+// its single outlier is removed. The 12:15 edge is only ~8% and about two standard errors at
+// n=3, so this is "the best guess available", not a strong effect — but it costs nothing to
+// take it. Do not spend another experiment on posting time; the test said the slots are flat.
+const POST_TIME_DEFAULT = "12:15";       // account-timezone posting slot — see the note above
+const POST_TZ = "Europe/London";         // account timezone; 11:00 here = 10:00 UTC in summer (BST)
 const OFFSET_DAYS = 1;                    // one day behind: puzzle date D -> post D+1
 const YT_CATEGORY_ID = "20";             // YouTube category 20 = Gaming (required field)
 const THUMB_OFFSET_MS = 0;               // frame 0 (blockiest stage) = feed thumbnail
@@ -65,6 +73,22 @@ const comment = (pretty) =>
 const ytTitle = (category) =>
   `Can you guess this ${(category || "picture").toLowerCase()} before it clears? 🧩 #Shorts`;
 
+// YouTube Studio's "Tags" box can't be set through Buffer's API, and unlike the caption
+// it is NOT shown to viewers — so it's the one place the ANSWER keyword can go for
+// discovery without spoiling the puzzle. The script prints this list per video to paste
+// into Studio by hand (Settings → Tags) after each Short publishes.
+const ytTags = (answerPretty, category) => {
+  const evergreen = ["picxle", "guessing game", "guess the picture", "picture quiz",
+    "puzzle game", "daily puzzle", "brain teaser", "pixel reveal", "guess the image", "shorts"];
+  const seen = new Set();
+  const out = [];
+  for (const t of [answerPretty.toLowerCase(), (category || "").toLowerCase(), ...evergreen]) {
+    const v = t.trim();
+    if (v && !seen.has(v)) { seen.add(v); out.push(v); }
+  }
+  return out.join(", ");   // YouTube's Tags box is comma-separated, 500 chars max
+};
+
 // ── args + env ───────────────────────────────────────────────────────────────
 const argv = process.argv.slice(2);
 const has = (f) => argv.includes(f);
@@ -74,7 +98,7 @@ const FORCE = has("--force");
 // Buffer's API only attaches a first comment on a PAID plan. On the free plan we
 // schedule without it and print the answer for manual posting. Flip on once upgraded.
 const AUTO_COMMENT = has("--auto-comment");
-const TIME = opt("--time", POST_TIME_UTC_DEFAULT);
+const TIME = opt("--time", POST_TIME_DEFAULT);   // HH:MM in POST_TZ (not UTC)
 const GLOB = opt("--glob", "*-standard-music.mp4");
 
 function loadEnv() {
@@ -93,10 +117,40 @@ const ENV = loadEnv();
 const SB_HEADERS = { apikey: ENV.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${ENV.SUPABASE_SERVICE_ROLE_KEY}` };
 
 // ── helpers ──────────────────────────────────────────────────────────────────
+// BOOK ONLY WHAT ACTUALLY CARRIES SOUND.
+// makeclip.js already fails a render with no audio stream, so this should never fire — but in
+// August thirty posts went out silent because the BOOKING step took a file the render step had
+// never blessed, and all thirty had to be swapped after the fact. The check costs one ffmpeg
+// probe per clip and is the last point at which a silent post is still cheap to stop.
+function assertHasAudio(file) {
+  const info = spawnSync(ffmpeg, ["-i", file], { encoding: "utf8" });
+  const text = (info.stderr || "") + (info.stdout || "");
+  if (!/Audio:/.test(text))
+    throw new Error(`${path.basename(file)} has NO AUDIO STREAM — re-render it with --music`);
+  return true;
+}
+
 const globToRe = (g) => new RegExp("^" + g.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".") + "$");
 const pretty = (s) => s.replace(/\b[a-z]/g, (c) => c.toUpperCase());
 const readLedger = () => (fs.existsSync(LEDGER) ? JSON.parse(fs.readFileSync(LEDGER, "utf8")) : {});
 const gqlEsc = (s) => JSON.stringify(String(s)); // valid GraphQL string literal (quotes, \n, unicode)
+
+// Wall-clock time in an IANA timezone -> UTC ISO string, DST-safe. "11:00" in
+// Europe/London is 10:00Z in summer (BST) and 11:00Z in winter — this gets it right
+// on either side of the clock change, so posts always land at 11am UK, not a fixed UTC.
+function zonedTimeToUtc(dateStr, hhmm, tz) {
+  const [Y, Mo, D] = dateStr.split("-").map(Number);
+  const [h, mnt] = hhmm.split(":").map(Number);
+  const guess = Date.UTC(Y, Mo - 1, D, h, mnt || 0);           // treat wall-clock AS IF it were UTC
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone: tz, hourCycle: "h23",
+      year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+    }).formatToParts(new Date(guess)).map((p) => [p.type, p.value]));
+  const asSeen = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute);
+  const offset = asSeen - guess;                               // how far tz is ahead of UTC then
+  return new Date(guess - offset).toISOString();
+}
 
 // GraphQL POST to Buffer. Throws on transport or GraphQL errors.
 async function gql(query) {
@@ -185,19 +239,25 @@ async function main() {
   const orgs = (await gql(`query { account { organizations { id name } } }`)).account.organizations;
   if (!orgs?.length) throw new Error("Buffer account has no organizations");
   const orgId = orgs[0].id;
-  const channels = (await gql(`query { channels(input: { organizationId: ${gqlEsc(orgId)} }) { id name service } }`)).channels;
+  const channels = (await gql(`query { channels(input: { organizationId: ${gqlEsc(orgId)} }) { id name service isDisconnected isLocked } }`)).channels;
+  // A channel whose authorization has lapsed still appears in this list, and a post booked
+  // on it is only found out at send time: on 2026-09-24 Instagram's post failed that way.
+  // Skipping it here leaves its ledger keys empty, so a re-run after reconnecting books
+  // exactly the Instagram posts that are missing and leaves the other channels alone.
+  const usable = channels.filter((c) => !c.isDisconnected && !c.isLocked);
   const byService = {};
-  for (const c of channels) if (CHANNELS[c.service] && !byService[c.service]) byService[c.service] = c;
+  for (const c of usable) if (CHANNELS[c.service] && !byService[c.service]) byService[c.service] = c;
   const targets = Object.keys(CHANNELS).filter((s) => byService[s]);
   const missing = Object.keys(CHANNELS).filter((s) => !byService[s]);
   console.log(`Buffer org: ${orgs[0].name}`);
   console.log(`channels:   ${targets.map((s) => `${s} (${byService[s].name})`).join(", ") || "none"}`);
-  if (missing.length) console.log(`  ⚠ not connected in Buffer, will skip: ${missing.join(", ")}`);
+  if (missing.length) console.log(`  ⚠ missing or disconnected in Buffer, will skip: ${missing.join(", ")}`);
   console.log("");
 
   const ledger = readLedger();
   const now = Date.now();
   const manualComments = [];
+  const ytTagLists = [];
   const failures = [];
   let booked = 0;
 
@@ -213,16 +273,14 @@ async function main() {
     const answerPretty = pretty(puz.answer);
     const commentText = comment(answerPretty);
 
-    // post date = puzzle date + OFFSET_DAYS, at TIME UTC
-    const d = new Date(`${puzzleDate}T00:00:00Z`);
-    d.setUTCDate(d.getUTCDate() + OFFSET_DAYS);
-    const [hh, mm] = TIME.split(":");
-    d.setUTCHours(+hh, +mm || 0, 0, 0);
-    const dueAtISO = d.toISOString();
-    const postDate = dueAtISO.slice(0, 10);
-    const past = d.getTime() <= now;
+    // post date = puzzle date + OFFSET_DAYS (calendar), at TIME o'clock in POST_TZ
+    const pd = new Date(`${puzzleDate}T00:00:00Z`);
+    pd.setUTCDate(pd.getUTCDate() + OFFSET_DAYS);
+    const postDate = pd.toISOString().slice(0, 10);
+    const dueAtISO = zonedTimeToUtc(postDate, TIME, POST_TZ);
+    const past = new Date(dueAtISO).getTime() <= now;
 
-    console.log(`■ ${answerPretty}  (puzzle ${puzzleDate} → post ${postDate} ${TIME} UTC)`);
+    console.log(`■ ${answerPretty}  (puzzle ${puzzleDate} → post ${postDate} ${TIME} ${POST_TZ})`);
     if (past) { console.log(`   ⚠ that time is in the past — skipping; post this one manually. \n`); continue; }
 
     let videoUrl = null;
@@ -235,7 +293,10 @@ async function main() {
 
       // upload once per clip, lazily; one channel's failure must not abort the batch
       try {
-        if (!videoUrl) videoUrl = await uploadClip(path.join(OUT, file), file);
+        if (!videoUrl) {
+          assertHasAudio(path.join(OUT, file));
+          videoUrl = await uploadClip(path.join(OUT, file), file);
+        }
         const post = await schedulePost({
           service, channelId: byService[service].id, text, videoUrl, dueAtISO, commentText, category: puz.category,
         });
@@ -251,12 +312,19 @@ async function main() {
     // Comments that must be posted by hand: YouTube always; IG/FB too unless auto-comment.
     const manual = AUTO_COMMENT ? ["youtube"] : [...targets];
     if (manual.length) manualComments.push({ postDate, platforms: manual, commentText });
+    // Studio tags to paste in by hand (only when YouTube is a target for this clip).
+    if (targets.includes("youtube")) ytTagLists.push({ postDate, tags: ytTags(answerPretty, puz.category) });
     console.log("");
   }
 
   if (manualComments.length) {
     console.log("── Post these comments by hand when live (YouTube: also PIN it) ──");
     for (const p of manualComments) console.log(`  ${p.postDate}  [${p.platforms.join("/")}]  ${p.commentText}`);
+    console.log("");
+  }
+  if (ytTagLists.length) {
+    console.log("── YouTube Studio tags — paste into the Tags box (hidden from viewers; the answer is safe here) ──");
+    for (const t of ytTagLists) console.log(`  ${t.postDate}  ${t.tags}`);
     console.log("");
   }
   if (failures.length) {
