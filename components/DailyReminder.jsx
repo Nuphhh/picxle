@@ -143,7 +143,8 @@ export default function DailyReminder() {
             value={time}
             onChange={onTimeChange}
             style={{
-              fontFamily: "inherit", fontSize: 15, color: C.cream,
+              // 16px stops iPhones auto-zooming the page when this is tapped.
+              fontFamily: "inherit", fontSize: 16, color: C.cream,
               background: "transparent", border: `1px solid ${C.line}`,
               borderRadius: 8, padding: "6px 10px",
             }}

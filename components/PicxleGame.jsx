@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { DICTIONARY, ARTIST_MAP, MAX_GUESSES, RES_STEPS, FULL_RES, CATEGORY_HINTS } from "@/data/puzzles";
 import { apiUrl } from "@/lib/api";
 import { track } from "@/lib/analytics";
@@ -455,18 +455,134 @@ export default function PicxleGame() {
     setDictError(false);
     const q = norm(val);
     if (q.length < 2) { setSuggestions([]); return; }
-    const artistWorks = new Set();
-    for (const [artist, works] of Object.entries(ARTIST_MAP)) {
-      if (artist.includes(q)) works.forEach((w) => artistWorks.add(w));
+    // How well a name matches what was typed — lower is better:
+    //   0  starts with it            "ca" -> "cat"
+    //   1  a later word starts with it  "ca" -> "antelope canyon"
+    //   2  contains it anywhere      "ca" -> "pelican"
+    const rank = (s) => (s.startsWith(q) ? 0 : s.includes(" " + q) ? 1 : s.includes(q) ? 2 : 9);
+
+    // Every matching answer gets its best rank: either from its own name, or
+    // from its artist's name (typing "monet" offers "water lilies"). Ranking
+    // artists the same way stops "ca" filling every slot with Picasso
+    // paintings just because "ca" sits in the middle of "picasso".
+    const best = new Map(); // answer -> [rank, viaArtist]
+    for (const w of DICTIONARY) {
+      const r = rank(w);
+      if (r < 9) best.set(w, [r, 0]);
     }
-    const titleMatches = DICTIONARY.filter((w) => w.includes(q) && !artistWorks.has(w));
-    setSuggestions([...artistWorks, ...titleMatches].slice(0, 6));
+    for (const [artist, works] of Object.entries(ARTIST_MAP)) {
+      const r = rank(artist);
+      if (r === 9) continue;
+      for (const w of works) {
+        const prev = best.get(w);
+        if (!prev || r < prev[0]) best.set(w, [r, 1]);
+      }
+    }
+    // Sort by rank; on a tie, a direct name match beats an artist match, then
+    // shorter beats longer ("cat" is a likelier guess than "caterpillar").
+    const ordered = [...best.entries()]
+      .sort(([a, [ra, va]], [b, [rb, vb]]) => ra - rb || va - vb || a.length - b.length)
+      .map(([w]) => w);
+    setSuggestions(ordered.slice(0, 6));
   };
 
+  // Picking a suggestion closes the keyboard on purpose: on a phone the GUESS
+  // button sits underneath it, so this brings the button back into view.
   const selectSuggestion = (word) => {
     setInput(word);
     setSuggestions([]);
+    inputRef.current?.blur();
   };
+
+  // ── Which way the suggestion list opens ──
+  // The list normally drops BELOW the guess box. On a phone the keyboard covers
+  // the bottom of the screen, so below is exactly where the list gets hidden.
+  // window.visualViewport is the part of the page actually visible right now
+  // (it shrinks when the keyboard opens), so we measure the room above and
+  // below the box inside it and open upward when there isn't room below.
+  const inputRef = useRef(null);
+  const [dropUp, setDropUp] = useState(false);
+  const [listMaxH, setListMaxH] = useState(220);
+  const placeSuggestions = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    const vv = window.visualViewport;
+    const box = el.getBoundingClientRect();
+    const visibleTop = vv ? vv.offsetTop : 0;
+    const visibleBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+    const roomBelow = visibleBottom - box.bottom - 8;
+    const roomAbove = box.top - visibleTop - 8;
+    const up = roomBelow < 160 && roomAbove > roomBelow;
+    setDropUp(up);
+    // Never taller than the room it has — or 220px, which keeps it over the
+    // guess rows and off the picture.
+    setListMaxH(Math.max(100, Math.min(220, up ? roomAbove : roomBelow)));
+  }, []);
+  // useLayoutEffect runs before the browser paints, so the list never flashes
+  // in the wrong direction first. Re-measure while it's open, because iOS
+  // scrolls the page and resizes the visible area as the keyboard animates in.
+  const suggestionsOpen = suggestions.length > 0;
+  useLayoutEffect(() => {
+    if (!suggestionsOpen) return;
+    placeSuggestions();
+    const vv = window.visualViewport;
+    if (!vv) return;
+    vv.addEventListener("resize", placeSuggestions);
+    vv.addEventListener("scroll", placeSuggestions);
+    window.addEventListener("scroll", placeSuggestions);
+    return () => {
+      vv.removeEventListener("resize", placeSuggestions);
+      vv.removeEventListener("scroll", placeSuggestions);
+      window.removeEventListener("scroll", placeSuggestions);
+    };
+  }, [suggestionsOpen, placeSuggestions]);
+
+  // ── Park the guess box just above the keyboard ──
+  // When you tap the box, the phone's keyboard slides up over the bottom of the
+  // screen. The browser tries to scroll the box into view itself, but on iPhone
+  // it often leaves it hidden behind the keyboard or Chrome's toolbar. So once
+  // the keyboard has FINISHED opening, we scroll the page one time so the box's
+  // bottom edge sits 12px above the keyboard. That also leaves as much of the
+  // picture as possible visible above it. After that one nudge we let go — you
+  // can scroll freely, and we don't fight you.
+  //
+  // How we know the keyboard has finished: visualViewport (the visible part of
+  // the page) fires "resize" events while the keyboard animates. We wait until
+  // they've stopped for 120ms ("debouncing"), then measure. If the visible area
+  // never shrank, there's no on-screen keyboard (a computer), so we don't scroll.
+  const stopKeyboardWatch = useRef(null);
+  const placeInputAboveKeyboard = useCallback(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    stopKeyboardWatch.current?.(); // cancel any watch left over from a previous tap
+    const heightBefore = vv.height;
+    let settleTimer;
+    const stop = () => {
+      vv.removeEventListener("resize", onResize);
+      clearTimeout(settleTimer);
+      clearTimeout(giveUpTimer);
+      stopKeyboardWatch.current = null;
+    };
+    const onResize = () => {
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(() => {
+        stop();
+        const el = inputRef.current;
+        if (!el || document.activeElement !== el) return; // they tapped away already
+        if (vv.height > heightBefore - 120) return;       // visible area barely changed: no keyboard
+        const box = el.getBoundingClientRect();
+        const keyboardTop = vv.offsetTop + vv.height;     // bottom of what you can see
+        const distance = box.bottom - (keyboardTop - 12);
+        if (Math.abs(distance) > 4) window.scrollBy({ top: distance, behavior: "smooth" });
+      }, 120);
+    };
+    // If no keyboard shows up within 1.2s (e.g. a hardware keyboard), give up.
+    const giveUpTimer = setTimeout(stop, 1200);
+    stopKeyboardWatch.current = stop;
+    vv.addEventListener("resize", onResize);
+  }, []);
+  // Tidy up the listener if the game unmounts mid-watch.
+  useEffect(() => () => stopKeyboardWatch.current?.(), []);
 
   const submit = async () => {
     if (status !== "playing" || !puzzle || isSubmitting) return;
@@ -688,9 +804,18 @@ export default function PicxleGame() {
         .pxbtn:hover  { transform: translateY(-2px) }
         .pxbtn:active { transform: translateY(1px) }
         input::placeholder { color: ${C.creamDim}; opacity: .6 }
-        .px-suggestion { padding: 9px 14px; font-size: 13px; color: ${C.cream}; cursor: pointer; border-bottom: 1px solid ${C.line}; transition: background .1s ease; }
-        .px-suggestion:hover { background: ${C.line}; }
+        @keyframes riseIn {
+          from { opacity: 0; transform: translateY(5px) }
+          to   { opacity: 1; transform: translateY(0) }
+        }
+        /* 44px tall rows = Apple's minimum comfortable touch target. */
+        .px-suggestion { flex-shrink: 0; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; padding: 10px 14px; font-size: 15px; color: ${C.cream}; cursor: pointer; border-bottom: 1px solid ${C.line}; transition: background .1s ease; -webkit-tap-highlight-color: transparent; user-select: none; }
+        .px-suggestion:hover, .px-suggestion:active { background: ${C.line}; }
         .px-suggestion:last-child { border-bottom: none; }
+        /* Flipped list: the dividers have to flip too, or the row next to the box
+           gets a doubled border. */
+        .px-sugg-up .px-suggestion { border-bottom: none; border-top: 1px solid ${C.line}; }
+        .px-sugg-up .px-suggestion:last-child { border-top: none; }
       `}</style>
 
       {/* ── Header ── */}
@@ -1160,10 +1285,14 @@ export default function PicxleGame() {
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--px-input-gap)", width: 316 }}>
           <div style={{ position: "relative" }}>
             <input
+              ref={inputRef}
+              // Labels the keyboard's return key "go" — a second way to guess
+              // while the keyboard is covering the GUESS button.
+              enterKeyHint="go"
               value={input}
               onChange={handleInputChange}
               onKeyDown={(e) => e.key === "Enter" && submit()}
-              onFocus={() => setInputFocused(true)}
+              onFocus={() => { setInputFocused(true); placeInputAboveKeyboard(); }}
               onBlur={() => { setInputFocused(false); setTimeout(() => setSuggestions([]), 150); }}
               placeholder="type your guess"
               disabled={isSubmitting}
@@ -1179,7 +1308,10 @@ export default function PicxleGame() {
                 padding: "var(--px-input-py) 14px",
                 color: C.cream,
                 fontFamily: "var(--font-space-mono), monospace",
-                fontSize: 15,
+                // 16px is the magic number: iPhone browsers auto-zoom into any
+                // text box smaller than 16px when you tap it, and the zoomed
+                // page then slides left/right under your thumb.
+                fontSize: 16,
                 outline: "none",
                 opacity: isSubmitting ? 0.6 : 1,
                 boxShadow: inputFocused ? `0 0 0 3px rgba(${C.blueRGB}, .13)` : "none",
@@ -1187,15 +1319,36 @@ export default function PicxleGame() {
               }}
             />
             {suggestions.length > 0 && (
-              <div style={{
-                position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
+              <div role="listbox" className={dropUp ? "px-sugg-up" : undefined} style={{
+                position: "absolute", left: 0, right: 0, zIndex: 10,
+                // Opening upward sits the list over the guess rows instead of
+                // under the keyboard (see placeSuggestions).
+                ...(dropUp ? { bottom: "calc(100% + 4px)" } : { top: "calc(100% + 4px)" }),
+                // Upward, the list is flipped so the best match sits right next
+                // to the box, where your thumb already is.
+                display: "flex", flexDirection: dropUp ? "column-reverse" : "column",
                 background: C.ink2, border: `1px solid ${C.line}`,
-                borderRadius: 9, overflow: "hidden", zIndex: 10,
-                animation: "dropIn .14s ease",
-                maxHeight: 220, overflowY: "auto",
+                borderRadius: 9, overflow: "hidden",
+                boxShadow: "0 6px 24px rgba(0,0,0,.12)",
+                animation: `${dropUp ? "riseIn" : "dropIn"} .14s ease`,
+                maxHeight: listMaxH, overflowY: "auto",
               }}>
                 {suggestions.map((s) => (
-                  <div key={s} className="px-suggestion" onMouseDown={() => selectSuggestion(s)}>{s}</div>
+                  <div
+                    key={s}
+                    role="option"
+                    aria-selected={false}
+                    className="px-suggestion"
+                    // Cancelling the press stops the box losing focus before the
+                    // tap lands. That used to race a 150ms timer that cleared the
+                    // list, so on touch screens taps sometimes missed. The pick
+                    // itself happens on click, so scrolling the list never selects.
+                    onPointerDown={(e) => e.preventDefault()}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => selectSuggestion(s)}
+                  >
+                    {s}
+                  </div>
                 ))}
               </div>
             )}
