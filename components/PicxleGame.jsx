@@ -34,12 +34,17 @@ const C = {
 // would happily accept and be told it isn't a word.
 const norm = normaliseGuess;
 
+// The guess API needs an ID to count guesses against. If storage is blocked
+// (private mode etc.) fall back to one that lasts for this page load.
+let sessionPlayerId = null;
 function getPlayerId() {
   try {
     let id = localStorage.getItem("picxle-player-id");
     if (!id) { id = crypto.randomUUID(); localStorage.setItem("picxle-player-id", id); }
     return id;
-  } catch { return null; }
+  } catch {
+    return (sessionPlayerId ??= crypto.randomUUID());
+  }
 }
 
 export default function PicxleGame() {
@@ -231,7 +236,7 @@ export default function PicxleGame() {
 
   useEffect(() => {
     if (status === "playing" || !puzzle) return;
-    fetch(apiUrl(`/api/puzzle/reveal?puzzleId=${puzzle.id}`))
+    fetch(apiUrl(`/api/puzzle/reveal?puzzleId=${puzzle.id}&playerId=${getPlayerId()}`))
       .then((r) => r.json())
       .then((data) => setRevealedAnswer(data.answer ?? null))
       .catch(() => {});
@@ -463,16 +468,12 @@ export default function PicxleGame() {
       return;
     }
     setIsSubmitting(true);
-    let correct = false;
-    try {
-      const res = await fetch(apiUrl("/api/guess"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ puzzleId: puzzle.id, guess: g }),
-      });
-      ({ correct } = await res.json());
-    } catch {}
+    const result = await sendGuess({ guess: g });
     setIsSubmitting(false);
+    // The server keeps the real guess count — if it didn't record this one
+    // (network blip, or it says the puzzle's already over), don't burn a guess.
+    if (!result) return;
+    const { correct } = result;
     const next = [...guesses, { text: input.trim(), correct, skipped: false }];
     setGuesses(next);
     // guess (a dictionary subject, not free text/PII) lets us spot where people
@@ -490,8 +491,29 @@ export default function PicxleGame() {
     }
   };
 
-  const skip = () => {
-    if (status !== "playing") return;
+  // POST a guess (or a skip) to the server. Returns { correct, guessNumber },
+  // or null if the server didn't record it.
+  const sendGuess = async (body) => {
+    try {
+      const res = await fetch(apiUrl("/api/guess"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ puzzleId: puzzle.id, playerId: getPlayerId(), ...body }),
+      });
+      return res.ok ? await res.json() : null;
+    } catch {
+      return null;
+    }
+  };
+
+  // Skips go through the server too: they use up a guess, and the server has
+  // to count them or it would think a player who skipped hasn't finished.
+  const skip = async () => {
+    if (status !== "playing" || isSubmitting) return;
+    setIsSubmitting(true);
+    const result = await sendGuess({ skip: true });
+    setIsSubmitting(false);
+    if (!result) return;
     setSuggestions([]);
     const next = [...guesses, { text: null, correct: false, skipped: true }];
     setGuesses(next);

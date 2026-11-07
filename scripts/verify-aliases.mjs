@@ -36,7 +36,8 @@ for (const [answer, typed] of CASES) {
   const typeable = dict.has(n);                       // client would let it through
   const graded = await fetch(`${BASE}/api/guess`, {   // server grades it
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ puzzleId: puz.id, guess: typed }),
+    // fresh player per case — the server caps each player at 5 guesses a puzzle
+    body: JSON.stringify({ puzzleId: puz.id, playerId: crypto.randomUUID(), guess: typed }),
   }).then((r) => r.json()).then((d) => d.correct).catch(() => null);
 
   const ok = typeable && graded === true;
