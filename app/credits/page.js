@@ -3,6 +3,7 @@
 // a link to the source. We deliberately DO NOT show the puzzle answer here —
 // that would spoil future puzzles — only the author, licence and a source link.
 import { supabaseFetch } from "../../lib/supabase";
+import { needsCredit, isPicxleOriginal } from "../../lib/credits";
 
 export const metadata = {
   title: "Image credits — Picxle",
@@ -53,6 +54,8 @@ async function getCredits() {
     const out = [];
     for (const r of rows) {
       if (!r.image_src || seen.has(r.image_src)) continue;
+      // Picxle's own images aren't someone else's work — nothing to credit.
+      if (isPicxleOriginal(r.attribution)) continue;
       seen.add(r.image_src);
       out.push(r);
     }
@@ -89,7 +92,7 @@ function Group({ title, note, items }) {
 export default async function Credits() {
   const credits = await getCredits();
   const freeUse = credits.filter((r) => r.license === "PD" || r.license === "CC0");
-  const attributed = credits.filter((r) => r.license === "CC-BY" || r.license === "CC-BY-SA");
+  const attributed = credits.filter((r) => needsCredit(r.license));
 
   return (
     <div style={{ maxWidth: 680, margin: "0 auto", padding: "48px 24px 80px", fontFamily: "Georgia, serif", color: cream, lineHeight: 1.8, fontSize: 16 }}>
@@ -103,7 +106,7 @@ export default async function Credits() {
       <p style={{ color: dim, fontSize: 14, margin: "0 0 24px" }}>The images behind the puzzles, and who made them.</p>
 
       <p>
-        Every Picxle puzzle uses an openly-licensed image, mostly from{" "}
+        Many Picxle puzzles use openly-licensed images by other creators, mostly from{" "}
         <a href="https://commons.wikimedia.org" style={{ color: blue }}>Wikimedia Commons</a>.
         Public-domain and CC0 images carry no conditions; CC&nbsp;BY images are used
         with credit to their authors below. Each “source” link opens the original

@@ -1,5 +1,6 @@
 import { supabaseFetch } from "@/lib/supabase";
 import { isUuid, todayUtc, getGuesses, isFinished } from "@/lib/guesses";
+import { isPicxleOriginal } from "@/lib/credits";
 
 export const dynamic = "force-dynamic";
 
@@ -37,5 +38,10 @@ export async function GET(request) {
   // The image credit travels with the answer: a few attributions name the
   // subject, and CC-BY needs the credit shown where the image is shown — the
   // results screen. (The credits page only lists puzzles whose day is over.)
-  return Response.json({ answer, license, attribution });
+  // Picxle's own images get no credit line — there's no one else to credit.
+  return Response.json({
+    answer,
+    license,
+    attribution: isPicxleOriginal(attribution) ? null : attribution,
+  });
 }
