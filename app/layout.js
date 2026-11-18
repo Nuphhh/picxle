@@ -37,6 +37,13 @@ export const metadata = {
     description: "Guess the daily pixelated image before it comes into focus.",
     images: ["/api/og"],
   },
+  // Site-ownership proof for directories. Next renders each entry under
+  // `other` as <meta name="KEY" content="VALUE"> in the <head> of every page.
+  verification: {
+    other: {
+      "listdle-verification": "65846a65-01a8-4031-a7e2-8dacec41f760",
+    },
+  },
 };
 
 // Runs before React paints. Sets data-theme on <html> so every CSS theme
