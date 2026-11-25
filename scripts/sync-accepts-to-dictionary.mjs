@@ -9,9 +9,9 @@
 // de-duplicates and sorts, so re-running is safe.
 import fs from "node:fs";
 import path from "node:path";
-import { normaliseGuess } from "../lib/normalise.js";
+import { normaliseGuess } from "../src/domain/guess.ts";
 
-const FILE = path.join(process.cwd(), "data", "puzzles.js");
+const FILE = path.join(process.cwd(), "data", "puzzles.ts");
 const env = {};
 for (const l of fs.readFileSync(path.join(process.cwd(), ".env.local"), "utf8").split(/\r?\n/)) {
   const m = l.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/); if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, "");
@@ -20,7 +20,7 @@ const rows = await fetch(`${env.SUPABASE_URL}/rest/v1/puzzles?select=puzzle_date
   headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` },
 }).then((r) => r.json());
 
-const { DICTIONARY } = await import("../data/puzzles.js");
+const { DICTIONARY } = await import("../data/puzzles.ts");
 const have = new Set(DICTIONARY);
 
 const missing = [];

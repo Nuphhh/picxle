@@ -2,7 +2,7 @@
 // box, and (b) graded correct by the server. Previously the database accepted
 // "aubergine" but the guess box refused to let anyone enter it.
 import fs from "node:fs";
-import { normaliseGuess } from "../lib/normalise.js";
+import { normaliseGuess } from "../src/domain/guess.ts";
 
 const BASE = "http://localhost:3000";
 const env = {};
@@ -12,7 +12,7 @@ for (const l of fs.readFileSync(".env.local", "utf8").split(/\r?\n/)) {
 const rows = await fetch(`${env.SUPABASE_URL}/rest/v1/puzzles?select=id,puzzle_date,answer,accepts`, {
   headers: { apikey: env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SUPABASE_SERVICE_ROLE_KEY}` },
 }).then((r) => r.json());
-const { DICTIONARY } = await import("../data/puzzles.js");
+const { DICTIONARY } = await import("../data/puzzles.ts");
 const dict = new Set(DICTIONARY);
 
 // The cases a UK player would actually type.

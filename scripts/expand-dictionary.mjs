@@ -8,11 +8,11 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const FILE = path.join(process.cwd(), "data", "puzzles.js");
+const FILE = path.join(process.cwd(), "data", "puzzles.ts");
 const news = JSON.parse(fs.readFileSync(path.join(process.cwd(), "..", "new-puzzles.json"), "utf8"));
 const src = fs.readFileSync(FILE, "utf8");
 
-const { DICTIONARY } = await import("../data/puzzles.js");
+const { DICTIONARY } = await import("../data/puzzles.ts");
 const have = new Set(DICTIONARY);
 
 const words = [];

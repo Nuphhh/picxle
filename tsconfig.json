@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    // The domain layer (and data/puzzles.ts) is also imported straight by the
+    // Node ops scripts in scripts/. Node runs .ts files by *erasing* the types,
+    // so these three settings keep the code inside what Node can do:
+    //   - erasableSyntaxOnly: no enums / namespaces / constructor shorthand
+    //   - verbatimModuleSyntax: type-only imports must say `import type`
+    //   - allowImportingTsExtensions: lets those files import "./rules.ts"
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "esModuleInterop": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "tools",
+    "scripts",
+    "android",
+    "out"
+  ]
+}

@@ -3,7 +3,7 @@
 // (and picking it fails). Prints candidates to classify for cross-accept.
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
-import { DICTIONARY } from "../data/puzzles.js";
+import { DICTIONARY } from "../data/puzzles.ts";
 
 const env = {};
 for (const line of readFileSync("./.env.local", "utf8").split(/\r?\n/)) {

@@ -12,11 +12,11 @@
 //
 // Usage (from picxle-app/):
 //   node scripts/apply-christmas-batch.mjs            dry run: writes the JPGs, prints the plan
-//   node scripts/apply-christmas-batch.mjs --commit   also writes Supabase + data/puzzles.js
+//   node scripts/apply-christmas-batch.mjs --commit   also writes Supabase + data/puzzles.ts
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
-import { normaliseGuess } from "../lib/normalise.js";
+import { normaliseGuess } from "../src/domain/guess.ts";
 
 const COMMIT = process.argv.includes("--commit");
 const FROM = "2026-12-01";
@@ -114,8 +114,8 @@ for (const r of repeats) console.log(`  ${r.date} ${r.item.category} (${r.item.a
 
 // ── 4. Dictionary: every accept must be typeable, plus decoys so the
 //       autocomplete doesn't hand over the answer ──
-const DICT_FILE = path.join(process.cwd(), "data", "puzzles.js");
-const { DICTIONARY } = await import("../data/puzzles.js");
+const DICT_FILE = path.join(process.cwd(), "data", "puzzles.ts");
+const { DICTIONARY } = await import("../data/puzzles.ts");
 const have = new Set(DICTIONARY);
 const addWords = [...new Set([...news.flatMap((p) => p.accepts), ...batch.decoys.map(normaliseGuess)])].filter((w) => !have.has(w));
 console.log(`\ndictionary: +${addWords.length} words`);
@@ -152,4 +152,4 @@ if (!src.includes(marker)) throw new Error("could not find RAW_DICTIONARY termin
 const block = ["", "  // ── Christmas 2026 batch (scripts/apply-christmas-batch.mjs): answers, aliases, decoys ──",
   ...addWords.map((w) => `  ${JSON.stringify(w)},`)].join("\n");
 fs.writeFileSync(DICT_FILE, src.replace(marker, `${block}${marker}`));
-console.log(`dictionary: wrote ${addWords.length} words to data/puzzles.js`);
+console.log(`dictionary: wrote ${addWords.length} words to data/puzzles.ts`);

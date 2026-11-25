@@ -9,7 +9,10 @@
     "seed": "node scripts/seed-puzzles.mjs",
     "cap:sync": "npx cap sync android",
     "cap:open": "npx cap open android",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/vitest.mjs run",
+    "test:watch": "node scripts/vitest.mjs"
   },
   "dependencies": {
     "@capacitor-community/in-app-review": "^8.0.0",
@@ -27,8 +30,17 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^24.19.4",
+    "@types/react": "^19.3.3",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.4.2",
-    "patch-package": "^8.0.1"
+    "jsdom": "^31.0.1",
+    "patch-package": "^8.0.1",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.2"
   }
 }
